@@ -1,0 +1,105 @@
+{
+  "#": "Bootstrap of the Acl Tables with their initial set of data.",
+  "defaults": {
+    "acls-xdmod-import": {
+      "namespace": "ETL\\Maintenance",
+      "options_class": "MaintenanceOptions",
+      "endpoints": {
+        "destination": {
+          "type": "mysql",
+          "name": "Database",
+          "config": "database",
+          "schema": "moddb"
+        }
+      }
+    }
+  },
+  "acls-xdmod-import": [
+    {
+      "#": "AclTableImport.XDMoD is meant to be run once. This bootstraps the data in all of the new required tables.",
+      "name": "AclTableImport.XDMoD",
+      "class": "ExecuteSql",
+      "endpoints": {
+        "source": {
+          "name": "source",
+          "type": "mysql",
+          "config": "database",
+          "schema": "moddb"
+        },
+        "destination": {
+          "name": "destination",
+          "type": "mysql",
+          "config": "database",
+          "schema": "moddb"
+        }
+      },
+      "sql_file_list": [
+        {
+            "sql_file": "acls/xdmod/module_stored_procedures.sql",
+            "delimiter": "--"
+        },
+        {
+          "sql_file": "acls/xdmod/module.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/realms.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/hierarchies.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/acl_types.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/acls.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/user_acls.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/group_bys.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/statistics.sql",
+          "delimiter": "--"
+        },
+        {
+          "sql_file": "acls/xdmod/tabs.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/acl_tabs.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/acl_group_bys.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/statistics_hierarchy.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/acl_hierarchies.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/user_acl_group_by_parameters.sql",
+          "delimiter": "//"
+        },
+        {
+          "sql_file": "acls/xdmod/user_acl_group_by_parameters.sql",
+          "delimiter": "//"
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

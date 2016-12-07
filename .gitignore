@@ -308,3 +308,4 @@ configuration/aggregation_meta/
 # eclipse project files
 /.project
 
+/.files2gtag

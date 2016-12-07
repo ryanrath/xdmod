@@ -96,7 +96,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
         $etlTableKey = key($this->etlDestinationTableList);
         if ( count($this->etlDestinationTableList) > 1 ) {
             $msg = $this . " does not support multiple ETL destination tables, using first table with key: '$etlTableKey'";
-            $logger->warning($msg);
+            $this->logger->warning($msg);
         }
 
         if ( ! isset($this->parsedDefinitionFile->destination_columns) ) {
@@ -173,8 +173,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
             ") ON DUPLICATE KEY UPDATE " .
             implode(", ", array_map(function ($destColumn) {
                 return "$destColumn = COALESCE(VALUES($destColumn), $destColumn)";
-            }, $destColumns))
-        ;
+            }, $destColumns));
 
         $this->logger->debug("Insert query " . $this->destinationEndpoint . ":\n$sql");
 

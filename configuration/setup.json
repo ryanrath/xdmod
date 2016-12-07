@@ -36,6 +36,16 @@
             "handler": "UpdateCheckSetup"
         },
         {
+            "position": 80,
+            "label": "Acl Setup: Tables",
+            "handler": "AclSetup"
+        },
+        {
+            "position": 81,
+            "label": "Acl Import: XDMoD",
+            "handler": "AclImportXdmod"
+        },
+        {
             "position": 1000,
             "label": "Quit",
             "handler": "QuitSetup",
