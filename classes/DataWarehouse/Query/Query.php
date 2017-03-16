@@ -117,13 +117,15 @@ class Query
             $this->addStatField(static::getStatistic($control_stat, $this));
         }
 
+        $uid = getmyuid();
+
         $this->roleParameterDescriptions = array();
         $this->filterParameterDescriptions = array();
         $this->log = \CCR\Log::factory('xms.query', array(
             'console' => false,
             'db' => false,
             'mail' => false,
-            'file' => LOG_DIR . '/query.log',
+            'file' => LOG_DIR . "/query_$uid.log",
             'fileLogLevel' => PEAR_LOG_DEBUG
         ));
     }
