@@ -5,6 +5,8 @@
 
 namespace OpenXdmod\Build;
 
+ini_set('memory_limit', '256M');
+
 use Exception;
 use ArrayIterator;
 use FilesystemIterator;
