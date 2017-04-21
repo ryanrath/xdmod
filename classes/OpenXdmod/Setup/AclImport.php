@@ -14,10 +14,8 @@ abstract class AclImport extends SetupItem
 
         $this->console->displaySectionHeader('Acl Import');
         $this->console->displayMessage(<<<MSG
-Please provide the following information specific to your installation.
-It is possible to let the script attempt to figure out the best values 
-to use, but if you have a highly customized installation you will want
-to input the values to the best of your knowledge.
+Please provide the following information specific to your installation otherwise accept
+the defaults provided.
 
 Note: If you would like to execute this script outside of the setup script it is
 located at: <xdmod_install_dir>/bin/$scriptName
