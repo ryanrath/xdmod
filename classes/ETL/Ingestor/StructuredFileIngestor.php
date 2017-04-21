@@ -96,7 +96,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
         $etlTableKey = key($this->etlDestinationTableList);
         if ( count($this->etlDestinationTableList) > 1 ) {
             $msg = $this . " does not support multiple ETL destination tables, using first table with key: '$etlTableKey'";
-            $this->logger->warning($msg);
+            $logger->warning($msg);
         }
 
         if ( ! isset($this->parsedDefinitionFile->destination_columns) ) {
