@@ -1,0 +1,21 @@
+{
+    "table_definition": {
+        "$ref": "etl_tables.d/acls/acls.json#/table_definition"
+    },
+    "destination_columns": ["name", "display", "enabled", "acl_type_id", "module_id"],
+    "custom_insert_values_components": {
+        "module_id": "(SELECT m.module_id FROM modules m WHERE m.name = ?)",
+        "acl_type_id": "(SELECT at.acl_type_id FROM acl_types at WHERE at.name = ?)"
+    },
+    "source_values": [
+        ["mgr", "Manager", true, "flag", "xdmod"],
+        ["dev", "Developer", true, "flag", "xdmod"],
+        ["usr", "User", true, "data", "xdmod"],
+        ["po", "Program Officer", true, "data", "xdmod"],
+        ["cs", "Center Staff", true, "data", "xdmod"],
+        ["cd", "Center Director", true, "feature", "xdmod"],
+        ["pi", "Principal Investigator", true, "flag", "xdmod"],
+        ["cc", "Campus Champion", true, "flag", "xdmod"],
+        ["pub", "Public", true, "flag", "xdmod"]
+    ]
+}

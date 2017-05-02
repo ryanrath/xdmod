@@ -1,0 +1,26 @@
+{
+    "table_definition": {
+        "$ref": "etl_tables.d/acls/tabs.json#/table_definition"
+    },
+    "destination_columns": ["name", "display", "position", "is_default", "javascript_class", "javascript_reference", "tooltip", "user_manual_section_name", "parent_tab_id", "module_id"],
+    "custom_insert_values_components": {
+        "parent_tab_id": "(SELECT t.tab_id FROM tabs t WHERE t.name = ?)",
+        "module_id": "(SELECT m.module_id FROM modules m WHERE m.name = ?)"
+    },
+    "source_values": [
+        ["tg_summary","Summary","100","1","XDMoD.Module.Summary","CCR.xdmod.ui.tgSummaryViewer","Displays summary information","Summary Tab",null,"xdmod" ],
+        ["tg_usage","Usage","200","0","XDMoD.Module.Usage","CCR.xdmod.ui.chartViewerTGUsage","Displays usage","Usage Tab",null, "xdmod" ],
+        ["metric_explorer","Metric Explorer","300","0","XDMoD.Module.MetricExplorer","CCR.xdmod.ui.metricExplorer","","Metric Explorer",null, "xdmod" ],
+        ["report_generator","Report Generator","1000","0","XDMoD.Module.ReportGenerator","CCR.xdmod.ui.reportGenerator","","Report Generator",null, "xdmod" ],
+        ["about_xdmod","About","10000","0","XDMoD.Module.About","CCR.xdmod.ui.aboutXD","","About",null, "xdmod" ],
+        ["job_viewer","Job Viewer","5000","0","XDMoD.Module.JobViewer","CCR.xdmod.ui.jobViewer","View detailed job-level metrics","Job Viewer",null, "xdmod" ],
+        ["app_kernels","App Kernels","400","0","XDMoD.Module.AppKernels","CCR.xdmod.ui.appKernels","Displays data reflecting the reliability and performance of grid resources","App Kernels", null,"xdmod" ],
+        ["app_kernel_viewer","App Kernel Viewer","100","0","","","","","app_kernels","xdmod" ],
+        ["app_kernel_explorer","App Kernel Explorer","200","0","","","","","app_kernels","xdmod" ],
+        ["app_kernel_notification","App Kernel Explorer","300","0","","","","","app_kernels","xdmod" ],
+        ["my_allocations","Allocations","350","0","XDMoD.Module.Allocations","CCR.xdmod.ui.AllocationViewer","Displays your allocation usage","Allocations Tab",null, "xdmod" ],
+        ["compliance","Compliance","2000","0","XDMoD.Module.Compliance","CCR.xdmod.ui.complianceTab","","Compliance Tab",null, "xdmod" ],
+        ["custom_query","Custom Queries","3000","0","XDMoD.Module.CustomQueries","CCR.xdmod.ui.customQuery","","Custom Queries Tab",null, "xdmod" ],
+        ["sci_impact","Sci Impact","4000","0","XDMoD.Module.SciImpact","CCR.xdmod.ui.impact","Scientific Impact by user, organization, and project","Sci Impact Tab",null, "xdmod"]
+    ]
+}
