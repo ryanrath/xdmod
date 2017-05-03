@@ -228,6 +228,47 @@ class Config
         }
     }
 
+    /**
+     * This function will attempt to, given a version string, attempt to parse
+     * out some pieces of interest.
+     * Where versions conform to some version of:
+     *     NUMBERS.NUMBERS.NUMBERS-ALPHA_NUMERIC
+     * The following will also parse successfully:
+     *     NUMBERS.NUMBERS
+     *     NUMBERS-ALPHA_NUMERIC
+     *     NUMBERSALPHAN_NUMERIC
+     *     etc.
+     * @param string $version the version as provided by the file 'build.json'
+     **/
+    private function setVersionDetails($version)
+    {
+        $MAJOR = 1;
+        $MINOR = 2;
+        $MICRO = 3;
+        $PRE_RELEASE = 4;
+
+        $matches = array();
+        preg_match("/(\d+)?\.(\d+)?\.?(\d+)?-?([\w.]+)?/", $version, $matches);
+        echo "Version: $version\n";
+        $length = count($matches);
+        for ($i = 1; $i < $length; $i++) {
+            switch ( $i ) {
+                case $MAJOR:
+                    $this->versionMajor = trim($matches[$i]);
+                    break;
+                case $MINOR:
+                    $this->versionMinor = trim($matches[$i]);
+                    break;
+                case $MICRO:
+                    $this->versionMicro = trim($matches[$i]);
+                    break;
+                case $PRE_RELEASE:
+                    $this->versionPreRelease = trim($matches[i]);
+                    break;
+            }
+        }
+    }
+
     private function __construct(array $conf)
     {
         $this->name    = $conf['name'];
@@ -242,6 +283,8 @@ class Config
         $this->fileMaps = $conf['file_maps'];
 
         $this->commandsPreBuild = $conf['commands_pre_build'];
+
+        $this->setVersionDetails($this->version);
     }
 
     public function getName()
@@ -252,6 +295,54 @@ class Config
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Retrieve the 'major' portion of this module's version number.
+     * Ex. 6.6.0-rc1
+     *     ^
+     * in this example the first '6' is the major portion of the version number.
+     **/
+    public function getVersionMajor()
+    {
+        return $this->versionMajor;
+    }
+
+    /**
+     * Retrieve the 'minor' portion of this module's version number.
+     * Ex. 6.6.0-rc1
+     *       ^
+     * in this example the second '6' is the major portion of the version
+     * number.
+     **/
+    public function getVersionMinor()
+    {
+        return $this->versionMinor;
+    }
+
+    /**
+     * Retrieve the 'micro' portion of this module's version number.
+     * Ex. 6.6.0-rc1
+     *         ^
+     * in this example the '0' is the micro portion of the version number.
+     **/
+    public function getVersionMicro()
+    {
+        return $this->versionMicro;
+    }
+
+    /**
+     * Retrieve the 'pre-release' portion of this module's version number.
+     * Ex. 6.6.0-rc1
+     *           ^
+     * in this example the 'rc1' is the pre-release portion of the version
+     * number.
+     *
+     * Note: Anything after the '-' character will be stored here.
+     **/
+    public function getVersionPreRelease()
+    {
+        return $this->versionPreRelease;
     }
 
     public function getRelease()
