@@ -18,6 +18,7 @@
         },
         "acls-import": {
             "namespace": "ETL\\Ingestor",
+            "class": "StructuredFileIngestor",
             "options_class": "IngestorOptions"
         }
     },
@@ -26,14 +27,12 @@
         {
             "name": "acls.import.xdmod.module_version",
             "description": "Imports the module version record for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/module-versions.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.module",
             "description": "Imports the module record for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/module.json",
             "enabled": true
         },
@@ -51,28 +50,24 @@
         {
             "name": "acls.import.xdmod.realms",
             "description": "Imports the realm records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/realms.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.hierarchies",
             "description": "Imports the hierarchy records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/hierarchies.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.acl_types",
             "description": "Imports the Acl Type records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/acl-types.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.acls",
             "description": "Imports the acls records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/acls.json",
             "enabled": true
         },
@@ -90,49 +85,42 @@
         {
             "name": "acls.import.xdmod.group_bys",
             "description": "Imports the Group By records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/group-bys.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.statistics",
             "description": "Imports the Statistic records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/statistics.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.tabs",
             "description": "Imports the Tab records for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/tabs.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.acl_tabs",
             "description": "Imports the records that relate which Acls have access to which Tabs for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/acl-tabs.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.acl_group_bys",
             "description": "Imports the records that relate which Acls have access to which Group Bys for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/acl-group-bys.json",
             "enabled": true
-        }, 
+        },
         {
             "name": "acls.import.xdmod.statistics_hierarchy",
             "description": "Imports the records for which statistics participate in which hierarchy and at which level for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/statistics-hierarchy.json",
             "enabled": true
         },
         {
             "name": "acls.import.xdmod.acl_hierarchies",
             "description": "Imports the records for which acls participate in which hierarchy and at which level for xdmod",
-            "class": "StructuredFileIngestor",
             "definition_file": "../etl_data.d/acls/xdmod/acl-hierarchies.json",
             "enabled": true
         },
