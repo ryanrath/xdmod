@@ -970,5 +970,4 @@ class Packager
 
         return $output;
     }
-
 }
