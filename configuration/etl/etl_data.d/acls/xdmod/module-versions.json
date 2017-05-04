@@ -4,6 +4,6 @@
     },
     "destination_columns": ["version_major", "version_minor", "version_micro", "version_patch"],
     "source_values": [
-        ["__VERSION_MAJOR__"," __VERSION_MINOR__"," __VERSION_MICRO__", "__VERSION_PRE_RELEASE__"]
+        ["__VERSION_MAJOR__"," __VERSION_MINOR__"," __VERSION_PATCH__", "__VERSION_PRE_RELEASE__"]
     ]
 }

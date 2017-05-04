@@ -81,6 +81,16 @@ class Config
             ? $config['commands']['pre_build']
             : array();
 
+        $templateBaseDirectory
+            = isset($config['template_options']['base_directory'])
+            ? $config['template_options']['base_directory']
+            : "";
+
+        $templateDirectories
+            = isset($config['template_options']['directories'])
+            ? $config['template_options']['directories']
+            : array();
+
         return new static(array(
             'name'                  => $config['name'],
             'version'               => $config['version'],
@@ -91,6 +101,8 @@ class Config
             'file_exclude_patterns' => $fileExcludePatterns,
             'file_maps'             => $fileMaps,
             'commands_pre_build'    => $commandsPreBuild,
+            'template_base_directory' => $templateBaseDirectory,
+            'template_directories'    => $templateDirectories
         ));
     }
 
@@ -229,27 +241,20 @@ class Config
     }
 
     /**
-     * This function will attempt to, given a version string, attempt to parse
-     * out some pieces of interest.
-     * Where versions conform to some version of:
-     *     NUMBERS.NUMBERS.NUMBERS-ALPHA_NUMERIC
-     * The following will also parse successfully:
-     *     NUMBERS.NUMBERS
-     *     NUMBERS-ALPHA_NUMERIC
-     *     NUMBERSALPHAN_NUMERIC
-     *     etc.
+     * This function will attempt to, given a version string, parse out the
+     * components of a semver compliant version number.
+     *
      * @param string $version the version as provided by the file 'build.json'
      **/
     private function setVersionDetails($version)
     {
         $MAJOR = 1;
         $MINOR = 2;
-        $MICRO = 3;
+        $PATCH = 3;
         $PRE_RELEASE = 4;
 
         $matches = array();
-        preg_match("/(\d+)?\.(\d+)?\.?(\d+)?-?([\w.]+)?/", $version, $matches);
-        echo "Version: $version\n";
+        preg_match("/(\d+)?\.(\d+)?\.?(\d+)?\.?-?([0-9A-Za-z-.]+)?/", $version, $matches);
         $length = count($matches);
         for ($i = 1; $i < $length; $i++) {
             switch ( $i ) {
@@ -259,8 +264,8 @@ class Config
                 case $MINOR:
                     $this->versionMinor = trim($matches[$i]);
                     break;
-                case $MICRO:
-                    $this->versionMicro = trim($matches[$i]);
+                case $PATCH:
+                    $this->versionPatch = trim($matches[$i]);
                     break;
                 case $PRE_RELEASE:
                     $this->versionPreRelease = trim($matches[i]);
@@ -283,6 +288,9 @@ class Config
         $this->fileMaps = $conf['file_maps'];
 
         $this->commandsPreBuild = $conf['commands_pre_build'];
+
+        $this->templateBaseDirectory = $conf['template_base_directory'];
+        $this->templateDirectories = $conf['template_directories'];
 
         $this->setVersionDetails($this->version);
     }
@@ -321,20 +329,20 @@ class Config
     }
 
     /**
-     * Retrieve the 'micro' portion of this module's version number.
+     * Retrieve the 'patch' portion of this module's version number.
      * Ex. 6.6.0-rc1
      *         ^
-     * in this example the '0' is the micro portion of the version number.
+     * in this example the '0' is the patch portion of the version number.
      **/
-    public function getVersionMicro()
+    public function getVersionPatch()
     {
-        return $this->versionMicro;
+        return $this->versionPatch;
     }
 
     /**
      * Retrieve the 'pre-release' portion of this module's version number.
      * Ex. 6.6.0-rc1
-     *           ^
+     *           ^^^
      * in this example the 'rc1' is the pre-release portion of the version
      * number.
      *
@@ -378,5 +386,15 @@ class Config
     public function getCommandsPreBuild()
     {
         return $this->commandsPreBuild;
+    }
+
+    public function getTemplateBaseDirectory()
+    {
+        return $this->templateBaseDirectory;
+    }
+
+    public function getTemplateDirectories()
+    {
+        return $this->templateDirectories;
     }
 }

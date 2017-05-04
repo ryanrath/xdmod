@@ -82,5 +82,24 @@
         "etc/crond": {
             "configuration/cron.conf": "xdmod"
         }
+    },
+    "template_options": {
+        "base_directory": "etl",
+        "directories": [
+            {
+                "regex": "/^.+\\.json$/i",
+                "directory_parts": [
+                    "etl_data.d",
+                    "acls"
+                ]
+            },
+            {
+                "regex": "/^.+\\.sql$/i",
+                "directory_parts": [
+                    "etl_sql.d",
+                    "acls"
+                ]
+            }
+        ]
     }
 }

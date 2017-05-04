@@ -404,42 +404,52 @@ class Packager
     private function processModuleFiles()
     {
         $this->logger->debug("Processing Module Files");
-        $moduleEtl = implode(array($this->moduleDir,"etl"), DIRECTORY_SEPARATOR);
-        $baseEtl = implode(array(CONFIG_DIR, "etl"), DIRECTORY_SEPARATOR);
+        $baseDir = $this->config->getTemplateBaseDirectory();
+        $directories = $this->config->getTemplateDirectories();
 
-        $directory = null;
-        if (is_dir($moduleEtl)) {
-            $directory = $moduleEtl;
-        } else if (is_dir($baseEtl)) {
-            $directory = $baseEtl;
+        $moduleRoot = implode(array($this->moduleDir, $baseDir), DIRECTORY_SEPARATOR);
+        $projectRoot = implode(array(CONFIG_DIR, $baseDir), DIRECTORY_SEPARATOR);
+
+        $baseDirectory = null;
+        if (is_dir($moduleRoot)) {
+            $baseDirectory = $moduleRoot;
+        } elseif (is_dir($projectRoot)) {
+            $baseDirectory = $projectRoot;
         }
-        if (null === $directory) {
-            throw new Exception('Unable to find the etl directory.');
+
+        if (null === $baseDirectory) {
+            throw new Exception("Unable to find the etl directory.");
         }
 
         $replacementValues = array(
             '__VERSION__' => $this->config->getVersion(),
             '__VERSION_MAJOR__' => $this->config->getVersionMajor(),
             '__VERSION_MINOR__' => $this->config->getVersionMinor(),
-            '__VERSION_MICRO__' => $this->config->getVersionMicro(),
+            '__VERSION_PATCH__' => $this->config->getVersionPatch(),
             '__VERSION_PRE_RELEASE__' => $this->config->getVersionPreRelease()
         );
 
-        $parameterValues = array (
-            array(
-               'source' => implode(array($direcotry, 'etl_data.d', 'acls', $this->config->getName()), DIRECTORY_SEPARATOR),
-               'destination' => implode(array($this->getPackageDir(), 'configuration', 'etl', 'etl_data.d', 'acls', $this->config->getName()), DIRECTORY_SEPARATOR),
-               'regex' => '/^.+\.json$/i'
-            ),
-            array(
-                'source' => implode(array($directory, 'etl_sql.d', 'acls', $this->config->getName()), DIRECTORY_SEPARATOR),
-                'destination' => implode(array($this->getPackageDir(), 'configuration', 'etl', 'etl_sql.d', 'acls', $this->config->getName()), DIRECTORY_SEPARATOR),
-                'regex' => '/^.+\.sql$/i'
-            )
-        );
+        foreach($directories as $directory) {
+            $regex
+                = isset($directory['regex'])
+                ? $directory['regex']
+                : "/^.+\..+$/";
 
-        foreach($parameterValues as $parameters) {
-            list($source, $destination, $regex) = array_values($parameters);
+            $directoryParts
+                = isset($directory['directory_parts'])
+                ?  $directory['directory_parts']
+                : array();
+
+            $source = implode(
+                array_merge(array($baseDirectory), $directoryParts, array($this->config->getName())),
+                DIRECTORY_SEPARATOR
+            );
+
+            $destination = implode(
+                array_merge(array($this->getPackageDir(), "configuration", "etl"), $directoryParts, array($this->config->getName())),
+                DIRECTORY_SEPARATOR
+            );
+
             $this->replaceTemplateValues(
                 $source,
                 $destination,
@@ -654,7 +664,7 @@ class Packager
 
     private function cleanUp()
     {
-        //$this->removeDir($this->getTmpDir());
+        $this->removeDir($this->getTmpDir());
     }
 
     /**
