@@ -3,6 +3,8 @@
 require_once dirname(__FILE__) . '/../configuration/linker.php';
 
 use CCR\DB;
+use Models\Acl;
+use Models\Services\Acls;
 
 /**
  * XDMoD Portal User
@@ -45,6 +47,27 @@ class XDUser
 
     private $_cachedActiveRole;
 
+    /**
+     * An array that is assumed to be stored in the following manner:
+     *   _acls[$acl->name] = $acl;
+     * @var Acl[]
+     */
+    private $_acls;
+
+    /**
+     * A static reference to the public user. That is used as a singleton so
+     * that the public user need only be retrieved from the db once. Note that
+     * this is different from how the public user was previously used /
+     * utilized. Previously the public user only existed as an ephemeral object
+     * with no backing in the database. This was causing problems with the new
+     * Acl system ( having user -> acl relations explicitly defined ) so we
+     * now have a real (i.e. has a record in a table) public user w/ a real
+     * public acl.
+     *
+     * @var XDUser
+     */
+    private static $_publicUser;
+
     const PUBLIC_USER = 1;
     const INTERNAL_USER = 2;
 
@@ -65,10 +88,9 @@ class XDUser
      */
 
     function __construct($username = NULL, $password = NULL, $email_address = NO_EMAIL_ADDRESS_SET,
-                         $first_name = NULL, $middle_name = NULL, $last_name = NULL,
-                         $role_set = array(ROLE_ID_USER), $primary_role = ROLE_ID_USER, $organization_id = NULL, $person_id = NULL
-    )
-    {
+        $first_name = NULL, $middle_name = NULL, $last_name = NULL,
+        $role_set = array(ROLE_ID_USER), $primary_role = ROLE_ID_USER, $organization_id = NULL, $person_id = NULL
+    ) {
 
         $this->_pdo = DB::factory('database');
 
@@ -150,6 +172,7 @@ class XDUser
         $this->_primary_role = \User\aRole::factory($primary_role_name);
         $this->_active_role = \User\aRole::factory($primary_role_name);
 
+        $this->_acls = array();
     }//construct
 
     // ---------------------------
@@ -358,34 +381,22 @@ class XDUser
 
     // ---------------------------
 
-    /*
-     *
-     * @function getPublicUser
-     *
-     *
-     */
 
+    /**
+     * Attempt to retrieve an XDUser instance representation of the Public User.
+     * If, for some reason the Public User has not been created then this
+     * function will return null.
+     * cl
+     * @return null|XDUser
+     */
     public static function getPublicUser()
     {
-
-        $user = new self (
-            'Public User',            // Username
-            NULL,                     // Password
-            NO_EMAIL_ADDRESS_SET,     // E-Mail Address
-            'Public',                 // First Name
-            '',                       // Middle Name
-            'User',                   // Last Name
-            array(ROLE_ID_PUBLIC),    // Role Set
-            ROLE_ID_PUBLIC,           // Primary Role
-            NULL,                     // Organization ID
-            NULL                      // Person ID
-        );
-
-        //$user->setActiveRole(ROLE_ID_PUBLIC);
-        //$user->setPrimaryRole(ROLE_ID_PUBLIC);
-
-        return $user;
-
+        if (null !== self::$_publicUser) {
+            return self::$_publicUser;
+        } else {
+            self::$_publicUser = self::getUserByUserName('Public User');
+            return self::$_publicUser;
+        }
     }//getPublicUser
 
     // ---------------------------
@@ -397,7 +408,7 @@ class XDUser
      */
     public function isPublicUser()
     {
-        return $this->getPrimaryRole()->getIdentifier() === ROLE_ID_PUBLIC;
+        return array_key_exists(ROLE_ID_PUBLIC, $this->_acls);
     }
 
     // ---------------------------
@@ -503,6 +514,32 @@ class XDUser
 
         }//foreach
 
+        // BEGIN: ACL population
+        $query = <<<SQL
+SELECT a.*, ua.user_id
+FROM user_acls ua
+  JOIN acls a
+    ON a.acl_id = ua.acl_id
+WHERE ua.user_id = :user_id
+      AND a.enabled = TRUE
+SQL;
+        $results = $pdo->query(
+            $query,
+            array(
+                'user_id' => $uid
+            )
+        );
+
+
+        $acls = array_reduce($results, function ($carry, $item) {
+            $acl = new Acl($item);
+            $carry [$acl->getName()] = $acl;
+            return $carry;
+        }, array());
+
+        $user->setAcls($acls);
+        // END: ACL population
+
         return $user;
 
     }//getUserByID
@@ -554,7 +591,7 @@ class XDUser
     public function isDeveloper()
     {
 
-        return (in_array(ROLE_ID_DEVELOPER, $this->getRoles()));
+        return (in_array(ROLE_ID_DEVELOPER, $this->_acls));
 
     }//isDeveloper
 
@@ -571,7 +608,7 @@ class XDUser
     public function isManager()
     {
 
-        return (in_array(ROLE_ID_MANAGER, $this->getRoles()));
+        return array_key_exists(ROLE_ID_MANAGER, $this->_acls);
 
     }//isManager
 
@@ -678,7 +715,8 @@ class XDUser
                 'password' => $pass,
                 'xsede_user_type' => XSEDE_USER_TYPE,
                 'federated_user_type' => FEDERATED_USER_TYPE
-            ));
+            )
+        );
         if (count($userCheck) == 0) {
             return NULL;
         }
@@ -796,7 +834,7 @@ class XDUser
     public function saveUser()
     {
         /* BEGIN: VALIDATION  */
-        if ($this->_active_role->getIdentifier() == ROLE_ID_PUBLIC) {
+        if ($this->isPublicUser()) {
             throw new \Exception('The public role user cannot be saved.');
         }
 
@@ -903,6 +941,28 @@ class XDUser
         }
         /* END: Update Token Information */
 
+        /* BEGIN: ACL data processing */
+
+        // REMOVE: existing user -> acl relations
+        $this->_pdo->execute(
+            'DELETE FROM user_acls WHERE user_id = :user_id',
+            array('user_id' => $this->_id)
+        );
+
+        // ADD: current user -> acl relations
+        foreach ($this->_acls as $acl) {
+            if (null !== $acl->getAclId()) {
+                $this->_pdo->execute(
+                    'INSERT INTO user_acls(user_id, acl_id) VALUES(:user_id, :acl_id)',
+                    array(
+                        'user_id' => $this->_id,
+                        'acl_id' => $acl->getAclId()
+                    )
+                );
+            }
+        }
+        /* END:   ACL data processing */
+
         /* BEGIN: UserRole Updating */
 
         // Rebuild roles data for user --------------
@@ -999,7 +1059,7 @@ class XDUser
     public function getToken()
     {
 
-        if ($this->_active_role->getIdentifier() == ROLE_ID_PUBLIC) {
+        if ($this->isPublicUser()) {
             return '';
         }
 
@@ -1024,7 +1084,7 @@ class XDUser
     public function getTokenExpiration()
     {
 
-        if ($this->_active_role->getIdentifier() == ROLE_ID_PUBLIC) {
+        if ($this->isPublicUser()) {
             return '';
         }
 
@@ -1070,7 +1130,7 @@ class XDUser
     public function removeUser()
     {
 
-        if ($this->_active_role->getIdentifier() == ROLE_ID_PUBLIC) {
+        if ($this->isPublicUser()) {
             throw new \Exception('Cannot remove public user');
         }
 
@@ -1088,8 +1148,18 @@ class XDUser
         $this->_pdo->execute("DELETE FROM UserRoleParameters WHERE user_id=:user_id", array(
             ':user_id' => $this->_id,
         ));
+
+        $this->_pdo->execute("DELETE FROM user_acl_group_by_parameters WHERE user_id=:user_id", array(
+            ':user_id' => $this->_id
+        ));
+
         $this->_pdo->execute("DELETE FROM UserRoles WHERE user_id=:user_id", array(
             ':user_id' => $this->_id,
+        ));
+
+        // Make sure to remove the acl relations
+        $this->_pdo->execute("DELETE FROM user_acls WHERE user_id = :user_id", array(
+            ':user_id' => $this->_id
         ));
 
         // Reset any associations to dependent users
@@ -1396,6 +1466,57 @@ class XDUser
             ':is_primary' => $primary_flag,
         ));
 
+        $aclName = 'cd';
+
+        $aclCleanup = <<<SQL
+DELETE FROM user_acl_group_by_parameters 
+WHERE user_id = :user_id 
+    AND acl_id IN (
+        SELECT 
+            a.acl_id 
+        FROM acls a 
+        WHERE a.name = :acl_name
+    )
+    AND group_by_id IN (
+        SELECT 
+            gb.group_by_id
+        FROM group_bys gb 
+        WHERE gb.name = 'institution'
+    )
+SQL;
+
+        $aclInsert = <<<SQL
+INSERT INTO user_acl_group_by_parameters (user_id, acl_id, group_by_id, value)  
+SELECT inc.* 
+FROM (
+    SELECT 
+        :user_id AS user_id,
+        a.acl_id AS acl_id, 
+        gb.group_by_id AS group_by_id,
+        :value AS value 
+    FROM acls a, group_bys gb
+    WHERE a.name = :acl_name
+    AND gb.name = 'institution'
+) inc 
+LEFT JOIN user_acl_group_by_parameters cur 
+ON cur.user_id = inc.user_id
+AND cur.acl_id = inc.acl_id
+AND cur.group_by_id = inc.group_by_id
+AND cur.value = inc.value 
+WHERE cur.user_acl_parameter_id IS NULL;
+SQL;
+
+        $this->_pdo->execute($aclCleanup, array(
+            ':user_id' => $this->_id,
+            ':acl_name' => $aclName
+        ));
+
+        $this->_pdo->execute($aclInsert, array(
+            ':user_id' => $this->_id,
+            ':acl_name' => $aclName,
+            ':value' => $institution_id
+        ));
+
     }//setInstitution
 
     // ---------------------------
@@ -1424,6 +1545,17 @@ class XDUser
         $this->_pdo->execute($cleanupStatement, array(
             ':user_id' => $this->_id,
         ));
+        $this->_pdo->execute(<<<SQL
+        DELETE FROM user_acl_group_by_parameters
+WHERE user_id = :user_id 
+AND group_by_id IN (
+SELECT gb.group_by_id
+FROM group_bys gb 
+WHERE gb.name = 'institution');
+SQL
+            , array(
+                ':user_id' => $this->_id
+            ));
 
     }//disassociateWithInstitution
 
@@ -1521,6 +1653,10 @@ class XDUser
         }
 
         $role_id = $this->_getRoleID($role);
+        if (null === $role_id) {
+            throw new Exception("Unable to retrieve id for role: $role");
+        }
+        $acl = Acls::getAclByName($role);
 
         // -------------------------------------------------------
 
@@ -1529,7 +1665,13 @@ class XDUser
             ':user_id' => $this->_id,
             ':role_id' => $role_id,
         ));
-
+        $this->_pdo->execute(
+            "DELETE FROM user_acl_group_by_parameters WHERE user_id = :user_id AND acl_id = :acl_id AND group_by_id IN (SELECT gb.group_by_id FROM group_bys gb WHERE gb.name = 'provider')",
+            array(
+                ':user_id' => $this->_id,
+                ':acl_id' => $acl->getAclId()
+            )
+        );
         // =======================================
 
         $active_is_in_set = false;
@@ -1574,7 +1716,33 @@ class XDUser
                 ':is_primary' => $primary_flag,
                 ':is_active' => $active_flag,
             ));
-
+            $this->_pdo->execute(
+                <<<SQL
+INSERT INTO user_acl_group_by_parameters (user_id, acl_id, group_by_id, value) 
+SELECT inc.* 
+FROM (
+   SELECT 
+      :user_id AS user_id,
+      :acl_id AS acl_id,
+      gb.group_by_id AS group_by_id,
+      :value AS value 
+   FROM group_bys gb 
+   WHERE gb.name = 'provider'
+) inc 
+LEFT JOIN user_acl_group_by_parameters cur 
+  ON cur.user_id = inc.user_id
+  AND cur.acl_id = inc.acl_id
+  AND cur.group_by_id = inc.group_by_id
+  AND cur.value = inc.value
+WHERE cur.user_acl_parameter_id IS NULL;
+SQL
+                ,
+                array(
+                    ':user_id' => $this->_id,
+                    ':acl_id' => $acl->getAclId(),
+                    ':value' => $organization_id
+                )
+            );
         }//foreach
 
         // =======================================
@@ -1832,13 +2000,23 @@ class XDUser
     {
 
         if ($flag == 'informal') {
-            return $this->_roles;
+            $roles = array_reduce($this->_acls, function ($carry, Acl $item) {
+                $carry[] = $item->getName();
+                return $carry;
+            }, array());
+            return $roles;
         }
 
         if ($flag == 'formal') {
-
-            $query = "SELECT r.description, r.abbrev FROM Roles AS r, UserRoles AS ur ";
-            $query .= "WHERE r.role_id = ur.role_id AND ur.user_id = :user_id ORDER BY ur.is_primary DESC";
+            $query = <<<SQL
+SELECT
+a.display,
+a.name
+FROM user_acls ua
+JOIN acls a
+ON a.acl_id = ua.acl_id
+WHERE ua.user_id = :user_id
+SQL;
 
             $results = $this->_pdo->query($query, array(
                 ':user_id' => $this->_id,
@@ -1848,12 +2026,11 @@ class XDUser
 
             foreach ($results as $roleSet) {
 
-                $roles[$roleSet['description']] = $roleSet['abbrev'];
+                $roles[$roleSet['display']] = $roleSet['name'];
 
             }
 
             return $roles;
-
         }
 
     }//getRoles
@@ -1871,6 +2048,15 @@ class XDUser
     public function setRoles($role_set)
     {
         $this->_roles = $role_set;
+        // Make sure to also set the Acls
+        $acls = array_reduce($role_set, function ($carry, $roleName) {
+            $acl = Acls::getAclByName($roleName);
+            if ($acl !== null) {
+                $carry [] = $acl;
+            }
+            return $carry;
+        }, array());
+        $this->setAcls($acls);
     }
 
     // ---------------------------
@@ -1885,10 +2071,6 @@ class XDUser
 
     public function getPrimaryRole()
     {
-
-        if ($this->_primary_role->getIdentifier() == ROLE_ID_PUBLIC) {
-            return $this->_primary_role;
-        }
 
         if ($this->_id == NULL) {
             throw new Exception('You must call saveUser() on this newly created XDUser prior to using getPrimaryRole()');
@@ -1937,11 +2119,6 @@ class XDUser
 
     public function getActiveRole()
     {
-
-        if ($this->_active_role->getIdentifier() == ROLE_ID_PUBLIC) {
-            return $this->_active_role;
-        }
-
         if ($this->_id == NULL) {
             throw new Exception('You must call saveUser() on this newly created XDUser prior to using getActiveRole()');
         }
@@ -2620,8 +2797,6 @@ class XDUser
             // Add PI role to the to-be-created user
             $user_role_set[] = ROLE_ID_PRINCIPAL_INVESTIGATOR;
 
-            $user->setActiveRole(ROLE_ID_PRINCIPAL_INVESTIGATOR);
-
             $cc_org_id = self::isCampusChampion($person_id);
 
             if ($cc_org_id !== false) {
@@ -2890,4 +3065,137 @@ class XDUser
 
         return $returnData;
     }
+
+    /**
+     * Retrieve the Acls for this user.
+     *
+     * @param bool $names defaults to `false`. If true, then the names of the
+     *                    acls will be returned instead of the Acl objects themselves.
+     * @return Acl[]|string[]
+     */
+    public function getAcls($names = false)
+    {
+        return (false === $names)
+            ? $this->_acls
+            : array_keys($this->_acls);
+    } // getAcls
+
+    /**
+     * Overwrite this users current set of acls with the provided ones.
+     *
+     * @param array[] $acls
+     */
+    public function setAcls(array $acls)
+    {
+        $this->_acls = $acls;
+    } // setAcls
+
+    /**
+     * Add the provided acl to this users set of acls if they do not already
+     * have it. If the overwrite parameter is provided as true then it will be
+     * added ( or overwrite the existing acl ) regardless of whether or not the
+     * user currently has it.
+     *
+     * @param Acl $acl
+     * @param bool $overwrite
+     */
+    public function addAcl(Acl $acl, $overwrite = false)
+    {
+        if ( ( !array_key_exists($acl->getName(), $this->_acls) && !$overwrite ) ||
+            $overwrite === true
+        ) {
+            $this->_acls[$acl->getName()] = $acl;
+        }
+    } // addAcl
+
+    /**
+     * Remove the provided acl from this users set of acls.
+     *
+     * @param Acl $acl
+     */
+    public function removeAcl(Acl $acl)
+    {
+        if (array_key_exists($acl->getName(), $this->_acls)) {
+            unset($this->_acls[$acl->getName()]);
+        }
+    } // removeAcl
+
+    /**
+     * Determine whether or not this user has a relation to the provided Acl.
+     * The acl
+     *
+     * @param Acl|string $acl
+     * @param string $property the name of the getter to use when determining if
+     * the user has the provided acl or not. Defaults to 'name'.
+     *
+     * @return bool true iff the acl is found in this users set of acls.
+     * @throws Exception if the provided acl is anything but an Acl or string.
+     */
+    public function hasAcl($acl, $property = 'name')
+    {
+        $isAcl = $acl instanceof Acl;
+        $isString = is_string($acl);
+        $getter = 'get' . ucfirst($property);
+        if (false === $isAcl && false === $isString) {
+            $aclClass = get_class($acl);
+            throw new Exception("Unknown acl type encountered. Expected Acl or string got $aclClass.");
+        }
+        $value = $isAcl ? $acl->$getter() : $acl;
+        return array_key_exists($value, $this->_acls);
+    } // hasAcl
+
+
+    /**
+     * Determine whether or not this user has a relation to all of the provided
+     * Acls.
+     *
+     * @param Acl[]|string[] $acls an array of Acls or an array of strings
+     * @param string $property the name of the getter to use when determining if
+     * the user has the provided set of acls or not. Defaults to 'name'
+     *
+     * @return bool true iff all of the acls are found in this users set of acls
+     * @throws Exception if any of the provided acls are not a string or Acl
+     */
+    public function hasAcls(array $acls, $property = 'name')
+    {
+        $total = 0;
+        foreach ($acls as $acl) {
+            $found = $this->hasAcl($acl, $property);
+            $total += $found ? 1 : 0;
+        }
+        return $total === count($acls);
+    } // hasAcls
+
+    /**
+     * Attempt to retrieve an XDUser instance based on the provided $username.
+     *
+     * @param string $username the identifier to use when attempting to retrieve
+     * the XDUser instance.
+     *
+     * @return null|XDUser null if the user cannot be found or if null is provided
+     * as the username, else an instantiated XDUser instance.
+     **/
+    public static function getUserByUserName($username)
+    {
+        if (null === $username) {
+            return null;
+        }
+
+        // Note: due to the complexity of getUserById ( and it being the sole
+        // repository of user creation logic ) we just retrieve the userId and
+        // feed that to the getUserById function.
+        $query = <<<SQL
+SELECT
+  u.id
+FROM Users u
+WHERE u.username = :username
+SQL;
+        $db = DB::factory('database');
+        $row = $db->query($query, array(':username' => $username));
+        if (count($row) > 0) {
+            $uid = $row[0]['id'];
+            return self::getUserByID($uid);
+        }
+        return null;
+    } // getUserByUserName
 }//XDUser
