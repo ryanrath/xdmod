@@ -14,84 +14,32 @@ class Authorization
     const _DEFAULT_MESSAGE = 'An error was encountered while attempting to process the requested authorization procedure.';
 
     /**
-     * @param XDUser $user
-     * @param array $requirements
-     * @param bool $blacklist
-     * @return array in the form array( boolean success, string message )
-     * @throws \Exception
-     */
-    public static function isAuthorized(XDUser $user, array $requirements = array(), $blacklist = false)
+    * This function attempts to determine whether or not the provided $user
+    * has the provided $requirements. If $blacklist is supplied then success
+    * will be whether or not the user *does not* have the provided requirements.
+    *
+    * @param XDUser $user        the user to authorize
+    * @param array $requirements an array of acl names
+    * @param bool $blacklist     whether or not to test for the presence of the $requirements or the absence
+    * @throws \Exception                if the requirements is not an array or it is an array but has no contents
+    * @throws UnauthorizedHttpException if the user was not able to satisfy the provided requirements
+    * and is a public user.
+    * @throws AccessDeniedHttpException if the user was not able to satisfy the provided requirements
+    * and is not a public user.
+    **/
+    public static function authorized(XDUser $user, array $requirements = array(), $blacklist = false)
     {
-        $result = array(
-            self::_SUCCESS => false,
-            self::_MESSAGE => self::_DEFAULT_MESSAGE
-        );
-
-        $validUser = isset($user);
-        $validRequirements = isset($requirements) && is_array($requirements) && count($requirements) > 0;
-
-        if ($validUser && $validRequirements) {
-
-            $requirements = self::_preProcessRequirements($user, $requirements);
-
-            $roles = $user->getRoles();
-            $isManager = $user->isManager();
-            $activeRole = $user->getActiveRole()->getIdentifier();
-
-            if (in_array(SAB_MEMBER, $requirements) && !in_array('sab', $roles)) {
-                $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n[ Not a SAB Member ]";
-            } else if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
-                $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n[ Not a Manager ]";
-            } else if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
-                $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n [ Not a Center Director ]";
+        $found = $user->hasAcls($requirements);
+        $success = (!$found && $blacklist) || ($found && !$blacklist);
+        $message = self::_DEFAULT_MESSAGE . (!$found && !$blacklist) || ($found && $blacklist)
+            ? ' [ Not Authorized ]'
+            : '';
+        if ($success === false) {
+            if ($user->isPublicUser() === true) {
+                throw new UnauthorizedHttpException('xdmod', $message);
             } else {
-                if (!$blacklist) {
-                    $found = 0;
-                    foreach ($requirements as $requirement) {
-                        if (in_array($requirement, $roles)) $found += 1;
-                    }
-                    if ($found >= count($requirements)) {
-                        $result[self::_SUCCESS] = true;
-                        $result[self::_MESSAGE] = '';
-                    } else {
-                        $result[self::_MESSAGE] .= " [ Not Authorized ]";
-                    }
-                } else {
-                    $found = 0;
-                    foreach($requirements as $requirement) {
-                        if (in_array($requirement, $roles)) $found += 1;
-                    }
-                    if ($found === 0) {
-                        $result[self::_SUCCESS] = true;
-                        $result[self::_MESSAGE] = '';
-                    } else {
-                        $result[self::_MESSAGE] .= " [ Not Authorized ]";
-                    }
-                }
-
+                throw new AccessDeniedHttpException($message);
             }
         }
-
-        return $result;
     }
-
-    /**
-     * Conduct any processing on the provided requirements prior to the actual
-     * authorization process.
-     *
-     * @param XDUser $user object that represents the currently logged in user.
-     * @param array $requirements that the user must fulfill to be considered 'authorized'.
-     * @return array of $requirements.
-     */
-    private static function _preProcessRequirements(XDUser $user, array $requirements)
-    {
-
-        if ($user->isManager()) {
-            \xd_utilities\remove_element_by_value($requirements, SAB_MEMBER);
-        }
-
-        return $requirements;
-    }
-
-
 }

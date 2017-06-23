@@ -261,35 +261,21 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * @return \XDUser The user that was checked and is authorized according to
      *                the given parameters.
      *
-     * @throws  Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
-     *          Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @throws  Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException if the user is public and they are not authorized.
+     * @throws  Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException if the user is not a public user and they are not authorized.
      */
     public function authorize(Request $request, array $requirements = array(), $blacklist = false)
     {
         // If role requirements were not given, then the only check to perform
         // is that the user is not a public user.
-        if (empty($requirements)) {
+        if ($requirements === null) {
             $requirements = array(ROLE_ID_PUBLIC);
             $blacklist = true;
         }
 
         // Attempt to authorize the user.
         $user = $this->getUserFromRequest($request);
-        list($success, $message) = Authorization::isAuthorized($user, $requirements, $blacklist);
-
-        // If authorization was not successful, throw an exception.
-        //
-        // If the user was not logged in, respond with a 401 HTTP error code
-        // to indicate that they could try again while logged in. Otherwise,
-        // respond with a 403 to indicate that what they asked for is off
-        // limits with their current permissions.
-        if (!$success) {
-            if ($user->isPublicUser()) {
-                throw new UnauthorizedHttpException('xdmod', $message); // 401 from framework
-            } else {
-                throw new AccessDeniedHttpException($message); // 403 from framework
-            }
-        }
+        Authorization::authorized($user, $requirements, $blacklist);
 
         // Return the successfully-authorized user.
         return $user;
