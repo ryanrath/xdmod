@@ -16,8 +16,8 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     const CENTER_DIRECTOR_USER_NAME = 'centerdirector';
     const CENTER_DIRECTOR_ACL_NAME  = 'cd';
-    const PROGRAM_OFFICER_USER_NAME = 'programofficer';
-    const PROGRAM_OFFICER_ACL_NAME  = 'po';
+
+    const PRINCIPAL_INVESTIGTOR_ACL_NAME = 'pi';
 
     public function testGetPublicUser()
     {
@@ -35,7 +35,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     public function testNonPublicUserIsNotPublicUser()
     {
-        $user = XDUser::getUserByUserName(self::PROGRAM_OFFICER_USER_NAME);
+        $user = XDUser::getUserByUserName(self::CENTER_DIRECTOR_USER_NAME);
 
         $this->assertFalse($user->isPublicUser());
     }
@@ -61,7 +61,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTokenAsNonPublic()
     {
-        $user = XDUser::getUserByUserName(self::PROGRAM_OFFICER_USER_NAME);
+        $user = XDUser::getUserByUserName(self::CENTER_DIRECTOR_USER_NAME);
         $token = $user->getToken();
         $this->assertNotEquals('', $token);
     }
@@ -75,7 +75,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTokenExpirationAsNonPublic()
     {
-        $user = XDUser::getUserByUserName(self::PROGRAM_OFFICER_USER_NAME);
+        $user = XDUser::getUserByUserName(self::CENTER_DIRECTOR_USER_NAME);
         $expiration = $user->getTokenExpiration();
         $this->assertNotEquals('', $expiration);
     }
@@ -124,7 +124,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
         $originalInstitution = $user->getInstitution();
         $this->assertTrue($originalInstitution !== null);
-        $this->assertNotEquals('-1', $originalInstitution);
+        $this->assertNotEquals('0', $originalInstitution);
 
         $user->setInstitution($validInstitutionId);
 
@@ -293,7 +293,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     public function testAddNewAcl()
     {
-        $newAcl = Acls::getAclByName(self::PROGRAM_OFFICER_ACL_NAME);
+        $newAcl = Acls::getAclByName(self::PRINCIPAL_INVESTIGTOR_ACL_NAME);
         $this->assertNotNull($newAcl);
 
         $user = XDUser::getUserByUserName(self::CENTER_DIRECTOR_USER_NAME);
@@ -367,7 +367,7 @@ class XDUserTest extends \PHPUnit_Framework_TestCase
 
     public function testHasAclNotExists()
     {
-        $existingAcl = Acls::getAclByName(self::PROGRAM_OFFICER_ACL_NAME);
+        $existingAcl = Acls::getAclByName(self::PRINCIPAL_INVESTIGTOR_ACL_NAME);
         $user = XDUser::getUserByUserName(self::CENTER_DIRECTOR_USER_NAME);
 
         $hasAcl = $user->hasAcl($existingAcl);
