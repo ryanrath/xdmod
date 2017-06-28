@@ -391,12 +391,10 @@ class XDUser
      */
     public static function getPublicUser()
     {
-        if (null !== self::$_publicUser) {
-            return self::$_publicUser;
-        } else {
+        if (null === self::$_publicUser) {
             self::$_publicUser = self::getUserByUserName('Public User');
-            return self::$_publicUser;
         }
+        return self::$_publicUser;
     }//getPublicUser
 
     // ---------------------------
