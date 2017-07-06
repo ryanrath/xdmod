@@ -18,6 +18,7 @@ build:
         - composer install --no-progress
         - cp ~/assets/secrets open_xdmod/modules/xdmod/integration_tests/.secrets
         - ./open_xdmod/modules/xdmod/integration_tests/runtests.sh --log-junit `pwd`/shippable/testresults/results.xml
+        - ./open_xdmod/modules/xdmod/component_tests/runtests.sh --log-junit `pwd`/shippable/testresults/componentresults.xml
+
     on_failure:
         - cat /var/log/xdmod/*
-        
