@@ -1,4 +1,4 @@
-<?php namespace IntegrationTests;
+<?php namespace ComponentTests;
 
 use \XDUser;
 use Models\Acl;
