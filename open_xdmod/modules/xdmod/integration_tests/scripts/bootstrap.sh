@@ -25,9 +25,6 @@ then
     xdmod-import-csv -t names -i $REF_DIR/names.csv
     xdmod-ingestor
     php /root/bin/createusers.php
-    # we need to migrate any UserRole records created to user_acls. This is done
-    # via a script executed by acl-import.
-    acl-import
 fi
 
 if [ "$XDMOD_TEST_MODE" = "upgrade" ];

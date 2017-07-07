@@ -123,7 +123,7 @@ class XDUser
         $this->_middleName = $middle_name;
         $this->_lastName = $last_name;
 
-        $this->_roles = $role_set;
+        $this->setRoles($role_set);
 
         // Role Checking ====================
 
@@ -171,8 +171,6 @@ class XDUser
 
         $this->_primary_role = \User\aRole::factory($primary_role_name);
         $this->_active_role = \User\aRole::factory($primary_role_name);
-
-        $this->_acls = array();
     }//construct
 
     // ---------------------------
