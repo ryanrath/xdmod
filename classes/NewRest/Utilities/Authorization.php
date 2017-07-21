@@ -55,7 +55,11 @@ class Authorization
                     $result[self::_SUCCESS] = true;
                     $result[self::_MESSAGE] = '';
                 } else {
-                    $result[self::_MESSAGE] .= " [ Not Authorized ]";
+                    if ($user->isPublicUser()) {
+                        throw new UnauthorizedHttpException('xdmod', self::_MESSAGE . " [ Not Authorized ]"); // 401 from framework
+                    } else {
+                        throw new AccessDeniedHttpException(self::_MESSAGE . " [ Not Authorized ]"); // 403 from framework
+                    }
                 }
             } else {
                 $found = 0;
@@ -66,7 +70,11 @@ class Authorization
                     $result[self::_SUCCESS] = true;
                     $result[self::_MESSAGE] = '';
                 } else {
-                    $result[self::_MESSAGE] .= " [ Not Authorized ]";
+                    if ($user->isPublicUser()) {
+                        throw new UnauthorizedHttpException('xdmod', self::_MESSAGE . " [ Not Authorized ]"); // 401 from framework
+                    } else {
+                        throw new AccessDeniedHttpException(self::_MESSAGE . " [ Not Authorized ]"); // 403 from framework
+                    }
                 }
             }
 

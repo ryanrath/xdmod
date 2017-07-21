@@ -275,7 +275,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
         // Attempt to authorize the user.
         $user = $this->getUserFromRequest($request);
-        Authorization::authorized($user, $requirements, $blacklist);
+        list($success, $message) = Authorization::isAuthorized($user, $requirements, $blacklist);
 
         // Return the successfully-authorized user.
         return $user;
