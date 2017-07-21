@@ -37,15 +37,11 @@ class Authorization
             self::_MESSAGE => self::_DEFAULT_MESSAGE
         );
 
-        $requirements = self::_preProcessRequirements($user, $requirements);
-
         $roles = $user->getRoles();
         $isManager = $user->isManager();
         $activeRole = $user->getActiveRole()->getIdentifier();
 
-        if (in_array(SAB_MEMBER, $requirements) && !in_array('sab', $roles)) {
-            $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n[ Not a SAB Member ]";
-        } else if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
+        if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
             $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n[ Not a Manager ]";
         } else if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
             $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n [ Not a Center Director ]";
@@ -78,24 +74,4 @@ class Authorization
 
         return $result;
     }
-
-    /**
-     * Conduct any processing on the provided requirements prior to the actual
-     * authorization process.
-     *
-     * @param XDUser $user object that represents the currently logged in user.
-     * @param array $requirements that the user must fulfill to be considered 'authorized'.
-     * @return array of $requirements.
-     */
-    private static function _preProcessRequirements(XDUser $user, array $requirements)
-    {
-
-        if ($user->isManager()) {
-            \xd_utilities\remove_element_by_value($requirements, SAB_MEMBER);
-        }
-
-        return $requirements;
-    }
-
-
 }
