@@ -30,7 +30,7 @@ class Authorization
      * @throws AccessDeniedHttpException if the user was not able to satisfy the provided requirements
      * and is not a public user.
      **/
-    public static function authorized(XDUser $user, array $requirements = array(), $blacklist = false)
+    public static function isAuthorized(XDUser $user, array $requirements = array(), $blacklist = false)
     {
         $isManager = $user->isManager();
         $isCenterDirector = $user->hasAcl(ROLE_ID_CENTER_DIRECTOR);
