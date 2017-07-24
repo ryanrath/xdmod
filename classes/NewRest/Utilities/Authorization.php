@@ -33,7 +33,7 @@ class Authorization
     public static function authorized(XDUser $user, array $requirements = array(), $blacklist = false)
     {
         $isManager = $user->isManager();
-        $activeRole = $user->getActiveRole()->getIdentifier();
+        $isCenterDirector = $user->hasAcl(ROLE_ID_CENTER_DIRECTOR);
 
         $found = $user->hasAcls($requirements);
 
@@ -44,7 +44,7 @@ class Authorization
 
         if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n[ Not a Manager ]");
-        } elseif (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
+        } elseif (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $isCenterDirector === true) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n [ Not a Center Director ]");
         } elseif($authorized === false) {
             if ($user->isPublicUser()) {
