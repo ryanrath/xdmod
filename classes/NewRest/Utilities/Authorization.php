@@ -49,7 +49,7 @@ class Authorization
             if (!$blacklist) {
                 $found = 0;
                 foreach ($requirements as $requirement) {
-                    if (in_array($requirement, $roles)){
+                    if (in_array($requirement, $roles)) {
                         $found += 1;
                     }
                 }
