@@ -43,13 +43,15 @@ class Authorization
 
         if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n[ Not a Manager ]");
-        } else if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
+        } elseif (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n [ Not a Center Director ]");
         } else {
             if (!$blacklist) {
                 $found = 0;
                 foreach ($requirements as $requirement) {
-                    if (in_array($requirement, $roles)) $found += 1;
+                    if (in_array($requirement, $roles)){
+                        $found += 1;
+                    }
                 }
                 if ($found >= count($requirements)) {
                     $result[self::_SUCCESS] = true;
@@ -64,7 +66,9 @@ class Authorization
             } else {
                 $found = 0;
                 foreach($requirements as $requirement) {
-                    if (in_array($requirement, $roles)) $found += 1;
+                    if (in_array($requirement, $roles)) {
+                        $found += 1;
+                    }
                 }
                 if ($found === 0) {
                     $result[self::_SUCCESS] = true;
