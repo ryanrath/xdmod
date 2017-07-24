@@ -23,7 +23,7 @@ class Authorization
      * @param XDUser $user the user to authorize
      * @param array $requirements an array of acl names
      * @param bool $blacklist whether or not to test for the presence of the $requirements or the absence
-     * @return array
+     * @return bool
      * @throws \Exception                if the requirements is not an array or it is an array but has no contents
      * @throws UnauthorizedHttpException if the user was not able to satisfy the provided requirements
      * and is a public user.
@@ -32,58 +32,27 @@ class Authorization
      **/
     public static function authorized(XDUser $user, array $requirements = array(), $blacklist = false)
     {
-        $result = array(
-            self::_SUCCESS => false,
-            self::_MESSAGE => self::_DEFAULT_MESSAGE
-        );
-
-        $roles = $user->getRoles();
         $isManager = $user->isManager();
         $activeRole = $user->getActiveRole()->getIdentifier();
+
+        $found = $user->hasAcls($requirements);
+
+        // This user is authorized iff:
+        //   - the absence of the requirements was required ($blacklist=true) AND the requirements were not found
+        //   - the presence of the requirements was required ($blacklist=false) AND the requirements were found.
+        $authorized = (!$found && $blacklist) || ($found && !$blacklist);
 
         if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n[ Not a Manager ]");
         } elseif (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
             throw new AccessDeniedHttpException(self::_MESSAGE . "\n [ Not a Center Director ]");
-        } else {
-            if (!$blacklist) {
-                $found = 0;
-                foreach ($requirements as $requirement) {
-                    if (in_array($requirement, $roles)) {
-                        $found += 1;
-                    }
-                }
-                if ($found >= count($requirements)) {
-                    $result[self::_SUCCESS] = true;
-                    $result[self::_MESSAGE] = '';
-                } else {
-                    if ($user->isPublicUser()) {
-                        throw new UnauthorizedHttpException('xdmod', self::_MESSAGE . " [ Not Authorized ]"); // 401 from framework
-                    } else {
-                        throw new AccessDeniedHttpException(self::_MESSAGE . " [ Not Authorized ]"); // 403 from framework
-                    }
-                }
-            } else {
-                $found = 0;
-                foreach($requirements as $requirement) {
-                    if (in_array($requirement, $roles)) {
-                        $found += 1;
-                    }
-                }
-                if ($found === 0) {
-                    $result[self::_SUCCESS] = true;
-                    $result[self::_MESSAGE] = '';
-                } else {
-                    if ($user->isPublicUser()) {
-                        throw new UnauthorizedHttpException('xdmod', self::_MESSAGE . " [ Not Authorized ]"); // 401 from framework
-                    } else {
-                        throw new AccessDeniedHttpException(self::_MESSAGE . " [ Not Authorized ]"); // 403 from framework
-                    }
-                }
+        } elseif($authorized === false) {
+            if ($user->isPublicUser()) {
+                throw new UnauthorizedHttpException('xdmod', self::_MESSAGE . " [ Not Authorized ]"); // 401 from framework
             }
-
+            throw new AccessDeniedHttpException(self::_MESSAGE . " [ Not Authorized ]"); // 403 from framework
         }
 
-        return $result;
+        return true;
     }
 }
