@@ -42,9 +42,9 @@ class Authorization
         $activeRole = $user->getActiveRole()->getIdentifier();
 
         if (in_array(STATUS_MANAGER_ROLE, $requirements) && !$isManager) {
-            $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n[ Not a Manager ]";
+            throw new AccessDeniedHttpException(self::_MESSAGE . "\n[ Not a Manager ]");
         } else if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && $activeRole !== ROLE_ID_CENTER_DIRECTOR) {
-            $result[self::_MESSAGE] = self::_DEFAULT_MESSAGE . "\n [ Not a Center Director ]";
+            throw new AccessDeniedHttpException(self::_MESSAGE . "\n [ Not a Center Director ]");
         } else {
             if (!$blacklist) {
                 $found = 0;
