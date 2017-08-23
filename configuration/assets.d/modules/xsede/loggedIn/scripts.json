@@ -1,8 +1,0 @@
-{
-    "files": [
-        "./html/gui/js/modules/Allocations.js",
-        "./html/gui/js/modules/Compliance.js",
-        "./html/gui/js/modules/CustomQueries.js",
-        "./html/gui/js/modules/SciImpact.js"
-    ]
-}
