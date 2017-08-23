@@ -1,0 +1,13 @@
+{
+  "files": [
+    "./html/gui/js/modules/job_viewer/JobViewer.js",
+    "./html/gui/js/modules/job_viewer/ChartPanel.js",
+    "./html/gui/js/modules/job_viewer/AnalyticChartPanel.js",
+    "./html/gui/js/modules/job_viewer/TimeSeriesStore.js",
+    "./html/gui/js/modules/job_viewer/SearchPanel.js",
+    "./html/gui/js/modules/job_viewer/SearchHistoryTree.js",
+    "./html/gui/js/modules/job_viewer/SearchHistoryPanel.js",
+    "./html/gui/js/modules/job_viewer/JobPanel.js",
+    "./html/gui/js/modules/job_viewer/NestedViewPanel.js"
+  ]
+}

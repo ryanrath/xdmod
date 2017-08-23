@@ -1,0 +1,72 @@
+{
+  "files": [
+    "./html/gui/lib/oldie-console-patch.js",
+
+    "./html/gui/lib/extjs/adapter/ext/ext-base.js",
+    "./html/gui/lib/extjs/ext-all-debug-w-comments.js",
+    "./html/gui/lib/extjs/src/debug.js",
+
+    
+
+    "./html/gui/lib/ext-oldie-history-patch.js",
+    "./html/gui/lib/jquery/jquery.min.js",
+    "./html/gui/lib/jquery/plugins/jquery.base64.js",
+    "./html/gui/lib/jquery.spotlight.js",
+    "./html/gui/lib/debug.js",
+    "./html/gui/lib/datadumper.js",
+    "./html/gui/js/RowExpander.js",
+    "./html/js_classes/*.js",
+    "./html/gui/js/globals.js",
+    "./html/gui/js/StringExtensions.js",
+    "./html/gui/js/plugins/*.js",
+    "./html/gui/js/libraries/utilities.js",
+    "./html/gui/js/SessionManager.js",
+    "./html/gui/js/RESTProxy.js",
+    "./html/gui/js/REST.js",
+
+    "./html/gui/lib/highcharts/highcharts.src.js",
+    "./html/gui/lib/highcharts/highcharts-more.js",
+    "./html/gui/lib/highcharts/errorbars.src.js",
+    "./html/gui/lib/highcharts/dateformats.src.js",
+
+    "./html/gui/lib/extjs/examples/ux/DataViewTransition.js",
+    "./html/gui/lib/extjs/examples/ux/Reorderer.js",
+    "./html/gui/lib/extjs/examples/ux/ToolbarReorderer.js",
+    "./html/gui/lib/extjs/examples/ux/SearchField.js",
+    "./html/gui/lib/extjs/examples/ux/statusbar/StatusBar.js",
+    "./html/gui/lib/extjs/examples/ux/LockingGridView.js",
+    "./html/gui/lib/extjs/examples/ux/SlidingPager.js",
+    "./html/gui/lib/extjs/exmaples/ux/ProgressBarPager.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGridSorter.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGridColumnResizer.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGridNodeUi.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGridLoader.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGridColumns.js",
+    "./html/gui/lib/extjs/examples/ux/treegrid/TreeGrid.js",
+    "./html/gui/lib/extjs/examples/ux/GroupTabPanel.js",
+    "./html/gui/lib/extjs/examples/ux/GroupTab.js",
+
+    "./html/gui/js/MultiSelect.js",
+    "./html/gui/js/ItemSelector.js",
+
+    "./html/gui/lib/NumberFormat.js",
+    "./html/gui/js/multiline-tree-nodes.js",
+
+    "./html/gui/js/MessageWindow.js",
+
+    "./html/gui/js/CCR.js",
+    "./html/gui/js/RESTDataProxy.js",
+    "./html/gui/js/CustomHttpProxy.js",
+
+    "./html/gui/js/printer/Printer-all.js",
+
+    "./html/gui/js/TGUserDropDown.js",
+
+    "./html/gui/js/LoginPrompt.js",
+
+    "./html/gui/js/CheckColumn.js",
+
+    "./html/gui/js/ContainerMask.js",
+    "./html/gui/js/ContainerBodyMask.js"
+  ]
+}

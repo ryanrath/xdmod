@@ -1,0 +1,24 @@
+{
+  "files": [
+    "./html/gui/lib/extjs/resources/css/ext-all.css",
+    "./html/gui/lib/extjs/resources/css/xtheme-gray.css",
+    "./html/gui/lib/extjs/resources/css/debug.css",
+    "./html/gui/css/viewer.css",
+    "./html/gui/css/common.css",
+    "./html/gui/css/MultiSelect.css",
+    "./html/gui/lib/extjs/examples/ux/css/Spinner.css",
+    "./html/gui/lib/extjs/examples/ux/css/LockingGridView.css",
+    "./html/gui/css/aboutus.css",
+    "./html/gui/css/GroupTab.css",
+    "./html/gui/css/ProfileEditor.css",
+    "./html/gui/css/ChartDateEditor.css",
+    "./html/gui/css/ReportManager.css",
+    "./html/gui/css/AvailableCharts.css",
+    "./html/gui/css/compliance.css",
+    "./html/gui/css/ChartDragDrop.css",
+    "./html/gui/css/TreeCheckbox.css",
+    "./html/gui/css/TriStateNodeUI.css",
+    "./html/gui/css/Allocations.css"
+  ]
+}
+

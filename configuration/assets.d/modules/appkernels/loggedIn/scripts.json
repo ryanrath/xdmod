@@ -1,0 +1,8 @@
+{
+    "files": [
+        "./html/gui/js/modules/AppKernels.js",
+        "./html/gui/js/modules/app_kernels/AppKernelViewer.js",
+        "./html/gui/js/modules/app_kernels/AppKernelExplorer.js",
+        "./html/gui/js/modules/app_kernels/AppKernelNotificationPanel.js"
+    ]
+}
