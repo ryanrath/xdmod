@@ -659,12 +659,12 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
         // ------------------------------------------
 
         var roleGridClickHandler = function () {
-            var sel_roles = roleGrid.getSelectedRoles();
+            var sel_roles = roleGrid.getSelectedAcls();
             cmbInstitution.setDisabled(sel_roles.itemExists('cc') == -1);
             saveIndicator.show();
         };
 
-        var roleGrid = new XDMoD.Admin.RoleGrid({
+        var roleGrid = new XDMoD.Admin.AclGrid({
             cls: 'admin_panel_section_role_assignment',
             selectionChangeHandler: roleGridClickHandler,
             border: false
@@ -684,7 +684,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
         // ------------------------------------------
 
         var roleSettings = new Ext.Panel({
-            title: 'Role Assignment',
+            title: 'Acl Assignment',
             columns: 1,
             layout: 'fit',
             flex: 0.55,
@@ -1141,12 +1141,10 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
 
                         tg_user_list_phase = 'load_user';
 
-                        roleGrid.setRoles(json.user_information.roles);
+                        roleGrid.setSelectedAcls(json.user_information.roles);
 
-                        roleGrid.setCenterConfig(XDMoD.Admin.Roles.CENTER_DIRECTOR, json.user_information.center_director_sites);
-                        roleGrid.setCenterConfig(XDMoD.Admin.Roles.CENTER_STAFF, json.user_information.center_staff_sites);
-
-                        roleGrid.setPrimaryRole(json.user_information.primary_role);
+                        roleGrid.setCenterConfig('cd', json.user_information.center_director_sites);
+                        roleGrid.setCenterConfig('cs', json.user_information.center_staff_sites);
 
                         userSettings.setDisabled(false);
                         userEditor.hideMask();

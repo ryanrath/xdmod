@@ -4,15 +4,26 @@
 	
    $xda = new XDAdmin();
 			
-   $roles = $xda->enumerateRoles();
-			
+   $roles = $xda->enumerateAcls();
+
+   try {
+       $multipleServiceProviders = \xd_utilities\getConfiguration('features', 'multiple_service_providers') === 'on';
+   }
+   catch(Exception $e){
+       $multipleServiceProviders = false;
+   }
+
    foreach($roles as $currentRole) {
+       // requiresCenter can only be true iff the current install supports
+       // multiple service providers.
+      $requiresCenter = $currentRole['requires_center'] && $multipleServiceProviders;
 
       $roleEntries[] = array(
-         'role' => $currentRole['description'], 
-         'role_id' => $currentRole['abbrev'],
+         'acl' => $currentRole['display'],
+         'acl_id' => $currentRole['name'],
          'include' => false,
-         'primary' => false
+         'primary' => false,
+         'requires_center' => $currentRole['requires_center']
       );
 		           
    }//foreach
@@ -21,7 +32,7 @@
 
    $returnData['success'] = true;
    $returnData['status'] = 'success';
-   $returnData['roles'] = $roleEntries;
+   $returnData['acls'] = $roleEntries;
 			
    xd_controller\returnJSON($returnData);
 			

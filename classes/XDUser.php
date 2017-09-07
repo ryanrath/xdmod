@@ -3194,4 +3194,55 @@ SQL;
         }
         return null;
     } // getUserByUserName
+
+    public function addAclOrganization($aclName, $organization)
+    {
+        if (empty($this->_id)) {
+            throw new \Exception("This user must be saved prior to calling this function.");
+        }
+
+        $acl = Acls::getAclByName($aclName);
+
+        if ( null == $acl) {
+            throw new Exception("Unable to retrieve acl for: $aclName");
+        }
+
+
+        $cleanUserAclGroupByParameters = <<<SQL
+DELETE FROM user_acl_group_by_parameters
+WHERE user_id = :user_id AND
+      acl_id  = :acl_id
+SQL;
+
+        $this->_pdo->execute($cleanUserAclGroupByParameters, array(
+            ':user_id' => $this->_id,
+            ':acl_id'  => $acl->getAclId()
+        ));
+
+        $populateUserAclGroupByParameters = <<<SQL
+INSERT INTO user_acl_group_by_parameters (user_id, acl_id, group_by_id, value) 
+SELECT inc.* 
+FROM (
+   SELECT 
+      :user_id AS user_id,
+      :acl_id AS acl_id,
+      gb.group_by_id AS group_by_id,
+      :value AS value 
+   FROM group_bys gb 
+   WHERE gb.name = 'provider'
+) inc 
+LEFT JOIN user_acl_group_by_parameters cur 
+  ON cur.user_id = inc.user_id
+  AND cur.acl_id = inc.acl_id
+  AND cur.group_by_id = inc.group_by_id
+  AND cur.value = inc.value
+WHERE cur.user_acl_parameter_id IS NULL;
+SQL;
+
+        $this->_pdo->execute($populateUserAclGroupByParameters, array(
+            ':user_id' => $this->_id,
+            ':acl_id'  => $acl->getAclId(),
+            ':value'   => $organization
+        ));
+    } // addAclOrganization
 }//XDUser
