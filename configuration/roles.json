@@ -257,6 +257,10 @@
         "pub": {
             "display": "Public User",
             "type": "data",
+            "hierarchies": {
+                "level": 0,
+                "filter_override": false
+            },
             "permitted_modules": [
                 {
                     "name": "tg_summary",
@@ -349,15 +353,23 @@
             "dimensions": [
                 "person"
             ],
-            "extends": "default"
+            "extends": "default",
+            "hierarchies": {
+                "level": 100,
+                "filter_override": false
+            }
         },
         "cd": {
             "display": "Center Director",
-            "type": "feature",
+            "type": "feature_requires_center",
             "dimensions": [
                 "provider"
             ],
-            "extends": "default"
+            "extends": "default",
+            "hierarchies": {
+                "level": 400,
+                "filter_override": false
+            }
         },
         "pi": {
             "display": "Principal Investigator",
@@ -365,15 +377,23 @@
             "dimensions": [
                 "pi"
             ],
-            "extends": "default"
+            "extends": "default",
+            "hierarchies": {
+                "level": 200,
+                "filter_override": false
+            }
         },
         "cs": {
             "display": "Center Staff",
-            "type": "data",
+            "type": "data_requires_center",
             "dimensions": [
                 "provider"
             ],
-            "extends": "default"
+            "extends": "default",
+            "hierarchies": {
+                "level": 300,
+                "filter_override": false
+            }
         },
         "mgr": {
             "display": "Manager",
@@ -381,7 +401,11 @@
             "dimensions": [
                 "person"
             ],
-            "extends": "default"
+            "extends": "default",
+            "hierarchies": {
+                "level": 301,
+                "filter_override": false
+            }
         }
     }
 }
