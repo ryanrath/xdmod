@@ -106,7 +106,7 @@ function main()
     $blacklist = array('default');
 
     // the sections of roles.json that we want to process.
-    $sections = array('permitted_modules', 'query_descripters', 'display', 'type');
+    $sections = array('permitted_modules', 'query_descripters', 'display', 'type', 'hierarchies');
 
     // the ultimate destination for the parsed information from
     // roles/datawarehouse
@@ -865,43 +865,40 @@ SQL;
     $statement = $db->prepare($query);
     $log->debug($statement);
     $inserted = 0;
-    foreach ($hierarchies as $hierarchyName => $hierarchyInfo) {
-        if (null === $hierarchyInfo['level']) {
-            $log->warning("Malformed hierarchy information for Acl $acl. No level present.");
-            continue;
-        }
 
-        if (null === $hierarchyInfo['filter_override']) {
-            $log->warning("Malformed hierarchy information for Acl $acl. No filter_override present.");
-            continue;
-        }
-        $level = $hierarchyInfo['level'];
-        $filterOverride = $hierarchyInfo['filter_override'];
-        $id = "[ Module: $module, Acl: $acl, Level: $level, Filter Override: $filterOverride ]";
+    if (null === $hierarchies['level']) {
+        $log->warning("Malformed hierarchy information for Acl $acl. No level present.");
+    }
 
-        $params = array(
-            ':module_name' => $module,
-            ':acl_name' => $acl,
-            ':level' => $level,
-            ':filter_override' => $filterOverride
-        );
-        $log->debug($params);
+    if (null === $hierarchies['filter_override']) {
+        $log->warning("Malformed hierarchy information for Acl $acl. No filter_override present.");
+    }
+    $level = $hierarchies['level'];
+    $filterOverride = $hierarchies['filter_override'];
+    $id = "[ Module: $module, Acl: $acl, Level: $level, Filter Override: $filterOverride ]";
 
-        if ($dryRun) {
-            $log->info("[SUCCESS] Processed Acl Hierarchy: $id");
-            return;
-        }
+    $params = array(
+        ':module_name' => $module,
+        ':acl_name' => $acl,
+        ':level' => $level,
+        ':filter_override' => $filterOverride
+    );
+    $log->debug($params);
 
-        $modified = $statement->execute($params);
-        $count = $modified === true ? $statement->rowCount() : 0;
-        $inserted += $count;
-        if ($count === 0) {
-            $log->info("[FAIL] Did not Process Acl Hierarchy: $id");
-        } elseif ($count === 1) {
-            $log->info("[SUCCESS] Processed Acl Hierarchy: $id");
-        } else {
-            $log->info("[FAIL] Inserted more than one Acl Hierarchy Record for: $id");
-        }
+    if ($dryRun) {
+        $log->info("[SUCCESS] Processed Acl Hierarchy: $id");
+        return;
+    }
+
+    $modified = $statement->execute($params);
+    $count = $modified === true ? $statement->rowCount() : 0;
+    $inserted += $count;
+    if ($count === 0) {
+        $log->info("[FAIL] Did not Process Acl Hierarchy: $id");
+    } elseif ($count === 1) {
+        $log->info("[SUCCESS] Processed Acl Hierarchy: $id");
+    } else {
+        $log->info("[FAIL] Inserted more than one Acl Hierarchy Record for: $id");
     }
     $processed = count($hierarchies);
     $log->notice("Processed: $processed, Inserted: $inserted");
