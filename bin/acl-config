@@ -33,7 +33,7 @@ try {
     $options = getopt(implode('', array_keys($opts)), array_values($opts));
 
     foreach ($options as $key => $value) {
-        switch($key) {
+        switch ($key) {
             case 't':
             case 'dryrun':
                 $dryRun = true;
@@ -151,7 +151,7 @@ function main()
 
     foreach ($modules as $module => $moduleData) {
         if (null !== $datawarehouseSource[$module]['realms']) {
-            $dwSource= $datawarehouseSource[$module]['realms'];
+            $dwSource = $datawarehouseSource[$module]['realms'];
             foreach ($dwSource as $realmDisplay => $dwData) {
                 $groupBys = null !== $dwData['group_bys'] ? $dwData['group_bys'] : null;
                 $statistics = null !== $dwData['statistics'] ? $dwData['statistics'] : null;
@@ -332,7 +332,7 @@ function createModuleVersion($db, $moduleId, $installedOn, array $version)
 
     $moduleVersion = "$major.$minor.$patch $preRelease";
 
-    
+
 
     $query = <<<SQL
 INSERT INTO module_versions (
@@ -560,7 +560,7 @@ function processModules($db, array $modules)
         $display = isset($data['display']) ? $data['display'] : $name;
         $enabled = isset($data['enabled']) ? $data['enabled'] : true;
         $version = $data['version'];
-        $installedOn =  isset($data['installed_on'])
+        $installedOn = isset($data['installed_on'])
                      ? $data['installed_on']
                      : date("Y-m-d");
 
@@ -659,7 +659,7 @@ function processAcl($db, $module, $name, $display, $type = null, $hierarchies = 
         $aclTypeId = processAclType($db, $module, $type);
 
         $query = <<<SQL
-INSERT into acls(module_id, acl_type_Id, name, display, enabled)
+INSERT INTO acls(module_id, acl_type_Id, name, display, enabled)
 SELECT inc.*
 FROM (
     SELECT
@@ -678,7 +678,7 @@ WHERE cur.acl_id IS NULL;
 SQL;
         $params = array(
             ':name' => $name,
-            ':display'=> $display,
+            ':display' => $display,
             ':enabled' => true,
             ':module_name' => $module,
             ':acl_type_id' => $aclTypeId
@@ -702,7 +702,7 @@ WHERE cur.acl_id IS NULL;
 SQL;
         $params = array(
             ':name' => $name,
-            ':display'=> $display,
+            ':display' => $display,
             ':enabled' => true,
             ':module_name' => $module
         );
@@ -737,8 +737,8 @@ SQL;
                 ':display' => $display
             )
         );
-        $aclId =  $record[0]['acl_id'];
-    } elseif ($inserted === 1 ) {
+        $aclId = $record[0]['acl_id'];
+    } elseif ($inserted === 1) {
         $log->info("[SUCCESS] Inserted $msg");
         $aclId = $db->handle()->lastInsertId();
     }
@@ -834,7 +834,8 @@ SQL;
  * @throws Exception if there is an exception encountered while attempting to execute
  *                   the sql required to process these acl hierarchy records.
  **/
-function processAclHierarchy($db, $module, $acl, array $hierarchies) {
+function processAclHierarchy($db, $module, $acl, array $hierarchies)
+{
     global $dryRun, $log;
 
     $log->notice("Processing Acl Hierarchy Records...");
@@ -947,9 +948,8 @@ function createTab($db, $module, $tab)
     global $dryRun, $log;
     $msg = "name: $tab";
 
-    
 
-    $query =<<<SQL
+    $query = <<<SQL
     INSERT INTO tabs(module_id, name)
     SELECT inc.*
     FROM (
@@ -1110,7 +1110,7 @@ function processQueryDescriptors($db, $module, $acl, array $realms, array $query
      *     :group_by_name  - string
      *     :statistic_name - string
      **/
-    $query =<<<SQL
+    $query = <<<SQL
 INSERT INTO acl_group_bys(realm_id, acl_id, group_by_id, statistic_id, visible, enabled)
 SELECT inc.*
 FROM (
@@ -1151,7 +1151,7 @@ SQL;
     $totalProcessed = 0;
     foreach ($queryDescriptors as $queryDescriptor) {
 
-        $realm = isset($queryDescriptor['realm']) ? $queryDescriptor['realm']: null;
+        $realm = isset($queryDescriptor['realm']) ? $queryDescriptor['realm'] : null;
         $groupBy = isset($queryDescriptor['group_by']) ? $queryDescriptor['group_by'] : null;
         $disable = isset($queryDescriptor['disable']) ? $queryDescriptor['disable'] : false;
 
@@ -1170,7 +1170,7 @@ SQL;
         foreach ($statistics as $statistic) {
 
             $statisticName = isset($statistic['name']) ? $statistic['name'] : null;
-            $hide = isset($statistic['hide']) ? $statistic['hide']: null;
+            $hide = isset($statistic['hide']) ? $statistic['hide'] : null;
             $visible = isset($statistic['visible']) ? $statistic['visible'] : null;
 
             $enabled = null !== $disable ? !$disable : true;
@@ -1192,7 +1192,7 @@ SQL;
                 ':group_by_name' => $groupBy,
                 ':statistic_name' => $statisticName,
                 ':visible' => $visible,
-                ':enabled'=> $enabled
+                ':enabled' => $enabled
             );
 
             $log->debug(json_encode($params));
@@ -1515,21 +1515,21 @@ function verifyJsonSyntax()
     );
 
     $invalid = array();
-    $confPrefix = CONFIG_DIR.DIRECTORY_SEPARATOR;
+    $confPrefix = CONFIG_DIR . DIRECTORY_SEPARATOR;
     foreach ($searchSet as $primaryFile => $configDir) {
-        $primaryFilePath = $confPrefix.$primaryFile;
+        $primaryFilePath = $confPrefix . $primaryFile;
         if (file_exists($primaryFilePath)) {
             $fileJson = Json::loadFile($primaryFilePath);
 
             if (null === $fileJson) {
                 $log->err("[FAIL] $primaryFile in an invalid json file");
-                $inalid []= $primaryFile;
+                $inalid [] = $primaryFile;
             } else {
                 $log->info("[SUCCESS] $primaryFile is a valid json file.");
             }
         }
 
-        $confPath = $confPrefix.$configDir;
+        $confPath = $confPrefix . $configDir;
         if (file_exists($confPath)) {
             foreach (new DirectoryIterator($confPath) as $fileInfo) {
                 if ($fileInfo->isDot()) {
@@ -1537,7 +1537,7 @@ function verifyJsonSyntax()
                 }
                 if ($fileInfo->getExtension() === 'json') {
                     $fileName = $fileInfo->getFilename();
-                    $filePath = $confPath.DIRECTORY_SEPARATOR.$fileName;
+                    $filePath = $confPath . DIRECTORY_SEPARATOR . $fileName;
                     $fileParts = explode(DIRECTORY_SEPARATOR, $filePath);
                     $parentDir = $fileParts[count($fileParts) - 2];
                     $fileId = implode(
@@ -1551,7 +1551,7 @@ function verifyJsonSyntax()
                     } catch (Exception $e) {
                         $reason = $e->getMessage();
                         $log->err("[FAIL] $fileId is not a valid json file. Reason:\n $reason");
-                        $invalid []= $filePath;
+                        $invalid [] = $filePath;
                     }
                 }
             }
@@ -1597,9 +1597,9 @@ function verifyConfigData()
         try {
             $data = $config[$section];
             $log->info("[SUCCESS] $section loaded successfully.");
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $log->err("[FAIL] Unable to load section $section");
-            $invalid []= $section;
+            $invalid [] = $section;
         }
     }
 
@@ -1639,8 +1639,9 @@ function verifyDatabase()
  *
  * @return string
  **/
-function logLevelToVerbosity($logLevel) {
-    switch($logLevel) {
+function logLevelToVerbosity($logLevel)
+{
+    switch ($logLevel) {
         case Log::INFO:
             return 'verbose';
         case Log::DEBUG:
