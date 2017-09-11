@@ -2067,7 +2067,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
 
         var dataSeries = this.getDataSeries();
         var dataSeriesCount = dataSeries.length;
-        var title = this.chartTitleField.getValue();
+        var title = Ext.util.Format.htmlEncode(this.chartTitleField.getValue());
 
         var config = {
 
@@ -2151,7 +2151,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
 
         var findQueriesStoreIndexByName = function(name) {
             return this.queriesStore.findBy(function(record) {
-                if (record.get('name') === name) {
+                if (record.get('name') === Ext.util.Format.htmlEncode(name)) {
                     return true;
                 }
             });
@@ -2236,7 +2236,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
 
         }
 
-        this.chartNameTextbox.setValue(queryName);
+        this.chartNameTextbox.setValue(Ext.util.Format.htmlDecode(queryName));
         this.chartOptionsButton.setText(truncateText(queryName, XDMoD.Module.MetricExplorer.CHART_OPTIONS_MAX_TEXT_LENGTH));
         this.chartOptionsButton.setTooltip(queryName);
     }, //createQueryFunc
@@ -2332,7 +2332,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
         this._simpleSilentSetValue(this.chartPageSizeField, chartPageSizeLimitValue);
 
         this._simpleSilentSetValue(this.trendLineCheckbox, trendLineValue);
-        this._simpleSilentSetValue(this.chartTitleField, config.title);
+        this._simpleSilentSetValue(this.chartTitleField, Ext.util.Format.htmlDecode(config.title));
         this.setLegendValue(config.legend_type, false);
         this._simpleSilentSetValue(this.fontSizeSlider, config.font_size);
         this._simpleSilentSetValue(this.chartSwapXYField, config.swap_xy);
@@ -3360,16 +3360,16 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
                             this.chartNameTextbox.focus();
                             return;
                         }
-
+                        var sanitized = Ext.util.Format.htmlEncode(newValue);
                         XDMoD.TrackEvent('Metric Explorer', 'Updated the Chart Name', Ext.encode({
                             original_name: oldValue,
-                            new_name: newValue
+                            new_name: sanitized
                         }));
 
                         if (this.currentQueryRecord) {
-                            this.chartOptionsButton.setText(truncateText(newValue, XDMoD.Module.MetricExplorer.CHART_OPTIONS_MAX_TEXT_LENGTH));
-                            this.chartOptionsButton.setTooltip(newValue);
-                            this.currentQueryRecord.set('name', newValue);
+                            this.chartOptionsButton.setText(truncateText(sanitized, XDMoD.Module.MetricExplorer.CHART_OPTIONS_MAX_TEXT_LENGTH));
+                            this.chartOptionsButton.setTooltip(sanitized);
+                            this.currentQueryRecord.set('name', sanitized);
                             this.currentQueryRecord.stack.add(this.currentQueryRecord.data);
                         }
                     } // change
@@ -3379,7 +3379,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
 
         var getBaseParams = function() {
             var baseParams = {},
-                title = this.chartTitleField.getValue();
+                title = Ext.util.Format.htmlEncode(this.chartTitleField.getValue());
 
             baseParams.show_title = 'n';
             baseParams.timeseries = this.timeseries ? 'y' : 'n';
@@ -4570,13 +4570,13 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
                 XDMoD.TrackEvent('Metric Explorer', 'Clicked on New Chart button');
 
                 var createQueryHandler = function() {
-                    var text = Ext.util.Format.htmlEncode(nameField.getValue());
+                    var chartName = Ext.util.Format.htmlEncode(nameField.getValue());
 
-                    if (text === '') {
+                    if (chartName === '') {
                         Ext.Msg.alert('Name Invalid', 'Please enter a valid name');
                     } else {
                         var recIndex = this.queriesStore.findBy(function(record) {
-                            if (record.get('name') === text) {
+                            if (record.get('name') === chartName) {
                                 return true;
                             }
                         });
@@ -4594,7 +4594,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
                                     display_type: b.value
                                 }
                             };
-                            this.createQueryFunc(null, null, text, undefined, preserve, initialConfig);
+                            this.createQueryFunc(null, null, chartName, undefined, preserve, initialConfig);
                             win.close();
                         } else {
                             Ext.Msg.alert('Name in use', 'Please enter a unique name');
@@ -4881,7 +4881,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
             XDMoD.TrackEvent('Metric Explorer', 'Selected chart from list', r.data.name);
             Ext.menu.MenuMgr.hideAll();
 
-            this.chartNameTextbox.setValue(r.data.name);
+            this.chartNameTextbox.setValue(Ext.util.Format.htmlDecode(r.data.name));
             this.chartOptionsButton.setText(truncateText(r.data.name, XDMoD.Module.MetricExplorer.CHART_OPTIONS_MAX_TEXT_LENGTH));
             this.chartOptionsButton.setTooltip(r.data.name);
 
@@ -4966,7 +4966,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
                     // to the width of the GridPanel.
                     if (name.length > 73) {
                         /* eslint-disable no-param-reassign */
-                        metaData.attr += 'ext:qtip="' + name + '"';
+                        metaData.attr += 'ext:qtip="' + Ext.util.Format.htmlEncode(name) + '"';
                         /* eslint-enable no-param-reassign */
                     }
                     return name;
@@ -6292,7 +6292,7 @@ Ext.extend(XDMoD.Module.MetricExplorer, XDMoD.PortalModule, {
                     }
                 }
                 this.currentQueryRecord.endEdit();
-                this.chartNameTextbox.setValue(chartData.name);
+                this.chartNameTextbox.setValue(Ext.util.Format.htmlDecode(chartData.name));
                 this.chartOptionsButton.setText(truncateText(chartData.name, XDMoD.Module.MetricExplorer.CHART_OPTIONS_MAX_TEXT_LENGTH));
                 this.chartOptionsButton.setTooltip(chartData.name);
                 this.loadQuery(JSON.parse(chartData.config), true);

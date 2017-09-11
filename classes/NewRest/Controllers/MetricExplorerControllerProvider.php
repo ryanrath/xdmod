@@ -120,6 +120,7 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
 
                 foreach ($data as &$query) {
                     $this->removeRoleFromQuery($user, $query);
+                    $query = $this->encodeData($query);
                 }
 
                 $payload['data'] = $data;
@@ -170,7 +171,7 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
                 $query = $queries->getById($id);
 
                 if (isset($query)) {
-                    $payload['data'] = $query;
+                    $payload['data'] = $this->encodeData($query);
                     $payload['success'] = true;
                     $statusCode = 200;
                 } else {
@@ -220,6 +221,9 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
                     $this->getStringParam($request, 'data', true),
                     true
                 );
+
+                $data = $this->encodeData($data);
+
                 $success = $queries->insert($data) != null;
                 $payload['success'] = $success;
                 if ($success) {
@@ -284,18 +288,31 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
 
                     $data = $this->getStringParam($request, 'data');
                     if (isset($data)) {
-                        $jsonData = json_decode($data, true);
+                        $jsonData = $this->encodeData(json_decode($data, true));
                         $name = isset($jsonData['name']) ? $jsonData['name'] : null;
                         $config = isset($jsonData['config']) ? $jsonData['config'] : null;
                         $ts = isset($jsonData['ts']) ? $jsonData['ts'] : microtime(true);
                     } else {
-                        $name = $this->getStringParam($request, 'name');
+                        $name = $this->encode($this->getStringParam($request, 'name'));
                         $config = $this->getStringParam($request, 'config');
+                        if (isset($config)) {
+                            $json = json_decode($config, true);
+                            if (isset($json['title'])) {
+                                $json['title'] = $this->encode($json['title']);
+                            }
+                            $config = json_encode($json);
+                        }
                         $ts = $this->getDateTimeFromUnixParam($request, 'ts');
                     }
 
-                    if (isset($name)) $query['name'] = $name;
-                    if (isset($config)) $query['config'] = $config;
+                    if (isset($name)) {
+                        $query['name'] = $name;
+                    }
+
+                    if (isset($config)) {
+                        $query['config'] = $config;
+                    }
+
                     if (isset($ts)) {
                         $query['ts'] = $ts;
                     }
@@ -479,6 +496,34 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
         }
         return $results;
     }
+
+    private function encodeData(array $data)
+    {
+        if (isset($data['name'])) {
+            $data['name'] = $this->encode($data['name']);
+        }
+        if (isset($data['config'])) {
+            $config = (gettype($data['config']) === 'string')
+                ? json_decode($data['config'], true)
+                : $data['config'];
+            if (isset($config['title'])) {
+                $config['title'] = $this->encode($config['title']);
+            }
+            $data['config'] = json_encode($config);
+        }
+        return $data;
+    }
+
+    private function encode($value)
+    {
+        return htmlentities(
+            $value,
+            ENT_COMPAT | ENT_HTML401,
+            ini_get('default_charset'),
+            false
+        );
+    }
+
 
     /**
      * @param \UserStorage $metaData
