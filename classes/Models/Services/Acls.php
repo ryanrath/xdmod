@@ -186,10 +186,13 @@ SQL;
 
         $sql = <<<SQL
 SELECT
-  a.*
+  a.*,
+  INSTR(aclt.name, 'requires_center') > 0 AS requires_center
 FROM user_acls ua
   JOIN acls a
     ON a.acl_id = ua.acl_id
+  JOIN acl_types aclt
+    ON aclt.acl_type_id = a.acl_type_id
 WHERE ua.user_id = :user_id
 SQL;
         return $db->query($sql, array('user_id' => $userId));

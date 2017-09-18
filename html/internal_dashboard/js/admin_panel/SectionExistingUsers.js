@@ -1140,10 +1140,23 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
 
                         tg_user_list_phase = 'load_user';
 
-                        roleGrid.setSelectedAcls(json.user_information.roles);
-
-                        roleGrid.setCenterConfig('cd', json.user_information.center_director_sites);
-                        roleGrid.setCenterConfig('cs', json.user_information.center_staff_sites);
+                        /**
+                         * acls are in the form:
+                         * {
+                         *   // If the user's acl has one or more relations to centers
+                         *   "<acl_name>": ["<center_1>", "<center_2>"],
+                         *
+                         *   // If the acl has no relation to centers
+                         *   "<acl_name>": []
+                         * }
+                         */
+                        roleGrid.setSelectedAcls(Object.keys(json.user_information.acls));
+                        for ( var acl in json.user_information.acls) {
+                            if (json.user_information.acls.hasOwnProperty(acl)) {
+                                var centers = json.user_information.acls[acl];
+                                roleGrid.setCenterConfig(acl, centers);
+                            }
+                        }
 
                         userSettings.setDisabled(false);
                         userEditor.hideMask();

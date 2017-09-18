@@ -2,7 +2,9 @@
 
 	// Operation: user_admin->get_user_details
 
-   \xd_security\assertParameterSet('uid', RESTRICTION_UID);
+use Models\Services\Acls;
+
+\xd_security\assertParameterSet('uid', RESTRICTION_UID);
 
 	// -----------------------------
 	
@@ -45,13 +47,32 @@
    if ($userDetails['assigned_user_name'] == NO_MAPPING) {
       $userDetails['assigned_user_name'] = '';
    }	
-				
+
 	$userDetails['is_active'] = $selected_user->getAccountStatus() ? 'active' : 'disabled' ;
-	$userDetails['roles'] = $selected_user->getRoles();
-	
-	$userDetails['center_director_sites'] = $selected_user->enumCenterDirectorSites();
-	$userDetails['center_staff_sites'] = $selected_user->enumCenterStaffSites();	
-	
+
+    $acls = Acls::listUserAcls($selected_user);
+    $populatedAcls = array_reduce(
+        $acls,
+        function($carry, $item) use($selected_user) {
+            $aclName = $item['name'];
+            $aclCenters = array();
+            if ($item['requires_center'] == true) {
+                $aclCenters = Acls::getDescriptorParamValues(
+                    $selected_user,
+                    $aclName,
+                    'provider'
+                );
+            }
+
+            $carry[$aclName] = $aclCenters;
+
+            return $carry;
+        },
+        array()
+    );
+
+	$userDetails['acls'] = $populatedAcls;
+
 	$returnData['user_information'] = $userDetails;	
 	$returnData['status'] = 'success';
 	$returnData['success'] = true;
