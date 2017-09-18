@@ -360,6 +360,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
                 fields: [
                     'id',
                     'username',
+                    'email_address',
                     'first_name',
                     'last_name',
                     'account_is_active',
@@ -385,7 +386,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
 
                 if (self.initFlag == 1) {
                     Ext.getCmp('txtAccountTimestamps').update('');
-                    Ext.getCmp('txtAccountStatus').update('');
+                    document.getElementById('txtAccountStatus').innerText = '';
                 }
 
                 self.initFlag = 1;
@@ -559,6 +560,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
                         userManagementAction({
                             operation: 'update_user',
                             uid: selected_user_id,
+                            email_address: document.getElementById("existingUserEmail").value,
                             is_active: (action == 'Enable') ? 'y' : 'n'
                         });
                     }
@@ -601,6 +603,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
         var minEmailLength = XDMoD.constants.minEmailLength;
         var maxEmailLength = XDMoD.constants.maxEmailLength;
         var existingUserEmailField = new Ext.form.TextField({
+            id: 'existingUserEmail',
             fieldLabel: 'E-Mail Address',
             emptyText: minEmailLength + ' min, ' + maxEmailLength + ' max',
             msgTarget: 'under',
