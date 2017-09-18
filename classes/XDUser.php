@@ -131,20 +131,12 @@ class XDUser
             throw new Exception("At least one role must be associated with this user");
         }
 
-        if ($this->_getFormalRoleName($primary_role) == NULL) {
-            throw new Exception("A valid primary role must be specified");
-        }
-
         foreach ($this->_roles as $role) {
 
             if ($this->_getFormalRoleName($role) == NULL) {
                 throw new Exception("Unrecognized role $role");
             }
 
-        }
-
-        if (!in_array($primary_role, $this->_roles)) {
-            throw new Exception("Primary role $primary_role must be a member of the set of roles assigned to this user");
         }
 
         // =================================
@@ -163,13 +155,12 @@ class XDUser
 
         // =================================
 
-        $primary_role_name = $this->_getFormalRoleName($primary_role);
+        $primary_role_name = $this->_getFormalRoleName(ROLE_ID_USER);
 
         // These roles cannot be used immediately after constructing a new XDUser (since a user id has not been defined at this point).
         // If you are explicitly calling 'new XDUser(...)', saveUser() must be called on the newly created XDUser object before accessing
         // these roles using getPrimaryRole() and getActiveRole()
 
-        $this->_primary_role = \User\aRole::factory($primary_role_name);
         $this->_active_role = \User\aRole::factory($primary_role_name);
     }//construct
 
@@ -975,17 +966,10 @@ SQL;
                     'roleId' => $roleId)
             );
         }
-        $primaryRoleId = $this->_getRoleID($this->_primary_role->getIdentifier());
-        $this->_pdo->execute(
-            "UPDATE UserRoles SET is_primary='1' WHERE user_id=:id AND role_id=:roleId",
-            array('id' => $this->_id, 'roleId' => $primaryRoleId)
-        );
 
         // If the updater (e.g. Manager) has pulled out the (recently) active role for this user, reassign the active role to the primary role.
 
-        $active_role_id = (in_array($this->_active_role->getIdentifier(), $this->_roles)) ?
-            $this->_getRoleID($this->_active_role->getIdentifier()) :
-            $primaryRoleId;
+        $active_role_id = $this->_getRoleID($this->_active_role->getIdentifier());
 
 
         $this->_pdo->execute(
@@ -995,7 +979,6 @@ SQL;
         /* END: UserRole Updating */
 
         /* BEGIN: Configure Primary and Active Roles */
-        $this->_primary_role->configure($this);
         $this->_active_role->configure($this);
         /* END: Configure Primary and Active Roles */
 
