@@ -46,11 +46,13 @@ class Users
 
         $sql = <<<SQL
 SELECT DISTINCT
+  CONCAT(u.first_name, ' ', u.last_name) AS formal_name,
   u.id,
   u.username,
   u.first_name,
   u.last_name,
-  CONCAT(u.first_name, ' ', u.last_name) AS formal_name,
+  u.email_address,
+  u.user_type,
   u.account_is_active,
   ut.acl_type                            AS acl_type,
   CASE WHEN last_session.init_time IS NULL

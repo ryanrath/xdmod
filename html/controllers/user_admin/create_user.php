@@ -45,11 +45,8 @@ try {
         NULL,
         $_POST['assignment']
     );
-
     $newuser->setUserType($_POST['user_type']);
-
     $newuser->saveUser();
-
     // =============================
     foreach($acls as $acl => $centers) {
         if (count($centers) > 0) {

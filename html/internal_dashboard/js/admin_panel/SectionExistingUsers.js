@@ -745,7 +745,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
 
 				// ===========================================
 
-                if (!roleGrid.areRolesSpecified()) {
+                if (roleGrid.getSelectedAcls().length === 0) {
                     CCR.xdmod.ui.userManagementMessage(
                         'This user must have at least one role.',
                         false
@@ -753,21 +753,12 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
                     return;
                 }
 
-                if (!roleGrid.isPrimaryRoleSpecified()) {
-                    CCR.xdmod.ui.userManagementMessage(
-                        'This user must have a primary role assigned.',
-                        false
-                    );
-                    return;
-                }
-				
-				var sel_roles = roleGrid.getSelections();
-				
+                var acls = roleGrid.getSelectedAcls();
                 // ===========================================
 											              
-				if (
-                    (sel_roles.mainRoles.itemExists('pi') == 1 || sel_roles.mainRoles.itemExists('usr') == 1) &&
-                    (cmbUserMapping.getValue().length === 0 )
+                if (
+                    (acls.indexOf('pi') >= 0 || acls.indexOf('usr') >= 0) &&
+                    (cmbUserMapping.getValue().length === 0)
                 ) {
                     cmbUserMapping.addClass('admin_panel_invalid_text_entry');
                     CCR.xdmod.ui.userManagementMessage(
@@ -780,7 +771,7 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
 				
 				
                 if (
-                    (sel_roles.mainRoles.itemExists('cc') == 1) &&
+                    (acls.indexOf('cc') >= 0) &&
                     (cmbInstitution.getValue().length === 0)
                 ) {
                     cmbInstitution.addClass('admin_panel_invalid_text_entry');
@@ -791,11 +782,19 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
                     return;
                 }
 
+                var populatedAcls = {};
+                for ( var i = 0; i < acls.length; i++) {
+                    var acl = acls[i];
+                    if (!populatedAcls.hasOwnProperty(acl)) {
+                        populatedAcls[acl] = roleGrid.getCenters(acl);
+                    }
+                }
+
                 var objParams = {
                     operation: 'update_user',
                     uid: selected_user_id,
                     email_address: existingUserEmailField.getValue(),
-                    roles: Ext.util.JSON.encode(sel_roles),
+                    acls: Ext.util.JSON.encode(populatedAcls),
                     assigned_user: (cmbUserMapping.getValue().length === 0) ?
                                  '-1' :
                                  cmbUserMapping.getValue(),

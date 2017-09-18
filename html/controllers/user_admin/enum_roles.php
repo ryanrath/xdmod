@@ -23,7 +23,7 @@
          'acl_id' => $currentRole['name'],
          'include' => false,
          'primary' => false,
-         'requires_center' => $currentRole['requires_center']
+         'requires_center' => $requiresCenter
       );
 		           
    }//foreach

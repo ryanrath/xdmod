@@ -109,7 +109,7 @@ class XDAdmin
     public function enumerateAcls()
     {
         $sql = <<<SQL
-    SELECT 
+    SELECT DISTINCT
         a.display, 
         a.name,
         INSTR(aclt.name, 'requires_center') > 0 AS requires_center 
