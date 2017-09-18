@@ -1070,7 +1070,10 @@ XDMoD.ExistingUsers = Ext.extend(Ext.Panel, {
                         '<p>' + json.user_information.time_last_logged_in + '</p>' +
                         '<p>' + json.user_information.time_updated + '</p>'
                     );
-                    
+
+                    var txtAccountStatus = document.getElementById('txtAccountStatus');
+                    txtAccountStatus.innerText = json.user_information.is_active;
+
                     if (json.user_information.is_active == 'active') {
                         Ext.getCmp('disableAccountMenuItem').show();
                         Ext.getCmp('enableAccountMenuItem').hide();
