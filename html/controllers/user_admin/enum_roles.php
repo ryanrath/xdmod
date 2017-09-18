@@ -1,9 +1,9 @@
 <?php
-	
-	// Operation: user_admin->enum_roles
-	
+
+    // Operation: user_admin->enum_roles
+
    $xda = new XDAdmin();
-			
+
    $roles = $xda->enumerateAcls();
 
    try {
@@ -25,7 +25,7 @@
          'primary' => false,
          'requires_center' => $requiresCenter
       );
-		           
+
    }//foreach
 
    // -----------------------------
@@ -33,7 +33,7 @@
    $returnData['success'] = true;
    $returnData['status'] = 'success';
    $returnData['acls'] = $roleEntries;
-			
+
    xd_controller\returnJSON($returnData);
-			
+
 ?>
