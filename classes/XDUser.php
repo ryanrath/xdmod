@@ -954,22 +954,22 @@ SQL;
         );
 
         foreach ($this->_roles as $role) {
-            $roleId = $this->_getRoleID($role);
             $this->_pdo->execute(
-                "INSERT INTO UserRoles VALUES(:id, :roleId, '0', '0')",
-                array('id' => $this->_id,
-                    'roleId' => $roleId)
+                "INSERT INTO UserRoles(user_id, role_id, is_active, is_primary) SELECT :user_id as user_id, r.role_id as role_id, '0' as is_active, '0' as is_primary FROM Roles r WHERE r.abbrev = :role;",
+                array(
+                    ':user_id' => $this->_id,
+                    ':role' => $role
+                )
             );
         }
 
         // If the updater (e.g. Manager) has pulled out the (recently) active role for this user, reassign the active role to the primary role.
-
-        $active_role_id = $this->_getRoleID($this->_active_role->getIdentifier());
-
-
         $this->_pdo->execute(
-            "UPDATE UserRoles SET is_active='1' WHERE user_id=:id AND role_id=:roleId",
-            array('id' => $this->_id, 'roleId' => $active_role_id)
+            "UPDATE UserRoles SET is_active = '1' WHERE user_id = :user_id AND role_id = (SELECT role_id FROM Roles WHERE abbrev = :role)",
+            array(
+                ':user_id' => $this->_id,
+                ':role' => $this->_active_role->getIdentifier()
+            )
         );
         /* END: UserRole Updating */
 
@@ -1634,20 +1634,20 @@ SQL
         if ($role != ROLE_ID_CENTER_DIRECTOR && $role != ROLE_ID_CENTER_STAFF) {
             throw new Exception("This user must be saved prior to calling setOrganization()");
         }
-
-        $role_id = $this->_getRoleID($role);
-        if (null === $role_id) {
-            throw new Exception("Unable to retrieve id for role: $role");
-        }
         $acl = Acls::getAclByName($role);
+        if (!isset($acl)) {
+            throw new Exception("Unable to retrieve acl for: $role");
+        }
 
         // -------------------------------------------------------
 
-        $this->_pdo->execute("DELETE FROM UserRoleParameters " .
-            "WHERE user_id=:user_id AND role_id=:role_id AND param_name='provider'", array(
-            ':user_id' => $this->_id,
-            ':role_id' => $role_id,
-        ));
+        $this->_pdo->execute(
+            "DELETE FROM UserRoleParameters WHERE user_id = :user_id AND role_id = (SELECT role_id FROM Roles WHERE abbrev = :role) AND param_name = 'provider'",
+            array(
+                ':user_id' => $this->_id,
+                ':role' => $role,
+            )
+        );
         $this->_pdo->execute(
             "DELETE FROM user_acl_group_by_parameters WHERE user_id = :user_id AND acl_id = :acl_id AND group_by_id IN (SELECT gb.group_by_id FROM group_bys gb WHERE gb.name = 'provider')",
             array(
@@ -1688,13 +1688,25 @@ SQL
                 $active_organization = $organization_id;
             }
 
-            $insertStatement = "INSERT INTO UserRoleParameters " .
-                "(user_id, role_id, param_name, param_op, param_value, is_primary, is_active, promoter) " .
-                "VALUES (:user_id, :role_id, 'provider', '=', :param_value, :is_primary, :is_active, -1)";
+            $insertStatement = <<<SQL
+INSERT INTO UserRoleParameters
+(user_id, role_id, param_name, param_op, param_value, is_primary, is_active, promoter)
+    SELECT
+      :user_id AS user_id,
+      r.role_id AS role_id,
+      'provider' AS param_name,
+      '=' AS param_op,
+      :param_value AS param_value,
+      :is_primary AS is_primary,
+      :is_active AS is_active,
+      -1           AS promoter
+FROM Roles r
+WHERE r.abbrev = :role;
+SQL;
 
             $this->_pdo->execute($insertStatement, array(
                 ':user_id' => $this->_id,
-                ':role_id' => $role_id,
+                ':role' => $role,
                 ':param_value' => $organization_id,
                 ':is_primary' => $primary_flag,
                 ':is_active' => $active_flag,
@@ -2301,9 +2313,9 @@ SQL;
                     ':user_id' => $this->_id,
                     ':role_id' => $campus_champion_role_id,
                 ));
-                $this->_pdo->execute("UPDATE moddb.UserRoleParameters SET is_active=1 WHERE user_id=:user_id AND role_id=:role_id AND param_value=:param_value", array(
+                $this->_pdo->execute("UPDATE moddb.UserRoleParameters SET is_active=1 WHERE user_id=:user_id AND role_id=(SELECT role_id FROM Roles WHERE abbrev = :role) AND param_value=:param_value", array(
                     ':user_id' => $this->_id,
-                    ':role_id' => $role_id,
+                    ':role' => $active_role,
                     ':param_value' => $role_param,
                 ));
 
