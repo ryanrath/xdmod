@@ -104,27 +104,26 @@ XDMoD.ProfileRoleDelegation = Ext.extend(Ext.Panel,  {
 
       // ---------------------------------------------------------
 
-      var sectionAssign = new Ext.Panel({
-         hidden: true,
+       var sectionAssign = new Ext.Panel({
+           hidden: true,
 
-         items: [
-            new Ext.Panel({
-               labelWidth: 95,
-               padding: '5px',
-               frame: true,
-               title: 'Delegate Center Staff Privileges',
-               defaults: {
-                  width: 200
-               },
-               layout: 'form',
+           items: [
+               new Ext.Panel({
+                   labelWidth: 95,
+                   padding: '5px',
+                   frame: true,
+                   title: 'Delegate Center Staff Privileges',
+                   defaults: {
+                       width: 200
+                   },
+                   layout: 'form',
+                   items: [
+                       cmbCenterStaff
+                   ]
+               })
+           ]
 
-               items: [
-                  cmbCenterStaff
-               ]
-            })
-         ]
-
-      });//sectionAssign
+       });// sectionAssign
 
       // ---------------------------------------------------------
 
