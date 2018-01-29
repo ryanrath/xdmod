@@ -6,7 +6,7 @@ use Models\Services\Centers;
 	
    	$activeUser = \xd_security\getLoggedInUser();
 
-        $members = Centers::getCenterStaffMembers($activeUser);
+        $members = Centers::getCenterMembers($activeUser->getActiveOrganization());
 
     	$returnData = array();
     	

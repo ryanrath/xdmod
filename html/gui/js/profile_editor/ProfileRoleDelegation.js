@@ -112,7 +112,7 @@ XDMoD.ProfileRoleDelegation = Ext.extend(Ext.Panel,  {
                labelWidth: 95,
                padding: '5px',
                frame: true,
-               title: 'Delegate Center Director Privileges',
+               title: 'Delegate Center Staff Privileges',
                defaults: {
                   width: 200
                },

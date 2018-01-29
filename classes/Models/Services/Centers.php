@@ -66,4 +66,50 @@ SQL;
 
         return $db->query($query, $params);
     }
+
+    public static function getCenterMembers($centerId)
+    {
+        $multipleServiceProviders = \xd_utilities\getConfiguration('features', 'multiple_service_providers') === 'on';
+
+        if ($multipleServiceProviders) {
+            $query = <<<SQL
+SELECT DISTINCT
+  u.id,
+  CONCAT(u.last_name, ', ', u.first_name, ' [', o.abbrev, ']') as name
+FROM user_acl_group_by_parameters uagbp
+  JOIN Users u ON u.id = uagbp.user_id
+  JOIN acls a ON uagbp.acl_id = a.acl_id
+  JOIN group_bys gb ON uagbp.group_by_id = gb.group_by_id
+  JOIN modw.organization o ON o.id = uagbp.value
+WHERE
+  a.name != 'cd' AND
+  uagbp.value = :center_id;
+SQL;
+            $params = array(':center_id' => $centerId);
+        } else {
+            $query = <<<SQL
+SELECT DISTINCT
+  u.id,
+  CONCAT(u.last_name, ', ', u.first_name, ' [', o.abbrev, ']') as name
+FROM user_acls ua
+  JOIN Users u ON u.id = ua.user_id
+  JOIN acls a ON ua.acl_id = a.acl_id
+  LEFT JOIN (
+    SELECT
+      ua.user_id
+    FROM user_acls ua
+    JOIN acls a ON ua.acl_id = a.acl_id
+    WHERE a.name IN ('cd', 'cs', 'pub')
+  ) rem ON ua.user_id = rem.user_id
+  LEFT JOIN modw.organization o ON o.id = :centerId
+WHERE
+  rem.user_id IS NULL;
+SQL;
+            $params = array();
+        }
+
+        $db = DB::factory('database');
+
+        return $db->query($query, $params);
+    }
 }
