@@ -207,8 +207,17 @@ class XDSamlAuthentication
         "\n\nPerson Details ----------------------------------\n\n" .
         "\nName:                     " . $user->getFormalName(true) .
         "\nUsername:                 " . $user->getUsername() .
-        "\nE-Mail:                   " . $user->getEmailAddress();
+        "\nE-Mail:                   " . $user->getEmailAddress() .
+        "\nOrganization:             " . $user->getOrganizationId();
+        $userOrganization = $user->getOrganizationId();
+        if ((!isset($userOrganization) || $userOrganization < 1) &&
+            isset($samlAttributes['organization_id'])) {
+            $body .=
+                "\n\nNOTES: -----------------------------\n\n" .
+                "Unable to identify Users Organization. Additional Setup Required\n"
+            ;
 
+        }
         if (count($samlAttributes) != 0) {
             $body = $body . "\n\n" .
                 "Additional SAML Attributes ----------------------------------\n\n" .
