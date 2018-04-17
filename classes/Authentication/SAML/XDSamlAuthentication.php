@@ -2,6 +2,7 @@
 
 namespace Authentication\SAML;
 
+use CCR\MailWrapper;
 use \Exception;
 use CCR\Log;
 use Models\Services\Organizations;
@@ -35,7 +36,10 @@ class XDSamlAuthentication
      * @var boolean
      */
     protected $_allowLocalAccessViaSSO = true;
+
     private $logger = null;
+
+    private $emailLogger = null;
 
     public function __construct()
     {
@@ -46,6 +50,18 @@ class XDSamlAuthentication
                'db' => true,
                'mail' => false,
                'console' => false
+            )
+        );
+        $this->emailLogger = Log::factory(
+            'XDSamlAuthentication-email',
+            array(
+                'file' => false,
+                'db' => false,
+                'console' => false,
+                'mail' => true,
+                'emailTo' => \xd_utilities\getConfiguration('general', 'tech_support_recipient'),
+                'emailFrom' => 'sso-user-creation@ccr.xdmod.org',
+                'emailSubject' => 'XDMoD SSO: Additional Actions Necessary'
             )
         );
         $this->_sources = \SimpleSAML_Auth_Source::getSources();
@@ -218,12 +234,14 @@ class XDSamlAuthentication
         // -then-
         // this is an error case and we need to notify the admins that there will
         // be additional setup required.
-        if ((!isset($userOrganization) || $userOrganization < 1) &&
-            isset($samlAttributes['organization_id'])) {
+        $unableToFindOrganization =
+            (!isset($userOrganization) || $userOrganization < 1) &&
+            isset($samlAttributes['organization_id']);
+
+        if ($unableToFindOrganization) {
             $body .=
                 "\n\nNOTES: -----------------------------\n\n" .
-                "Unable to identify Users Organization. Additional Setup Required\n"
-            ;
+                "Unable to identify Users Organization. Additional Setup Required\n";
 
         }
 
@@ -236,6 +254,33 @@ class XDSamlAuthentication
             $this->logger->err("Error Creating Single Sign On user" . $body);
         } else {
             $this->logger->notice("New " . ($linked ? "linked": "unlinked") . " Single Sign On user created" . $body);
+        }
+
+        if ($unableToFindOrganization) {
+            $this->emailLogger->notice("Additional SSO User Action Required". $body);
+
+            $emailAddress = $user->getEmailAddress();
+            if (!isset($emailAddress)) {
+                $emailAddress = $samlAttributes['email_address'][0];
+            }
+            if (!isset($emailAddress)) {
+                $emailAddress = $samlAttributes['email'][0];
+            }
+            if (!isset($emailAddress)) {
+                $this->logger->err("Unable to determine email address for new SSO User." . $body);
+                return;
+            }
+
+            MailWrapper::sendMail(
+                array(
+                    'subject' => 'XDMoD SSO User: Additional Actions Required',
+                    'body' => "Greetings,\n\nThis email is notify you that XDMoD was unable to determine which organization to associate you with. Administrative Users have been notified that additional setup will be required. You may not have full access until this additional setup is complete.\n\nThank you,\n\nXDMoD SSO User Creation",
+                    'toAddress' => $emailAddress,
+                    'fromAddress' => \xd_utilities\getConfiguration('general', 'tech_support_recipient'),
+                    'fromName' => '',
+                    'replyAddress' => \xd_utilities\getConfiguration('mailer', 'sender_email')
+                )
+            );
         }
     }
 }
