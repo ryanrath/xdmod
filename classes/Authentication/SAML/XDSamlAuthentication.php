@@ -209,7 +209,15 @@ class XDSamlAuthentication
         "\nUsername:                 " . $user->getUsername() .
         "\nE-Mail:                   " . $user->getEmailAddress() .
         "\nOrganization:             " . $user->getOrganizationId();
+
         $userOrganization = $user->getOrganizationId();
+
+        // If userOrganization is null -or- if the value < 1 ( 0 )
+        // -and-
+        // we have an organization_id provided by the samlAttributes
+        // -then-
+        // this is an error case and we need to notify the admins that there will
+        // be additional setup required.
         if ((!isset($userOrganization) || $userOrganization < 1) &&
             isset($samlAttributes['organization_id'])) {
             $body .=
@@ -218,6 +226,7 @@ class XDSamlAuthentication
             ;
 
         }
+
         if (count($samlAttributes) != 0) {
             $body = $body . "\n\n" .
                 "Additional SAML Attributes ----------------------------------\n\n" .
