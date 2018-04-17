@@ -4,6 +4,7 @@ namespace Authentication\SAML;
 
 use \Exception;
 use CCR\Log;
+use Models\Services\Organizations;
 
 class XDSamlAuthentication
 {
@@ -110,6 +111,13 @@ class XDSamlAuthentication
             }
             $emailAddress = !empty($samlAttrs['email_address'][0]) ? $samlAttrs['email_address'][0] : NO_EMAIL_ADDRESS_SET;
             $personId = \DataWarehouse::getPersonIdByUsername($thisSystemUserName);
+
+            if (!isset($samlAttrs['organization'])) {
+                $userOrganization = null;
+            } else {
+                $userOrganization = Organizations::getIdByName($samlAttrs['organization']);
+            }
+
             if (!isset($samlAttrs["first_name"])) {
                 $samlAttrs["first_name"] = array("UNKNOWN");
             }
@@ -129,7 +137,7 @@ class XDSamlAuthentication
                     $samlAttrs["last_name"][0],
                     array(ROLE_ID_USER),
                     ROLE_ID_USER,
-                    null,
+                    $userOrganization,
                     $personId
                 );
             } catch (Exception $e) {

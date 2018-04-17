@@ -88,4 +88,22 @@ SQL;
 
         return $rows[0]['name'];
     }
+
+    /**
+     * Attempt to retrieve the organization id associated with the provided
+     * $organizationName.
+     *
+     * @param $organizationName
+     * @return array
+     * @throws \Exception if there is a problem retrieving a db connection.
+     * @throws \Exception if there is a problem executing the sql statement.
+     */
+    public static function getIdByName($organizationName)
+    {
+        $db = DB::factory('database');
+        return $db->query(
+            "SELECT o.id FROM modw.organization o WHERE o.name = :organization_name;",
+            array(':organization_name' => $organizationName)
+        );
+    }
 }
