@@ -254,7 +254,7 @@ class XDSamlAuthentication
         // be additional setup required.
         $unableToFindOrganization =
             (!isset($userOrganization) || $userOrganization < 1) &&
-            isset($samlAttributes['organization_id']);
+            (isset($samlAttributes['organization_id']) || isset($samlAttributes['organization']));
 
         if ($unableToFindOrganization) {
             $body .=
