@@ -128,10 +128,28 @@ class XDSamlAuthentication
             $emailAddress = !empty($samlAttrs['email_address'][0]) ? $samlAttrs['email_address'][0] : NO_EMAIL_ADDRESS_SET;
             $personId = \DataWarehouse::getPersonIdByUsername($thisSystemUserName);
 
-            if (!isset($samlAttrs['organization'])) {
+            if (!isset($samlAttrs['organization_id'])) {
                 $userOrganization = null;
             } else {
-                $userOrganization = Organizations::getIdByName($samlAttrs['organization']);
+                // Attempt to look up their organization by the most reliable method we have
+                // currently.
+                $userOrganization = Organizations::getOrganizationIdByName($samlAttrs['organization_id'][0]);
+                if (!empty($userOrganization)) {
+                    $userOrganization = $userOrganization[0]['id'];
+                } else {
+                    $userOrganization = null;
+                }
+
+                // If we didn't find their organization via organization_id then fall back to trying
+                // organization.
+                if ($userOrganization === null && isset($samlAttrs['organization'])) {
+                    $userOrganization = Organizations::getOrganizationIdByLongName($samlAttrs['organization'][0]);
+                    if (!empty($userOrganization)) {
+                        $userOrganization = $userOrganization[0]['id'];
+                    } else {
+                        $userOrganization = null;
+                    }
+                }
             }
 
             if (!isset($samlAttrs["first_name"])) {

@@ -106,4 +106,13 @@ SQL;
             array(':organization_name' => $organizationName)
         );
     }
+
+    public static function getOrganizationIdByLongName($organizationLongName)
+    {
+        $db = DB::factory('database');
+        return $db->query(
+            "SELECT o.id FROM modw.organization o WHERE o.long_name = :organization_name;",
+            array(':organization_name' => $organizationLongName)
+        );
+    }
 }
