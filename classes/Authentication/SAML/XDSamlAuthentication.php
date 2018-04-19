@@ -288,17 +288,21 @@ class XDSamlAuthentication
                 $this->logger->err("Unable to determine email address for new SSO User." . $body);
                 return;
             }
+            try {
 
-            MailWrapper::sendMail(
-                array(
-                    'subject' => 'XDMoD SSO User: Additional Actions Required',
-                    'body' => "Greetings,\n\nThis email is notify you that XDMoD was unable to determine which organization to associate you with. Administrative Users have been notified that additional setup will be required. You may not have full access until this additional setup is complete.\n\nThank you,\n\nXDMoD SSO User Creation",
-                    'toAddress' => $emailAddress,
-                    'fromAddress' => \xd_utilities\getConfiguration('general', 'tech_support_recipient'),
-                    'fromName' => '',
-                    'replyAddress' => \xd_utilities\getConfiguration('mailer', 'sender_email')
-                )
-            );
+                MailWrapper::sendMail(
+                    array(
+                        'subject' => 'XDMoD SSO User: Additional Actions Required',
+                        'body' => "Greetings,\n\nThis email is notify you that XDMoD was unable to determine which organization to associate you with. Administrative Users have been notified that additional setup will be required. You may not have full access until this additional setup is complete.\n\nThank you,\n\nXDMoD SSO User Creation",
+                        'toAddress' => $emailAddress,
+                        'fromAddress' => \xd_utilities\getConfiguration('general', 'tech_support_recipient'),
+                        'fromName' => '',
+                        'replyAddress' => \xd_utilities\getConfiguration('mailer', 'sender_email')
+                    )
+                );
+            } catch (Exception $e) {
+                $this->logger->err("There was an error sending a notification email to new SSO User: $emailAddress");
+            }
         }
     }
 }
