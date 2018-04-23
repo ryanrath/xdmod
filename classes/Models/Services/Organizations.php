@@ -93,26 +93,36 @@ SQL;
      * Attempt to retrieve the organization id associated with the provided
      * $organizationName.
      *
-     * @param $organizationName
-     * @return array
+     * @param string $organizationName the name of the organization to retrieve.
+     * @return int|null null if no record is found else the organization_id as an int.
      * @throws \Exception if there is a problem retrieving a db connection.
      * @throws \Exception if there is a problem executing the sql statement.
      */
     public static function getIdByName($organizationName)
     {
         $db = DB::factory('database');
-        return $db->query(
+        $rows = $db->query(
             "SELECT o.id FROM modw.organization o WHERE o.name = :organization_name;",
             array(':organization_name' => $organizationName)
         );
+        return !empty($rows) ? $rows[0]['id'] : null;
     }
 
+    /**
+     * Attempt to retrieve the organization id associated with the provided $organizationLongName.
+     *
+     * @param string $organizationLongName the long name of the association to retrieve.
+     * @return int|null null if no record is found else the organization_id as an int.
+     * @throws \Exception if there is a problem retrieving a db connection.
+     * @throws \Exception if there is a problem executing the sql statement.
+     */
     public static function getOrganizationIdByLongName($organizationLongName)
     {
         $db = DB::factory('database');
-        return $db->query(
+        $rows = $db->query(
             "SELECT o.id FROM modw.organization o WHERE o.long_name = :organization_name;",
             array(':organization_name' => $organizationLongName)
         );
+        return !empty($rows) ? $rows[0]['id'] : null;
     }
 }

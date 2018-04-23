@@ -60,7 +60,7 @@ class XDSamlAuthentication
                 'console' => false,
                 'mail' => true,
                 'emailTo' => \xd_utilities\getConfiguration('general', 'tech_support_recipient'),
-                'emailFrom' => 'sso-user-creation@ccr.xdmod.org',
+                'emailFrom' => \xd_utilities\getConfiguration('mailer', 'sender_email'),
                 'emailSubject' => 'XDMoD SSO: Additional Actions Necessary'
             )
         );
@@ -134,21 +134,11 @@ class XDSamlAuthentication
                 // Attempt to look up their organization by the most reliable method we have
                 // currently.
                 $userOrganization = Organizations::getOrganizationIdByName($samlAttrs['organization_id'][0]);
-                if (!empty($userOrganization)) {
-                    $userOrganization = $userOrganization[0]['id'];
-                } else {
-                    $userOrganization = null;
-                }
 
                 // If we didn't find their organization via organization_id then fall back to trying
                 // organization.
                 if ($userOrganization === null && isset($samlAttrs['organization'])) {
                     $userOrganization = Organizations::getOrganizationIdByLongName($samlAttrs['organization'][0]);
-                    if (!empty($userOrganization)) {
-                        $userOrganization = $userOrganization[0]['id'];
-                    } else {
-                        $userOrganization = null;
-                    }
                 }
             }
 
