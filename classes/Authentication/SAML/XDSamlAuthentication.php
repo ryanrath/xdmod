@@ -236,14 +236,14 @@ class XDSamlAuthentication
 
         $userOrganization = $user->getOrganizationId();
 
-        // If userOrganization is null -or- if the value < 1 ( 0 )
+        // If userOrganization is null -or- if it's the UNKNOWN organization
         // -and-
         // we have an organization_id provided by the samlAttributes
         // -then-
         // this is an error case and we need to notify the admins that there will
         // be additional setup required.
         $unableToFindOrganization =
-            (!isset($userOrganization) || $userOrganization < 1) &&
+            (!isset($userOrganization) || $userOrganization === UNKNOWN_ORGANIZATION) &&
             (isset($samlAttributes['organization_id']) || isset($samlAttributes['organization']));
 
         if ($unableToFindOrganization) {
