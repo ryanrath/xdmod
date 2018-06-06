@@ -85,7 +85,7 @@ class UsageExplorerTest extends \PHPUnit_Framework_TestCase
                     return;
                 }
                 elseif(substr($expectedFile, -13) !== 'reference.csv'){
-                    throw new PHPUnit_Framework_ExpectationFailedException(
+                    throw new \PHPUnit_Framework_ExpectationFailedException(
                         count($failures)." assertions failed:\n\t".implode("\n\t", $failures)
                     );
                 }
