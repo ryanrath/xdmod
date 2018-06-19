@@ -1078,7 +1078,7 @@ class Query
      * @return array
      * @throws Exception
      */
-    public function setMultipleRoleParameters(XDUser $user, $includePublicRole  = false) {
+    public function setMultipleRoleParameters(XDUser $user, $includePublicRole = false) {
 
         $allwheres = array();
         $role_parameters = array();
