@@ -122,15 +122,11 @@ class MetricExplorer extends Common
         // Check that the user is allowed to view the datasets they have
         // requested. If they are not allowed to view any of them, throw an
         // exception indicating access is denied.
-        foreach ($data_series as $data_description) {
-            $data_description->authorizedRoles = self::checkDataAccess(
-                $user,
-                'tg_usage',
-                $data_description->realm,
-                $data_description->group_by,
-                $data_description->metric
-            );
-        }
+        self::checkDataAccess(
+            $user,
+            $data_description->realm,
+            $data_description->group_by
+        );
 
         $min_aggregation_unit = null;
         foreach ($data_series as $data_series_desc) {
@@ -283,8 +279,11 @@ class MetricExplorer extends Common
                 $query->setRoleParameters($groupedRoleParameters);
 
                 $query->setFilters($data_description->filters);
-
-                $roleRestrictionsParameters = $query->setMultipleRoleParameters($data_description->authorizedRoles, $user);
+                $includePublicRole = !Acls::queryDescriptorIsRestricted(
+                    $data_description->realm,
+                    $data_description->group_by
+                );
+                $roleRestrictionsParameters = $query->setMultipleRoleParameters($user, $includePublicRole);
                 $restrictedByRoles = $query->isLimitedByRoleRestrictions();
 
                 $query->addOrderByAndSetSortInfo($data_description);
@@ -558,46 +557,27 @@ class MetricExplorer extends Common
     /**
      * Check that a user has access to the specified metric data.
      *
-     * @param  XDUser $user            The user to check the authorization of.
-     * @param  string $query_groupname The query group name.
-     * @param  string $realm_name      (Optional) The realm name.
-     * @param  string $group_by_name   (Optional) The group by name.
-     * @param  string $statistic_name  (Optional) The statistic name.
-     *
-     * @return array The roles authorized to view the data.
-     *               These should be used to restrict the query to the
-     *               subsets of data the user is allowed to view.
+     * @param  XDUser $user The user to check the authorization of.
+     * @param  string $realm_name (Optional) The realm name.
+     * @param  string $group_by_name (Optional) The group by name.
      *
      * @throws AccessDeniedException The user does not have access to the data.
+     * @throws Exception
      */
     public static function checkDataAccess(
         XDUser $user,
-        $query_groupname,
         $realm_name = null,
-        $group_by_name = null,
-        $statistic_name = null
+        $group_by_name = null
     ) {
-        $userRoles = $user->getAllRoles(true);
+        $authorized = Acls::hasDataAccess(
+            $user,
+            $realm_name,
+            $group_by_name
+        );
 
-        $authorizedRoles = array();
-        foreach ($userRoles as $userRole) {
-            $accessPermitted = Acls::hasDataAccess(
-                $user,
-                $realm_name,
-                $group_by_name,
-                $statistic_name,
-                $userRole->getIdentifier()
-            );
-            if ($accessPermitted) {
-                $authorizedRoles[] = $userRole;
-            }
-        }
-
-        if (empty($authorizedRoles)) {
+        if (!$authorized) {
             throw new AccessDeniedException();
         }
-
-        return $authorizedRoles;
     }
 
     /**
@@ -738,9 +718,8 @@ class MetricExplorer extends Common
 
             // Get the user's roles that are authorized to view this data.
             try {
-                $realmAuthorizedRoles = MetricExplorer::checkDataAccess(
+                MetricExplorer::checkDataAccess(
                     $user,
-                    'tg_usage',
                     $realm,
                     $dimension_id
                 );
@@ -761,7 +740,7 @@ class MetricExplorer extends Common
                 null,
                 $dimension_id
             );
-            $query->setMultipleRoleParameters($realmAuthorizedRoles, $user);
+            $query->setMultipleRoleParameters($user);
 
             $dimensionValuesQueries[] = $query->getDimensionValuesQuery();
         }
@@ -1046,7 +1025,6 @@ class MetricExplorer extends Common
         // realm. If not, an exception will be thrown.
         self::checkDataAccess(
             $user,
-            'tg_usage',
             $realm,
             $dimension_id
         );

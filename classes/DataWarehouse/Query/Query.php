@@ -8,6 +8,7 @@ use CCR\DB\PDODB;
 use FilterListHelper;
 use Models\Services\Parameters;
 use Xdmod\Config;
+use XDUser;
 
 /*
 * @author Amin Ghadersohi
@@ -1065,15 +1066,19 @@ class Query
      *
      * The role parameter descriptions are not updated by this function.
      *
-     * @param array   $rolearray an array of Role objects that will be used to
-     *                           determine which parameters are added to this
-     *                           query.
      * @param \XDUser $user      the user that is running this query.
+     *
      *
      * @return array The set of role parameters applied to this query, if any.
      *               Each entry contains the group by object and values.
      */
-    public function setMultipleRoleParameters($rolearray, $user) {
+    /**
+     * @param XDUser $user
+     * @param bool $includePublicRole
+     * @return array
+     * @throws Exception
+     */
+    public function setMultipleRoleParameters(XDUser $user, $includePublicRole  = false) {
 
         $allwheres = array();
         $role_parameters = array();
@@ -1086,6 +1091,8 @@ class Query
         catch(Exception $e){
           $multiple_providers_supported = FALSE;
         }
+
+        $rolearray = $user->getAllRoles($includePublicRole);
 
         foreach($rolearray as $role) {
 

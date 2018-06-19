@@ -1133,17 +1133,13 @@ SQL;
      * @param XDUser $user the user for whom the authorization is performed
      * @param string $realmName the realm to be used in determining access.
      * @param string $groupByName the group_by to be used in determining access.
-     * @param string $statisticName the statistic to be used in determining access. ( Eventually )
-     * @param string $aclName the acl to be used in determining access.
      * @return bool
      * @throws Exception if there is a problem executing a sql statement.
      */
     public static function hasDataAccess(
         XDUser $user,
         $realmName,
-        $groupByName,
-        $statisticName = null,
-        $aclName = null
+        $groupByName
     ) {
         // Query to tell whether or not this user has a 'query descriptor'
         $presentQuery = <<<SQL
@@ -1159,7 +1155,8 @@ SELECT DISTINCT agb.realm_id
 
     WHERE
       r.name = :realm_name AND
-      gb.name = :group_by_name 
+      gb.name = :group_by_name AND
+      ua.user_id = :user_id
 SQL;
         // Query to tell whether or not they have a 'query descriptor' and it's disabled but still
         // visible.
@@ -1176,7 +1173,8 @@ SELECT DISTINCT agb.realm_id
 
     WHERE agb.enabled = false AND
           r.name = :realm_name AND
-          gb.name = :group_by_name 
+          gb.name = :group_by_name AND
+          ua.user_id = :user_id
 
 SQL;
 
@@ -1192,14 +1190,6 @@ SQL;
         // statistic. This means that a user has 'access' to a query descripter so long as the
         // appropriate roles.json::roles::<role>::query_descripter::<query_descripter> does not
         // contain the `"enabled": false` property.
-
-
-        // if the user specified an acl then make sure to modify both sub queries.
-        if (isset($aclName)) {
-            $presentQuery .= "\nAND a.name = :acl_name\n";
-            $disabledQuery .= "\nAND a.name = :acl_name\n";
-            $params[':acl_name'] = $aclName;
-        }
 
         // the parent query that brings both of the sub-queries together.
         $query = <<<SQL
@@ -1234,5 +1224,44 @@ SQL;
         } else {
             return !($present && $disabledButVisible);
         }
+    }
+
+    /**
+     * @param $realmName
+     * @param $groupByName
+     * @return bool
+     * @throws Exception
+     */
+    public static function queryDescriptorIsRestricted($realmName, $groupByName)
+    {
+        // We need to retrieve which dimensions this acl filters on. To do that we need to see how
+        // it's configured
+        $config = Config::factory();
+
+        // retrieve the roles section of the roles.json/.d config files.
+        $roles = $config['roles']['roles'];
+
+        try {
+            $aclConfig = $roles['pub'];
+            $queryDescriptors = isset($aclConfig['query_descripters']) ? $aclConfig['query_descripters'] : array();
+        } catch (\Exception $e) {
+            throw new \Exception("Unable to retrieve query descripter information about pub");
+        }
+
+        $queryDescriptor = array_pop(
+            array_filter(
+                $queryDescriptors,
+                function ($item) use ($realmName, $groupByName) {
+                    return $item['realm'] === $realmName && $item['group_by'] === $groupByName;
+                }
+            )
+        );
+
+        $disabled = isset($queryDescriptor['disable']) ? $queryDescriptor['disable'] : null;
+
+        if ($disabled === true) {
+            return true;
+        }
+        return false;
     }
 }

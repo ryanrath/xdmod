@@ -89,10 +89,8 @@ try {
     // Check that the user has at least one role authorized to view this data.
     MetricExplorer::checkDataAccess(
         $user,
-        'tg_usage',
         $data_description->realm,
-        'none',
-        $data_description->metric
+        'none'
     );
 
     if ($format === 'jsonstore') {
@@ -128,7 +126,7 @@ try {
             }
         }
 
-        $query->setMultipleRoleParameters($user->getAllRoles(), $user);
+        $query->setMultipleRoleParameters($user);
 
         $query->setRoleParameters($groupedRoleParameters);
 

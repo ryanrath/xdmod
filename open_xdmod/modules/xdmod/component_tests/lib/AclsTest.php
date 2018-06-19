@@ -85,35 +85,20 @@ TXT;
             $actual = Acls::hasDataAccess(
                 $user,
                 $realm,
-                $groupBy,
-                $statistic,
-                $roleName
+                $groupBy
             );
 
             // We also check the MetricExplorer::checkDataAccess function as it's
             // based on the previous function(s).
             try {
-                $authorizedRoles = MetricExplorer::checkDataAccess(
+                MetricExplorer::checkDataAccess(
                     $user,
-                    $queryGroup,
                     ucfirst($realm),
-                    $groupBy,
-                    $statistic
+                    $groupBy
                 );
-
-                if ($expected) {
-                    $this->assertNotEmpty(
-                        $authorizedRoles,
-                        "Expected MetricExplorer::checkDataAccess to not be empty."
-                    );
-                } else {
-                    $this->assertEmpty(
-                        $authorizedRoles,
-                        "Expected MetricExplorer::checkDataAccess to be empty."
-                    );
-                }
             } catch (\Exception $e) {
                 // then the user isn't authorized *shrug*.
+                $this->assertFalse($expected, "Expected true from MetricExplorer::checkDataAccess.");
             }
 
             // Just some pre-assertion debugging info.
