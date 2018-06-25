@@ -249,7 +249,7 @@ class HighChartTimeseries2 extends HighChart2
                 }
                 $query->setRoleParameters($groupedRoleParameters);
 
-                $data_description->roleRestrictionsParameters = $query->setMultipleRoleParameters($this->user);
+                $data_description->roleRestrictionsParameters = $query->filterQueryByUserAcls($this->user);
                 $data_description->restrictedByRoles = $query->isLimitedByRoleRestrictions();
 
                 $globalFilterDescriptions = array_merge(

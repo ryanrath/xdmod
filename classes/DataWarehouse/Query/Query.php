@@ -1060,25 +1060,19 @@ class Query
 
     }
 
-    /* Used to set the query to return data for multiple roles. The where
+    /**
+     * Used to set the query to return data for multiple roles. The where
      * conditions for each role are anded together and each set is ORed
      * together in the query.
      *
-     * The role parameter descriptions are not updated by this function.
-     *
-     * @param \XDUser $user      the user that is running this query.
-     *
-     *
+     * @param XDUser $user              The user to filter this particular query by.
+     * @param bool   $includePublicRole Whether or not the 'Public' Role should be added to the set
+     *                                  of acls that generate filters for this query.
      * @return array The set of role parameters applied to this query, if any.
      *               Each entry contains the group by object and values.
-     */
-    /**
-     * @param XDUser $user
-     * @param bool $includePublicRole
-     * @return array
      * @throws Exception
      */
-    public function setMultipleRoleParameters(XDUser $user, $includePublicRole = false) {
+    public function filterQueryByUserAcls(XDUser $user, $includePublicRole = false) {
 
         $allwheres = array();
         $role_parameters = array();

@@ -126,7 +126,7 @@ try {
             }
         }
 
-        $query->setMultipleRoleParameters($user);
+        $query->filterQueryByUserAcls($user);
 
         $query->setRoleParameters($groupedRoleParameters);
 

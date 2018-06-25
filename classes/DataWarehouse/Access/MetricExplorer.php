@@ -283,7 +283,7 @@ class MetricExplorer extends Common
                     $data_description->realm,
                     $data_description->group_by
                 );
-                $roleRestrictionsParameters = $query->setMultipleRoleParameters($user, $includePublicRole);
+                $roleRestrictionsParameters = $query->filterQueryByUserAcls($user, $includePublicRole);
                 $restrictedByRoles = $query->isLimitedByRoleRestrictions();
 
                 $query->addOrderByAndSetSortInfo($data_description);
@@ -740,7 +740,7 @@ class MetricExplorer extends Common
                 null,
                 $dimension_id
             );
-            $query->setMultipleRoleParameters($user);
+            $query->filterQueryByUserAcls($user);
 
             $dimensionValuesQueries[] = $query->getDimensionValuesQuery();
         }

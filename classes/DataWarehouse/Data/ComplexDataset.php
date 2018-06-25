@@ -135,7 +135,7 @@ class ComplexDataset
             );
             $query->setRoleParameters($groupedRoleParameters);
 
-            $data_description->roleRestrictionsParameters = $query->setMultipleRoleParameters($user, true);
+            $data_description->roleRestrictionsParameters = $query->filterQueryByUserAcls($user, true);
             $data_description->restrictedByRoles = $query->isLimitedByRoleRestrictions();
 
             $globalFilterDescriptions = array_merge(

@@ -1253,7 +1253,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
             $QueryClass = "\\DataWarehouse\\Query\\$realm\\RawData";
             $query = new $QueryClass("day", $startDate, $endDate, null, "", array(), 'tg_usage', array(), false);
 
-            $query->setMultipleRoleParameters($user);
+            $query->filterQueryByUserAcls($user);
 
             $query->setRoleParameters($params);
 
@@ -2061,7 +2061,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
         $QueryClass = "\\DataWarehouse\\Query\\$realm\\JobDataset";
         $query = new $QueryClass($params, "brief");
 
-        $query->setMultipleRoleParameters($user);
+        $query->filterQueryByUserAcls($user);
 
         $dataSet = new \DataWarehouse\Data\RawDataset($query, $user);
 
