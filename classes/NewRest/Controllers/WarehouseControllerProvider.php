@@ -633,11 +633,11 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         $params = json_decode($params, true);
 
-        if($params === NULL) {
+        if ($params === null) {
             throw new BadRequestException('params parameter must be valid JSON');
         }
 
-        if ( (isset($params['resource_id']) && isset($params['local_job_id'])) || isset($params['jobref']) ) {
+        if ((isset($params['resource_id']) && isset($params['local_job_id'])) || isset($params['jobref'])) {
             return $this->getJobByPrimaryKey($app, $user, $realm, $params);
         } else {
             $startDate = $this->getStringParam($request, 'start_date', true);
@@ -824,8 +824,8 @@ class WarehouseControllerProvider extends BaseControllerProvider
     /**
      * Get a set of quick filters tailored to the current user.
      *
-     * @param  Request     $request The request used to make this call.
-     * @param  Application $app     The router application.
+     * @param  Request $request The request used to make this call.
+     * @param  Application $app The router application.
      * @return Response             A response containing the following info:
      *                              success: A boolean indicating if the call was successful.
      *                              results: An object containing data about
@@ -838,10 +838,9 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         // Check whether multiple service providers are supported or not.
         try {
-          $multipleProvidersSupported = \xd_utilities\getConfiguration('features', 'multiple_service_providers') === 'on';
-        }
-        catch(\Exception $e){
-          $multipleProvidersSupported = FALSE;
+            $multipleProvidersSupported = \xd_utilities\getConfiguration('features', 'multiple_service_providers') === 'on';
+        } catch (\Exception $e) {
+            $multipleProvidersSupported = FALSE;
         }
 
         // Generate generic quick filters for all users.
@@ -916,12 +915,12 @@ class WarehouseControllerProvider extends BaseControllerProvider
         ));
     }
 
-        /**
+    /**
      * Attempt to retrieve the the name for the provided dimensionId.
      *
-     * @param Request     $request
+     * @param Request $request
      * @param Application $app
-     * @param string      $dimensionId
+     * @param string $dimensionId
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
@@ -933,15 +932,15 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         $status = $success ? 200 : 404;
         $payload = $success
-                 ? array(
-                     'success' => $success,
-                     'results' => array(
-                         'name' => $dimensionName
-                     ))
-                 : array(
-                         'success' => false,
-                         'message' => "Unable to find a name for dimension: $dimensionId"
-                 );
+            ? array(
+                'success' => $success,
+                'results' => array(
+                    'name' => $dimensionName
+                ))
+            : array(
+                'success' => false,
+                'message' => "Unable to find a name for dimension: $dimensionId"
+            );
 
         return $app->json(
             $payload,
@@ -953,10 +952,10 @@ class WarehouseControllerProvider extends BaseControllerProvider
      * Attempt to retrieve the the name for the provided dimensionId and
      * valueId.
      *
-     * @param Request     $request
+     * @param Request $request
      * @param Application $app
-     * @param string      $dimensionId
-     * @param string      $valueId
+     * @param string $dimensionId
+     * @param string $valueId
      *
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
@@ -968,16 +967,16 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         $status = $success ? 200 : 404;
         $payload = $success
-                 ? array(
-                     'success' => $success,
-                     'results' => array(
-                         'name' => $valueName
-                     )
-                 )
-                 : array(
-                     'success' => $success,
-                     'message' => "Unable to find a name for dimesion: $dimensionId | value: $valueId"
-                 );
+            ? array(
+                'success' => $success,
+                'results' => array(
+                    'name' => $valueName
+                )
+            )
+            : array(
+                'success' => $success,
+                'message' => "Unable to find a name for dimesion: $dimensionId | value: $valueId"
+            );
 
         return $app->json(
             $payload,
@@ -1414,7 +1413,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         $dataset = $this->_getJobDataSet($user, $realm, $jobId, 'peers');
         foreach ($dataset->getResults() as $index => $jobpeer) {
-            if ( ($index >= $start) && ($index < ($start + $limit))) {
+            if (($index >= $start) && ($index < ($start + $limit))) {
                 $result['series'][1]['data'][] = array(
                     'x' => $i++,
                     'low' => $jobpeer['start_time_ts'] * 1000.0,
@@ -1430,7 +1429,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
             }
         }
 
-        return  $app->json(array(
+        return $app->json(array(
             'success' => true,
             'data' => array($result),
             'total' => count($dataset->getResults())
@@ -1526,16 +1525,16 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
     private function arraytostore(array $values)
     {
-            return array(array("key" => ".", "value" => "", "expanded" => true, "children" => $this->atosrecurse($values, False) ));
+        return array(array("key" => ".", "value" => "", "expanded" => true, "children" => $this->atosrecurse($values, False)));
     }
 
     private function atosrecurse(array $values)
     {
         $result = array();
-        foreach($values as $key => $value) {
-            if( is_array($value) ) {
-                if(count($value) > 0 ) {
-                    $result[] = array("key" => "$key", "value" => "", "expanded" => true, "children" => $this->atosrecurse($value) );
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                if (count($value) > 0) {
+                    $result[] = array("key" => "$key", "value" => "", "expanded" => true, "children" => $this->atosrecurse($value));
                 }
             } else {
                 $result[] = array("key" => "$key", "value" => $value, "leaf" => true);
@@ -1703,7 +1702,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
      */
     private function _processHistoryRecordRequest(Request $request, Application $app, XDUser $user, $recordId, $action)
     {
-        $url = $request->getBasePath() . $request->getPathInfo() . "/$recordId?".$request->getQueryString();
+        $url = $request->getBasePath() . $request->getPathInfo() . "/$recordId?" . $request->getQueryString();
         return $app->redirect($url);
     }
 
@@ -1760,7 +1759,8 @@ class WarehouseControllerProvider extends BaseControllerProvider
         );
     }
 
-    private function encodeFloatArray(array $in) {
+    private function encodeFloatArray(array $in)
+    {
         $out = array();
         foreach ($in as $key => $value) {
             if (is_float($value) && is_nan($value)) {
@@ -1904,8 +1904,8 @@ class WarehouseControllerProvider extends BaseControllerProvider
         $lineWidth = 1 + $settings['scale'];
 
         $chartConfig = array(
-            'colors' => array( '#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce', '#492970',
-                        '#f28f43', '#77a1e5', '#c42525', '#a6c96a'
+            'colors' => array('#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce', '#492970',
+                '#f28f43', '#77a1e5', '#c42525', '#a6c96a'
             ),
             'series' => $data['series'],
             'xAxis' => array(
@@ -1913,7 +1913,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
                 'minTickInterval' => 1000,
                 'labels' => array(
                     'style' => array(
-                        'fontWeight'=> 'normal',
+                        'fontWeight' => 'normal',
                         'fontSize' => $axisLabelFontSize
                     ),
                 ),
@@ -1939,7 +1939,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
                 'lineWidth' => $lineWidth,
                 'labels' => array(
                     'style' => array(
-                        'fontWeight'=> 'normal',
+                        'fontWeight' => 'normal',
                         'fontSize' => $axisLabelFontSize
                     ),
                 ),
