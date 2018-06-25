@@ -292,8 +292,7 @@ class XDReportManager
                     schedule,
                     delivery,
                     selected,
-                    charts_per_page,
-                    active_role
+                    charts_per_page
                 ) VALUES (
                     :report_id,
                     :user_id,
@@ -307,8 +306,7 @@ class XDReportManager
                     :report_schedule,
                     :report_delivery,
                     :selected,
-                    :charts_per_page,
-                    :active_role_id
+                    :charts_per_page
                 )
             ",
             array(
@@ -324,8 +322,7 @@ class XDReportManager
                 'report_schedule' => $this->_report_schedule,
                 'report_delivery' => $this->_report_delivery,
                 'selected' => 0,
-                'charts_per_page' => $this->_charts_per_page,
-                'active_role_id' => $this->_active_role_id,
+                'charts_per_page' => $this->_charts_per_page
             )
         );
     }
