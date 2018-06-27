@@ -377,16 +377,6 @@ abstract class aRole implements \User\iRole
     }
 
     /**
-     * Returns all the query groupnames.
-     *
-     * @return array
-     */
-    public function getAllGroupNames()
-    {
-        return array_keys($this->_querys);
-    }
-
-    /**
      * Returns the formal name of this role.
      *
      * @return string
