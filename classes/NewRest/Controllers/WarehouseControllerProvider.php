@@ -5,6 +5,7 @@ namespace NewRest\Controllers;
 use DataWarehouse\Query\Exceptions\AccessDeniedException;
 use DataWarehouse\Query\Exceptions\NotFoundException;
 use DataWarehouse\Query\Exceptions\BadRequestException;
+use Models\Services\Organizations;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerCollection;
@@ -868,9 +869,9 @@ class WarehouseControllerProvider extends BaseControllerProvider
         // Generate user-specific quick filters if logged in.
         if (!$user->isPublicUser()) {
             $roles = $user->getAllRoles();
-            $mostPrivilegedRoleIdentifier = $user->getMostPrivilegedRole()->getIdentifier(true);
+            $mostPrivilegedRoleIdentifier = $user->getMostPrivilegedRole()->getIdentifier();
             foreach ($roles as $role) {
-                $roleIdentifier = $role->getIdentifier(true);
+                $roleIdentifier = $role->getIdentifier();
                 $isMostPrivilegedRole = $roleIdentifier === $mostPrivilegedRoleIdentifier;
                 foreach ($role->getParameters() as $dimensionId => $valueId) {
                     if (!$multipleProvidersSupported && $dimensionId === $serviceProviderDimensionId) {
