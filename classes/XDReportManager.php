@@ -413,36 +413,6 @@ class XDReportManager
         return $param_value;
     }
 
-    public function enumReportsUnderOtherRoles()
-    {
-        $results = $this->_pdo->query(
-            '
-                SELECT active_role, COUNT(*) AS num_reports
-                FROM moddb.Reports
-                WHERE user_id = :user_id AND active_role != :active_role
-                GROUP BY active_role
-            ',
-            array(
-                'user_id' => $this->_user_id,
-                'active_role' => $this->_active_role_id,
-            )
-        );
-
-        $reportBreakdown = array();
-
-        foreach ($results as $r) {
-
-            $reportBreakdown[] = array(
-                'role' => \xd_roles\getFormalRoleNameFromIdentifier(
-                    $r['active_role']
-                ),
-                'num_reports' => $r['num_reports']
-            );
-        }
-
-        return $reportBreakdown;
-    }
-
     public function fetchChartPool()
     {
         $query = "
