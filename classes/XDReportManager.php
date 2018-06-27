@@ -15,7 +15,6 @@ class XDReportManager
     private $_user = null;
     private $_user_id = null;
     private $_charts_per_page = 1;
-    private $_active_role_id = null;
     private $_report_name = null;
     private $_report_title = null;
     private $_report_header = null;
@@ -47,7 +46,6 @@ class XDReportManager
         $this->_pdo = DB::factory('database');
         $this->_user = $user;
         $this->_user_id = $user->getUserID();
-        $this->_active_role_id = $user->getActiveRole()->getIdentifier(true);
     }
 
     public function emptyCache()
