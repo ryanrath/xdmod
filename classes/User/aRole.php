@@ -361,22 +361,6 @@ abstract class aRole implements \User\iRole
     }
 
     /**
-     * Returns all the query realms for the specified query groupname.
-     *
-     * @param string $query_groupname
-     *
-     * @return array
-     */
-    public function getAllQueryRealms($query_groupname)
-    {
-        if (isset($this->_querys[$query_groupname])) {
-            return $this->_querys[$query_groupname];
-        }
-
-        return array();
-    }
-
-    /**
      * Returns all the query groupnames.
      *
      * @return array
