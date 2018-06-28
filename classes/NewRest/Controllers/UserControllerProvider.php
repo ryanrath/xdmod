@@ -2,6 +2,7 @@
 
 namespace NewRest\Controllers;
 
+use Models\Services\Acls;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -119,6 +120,7 @@ class UserControllerProvider extends BaseControllerProvider
      *
      * @param  XDUser $user The user object to extract data from.
      * @return array        An associative array of data for the user.
+     * @throws \Exception if there is a problem retrieving the users most privileged Acl.
      */
     private function extractUserData(XDUser $user)
     {
@@ -126,6 +128,8 @@ class UserControllerProvider extends BaseControllerProvider
         if ($emailAddress == NO_EMAIL_ADDRESS_SET) {
             $emailAddress = '';
         }
+        $mostPrivilegedAcl = Acls::getMostPrivilegedAcl($user);
+        // $userOrganization = Organizations::getOrganizationForUser($user);
 
         return array(
             'first_name' => $user->getFirstName(),
@@ -135,8 +139,7 @@ class UserControllerProvider extends BaseControllerProvider
             'first_time_login' => $user->getCreationTimestamp() == $user->getLastLoginTimestamp(),
             'autoload_suppression' => isset($_SESSION['suppress_profile_autoload']),
             'field_of_science' => $user->getFieldOfScience(),
-            'active_role' => $user->getActiveRole()->getFormalName(),
-            'most_privileged_role' => $user->getMostPrivilegedRole()->getFormalName(),
+            'most_privileged_role' => $mostPrivilegedAcl->getDisplay()
         );
     }
 

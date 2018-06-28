@@ -8,7 +8,6 @@
     "first_time_login": false,
     "autoload_suppression": false,
     "field_of_science": "0",
-    "active_role": "Principal Investigator",
     "most_privileged_role": "Principal Investigator"
   }
 }
