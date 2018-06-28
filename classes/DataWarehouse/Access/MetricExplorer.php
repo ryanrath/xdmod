@@ -4,6 +4,7 @@ namespace DataWarehouse\Access;
 
 use Exception;
 use Models\Services\Acls;
+use Models\Services\Realms;
 use PDOException;
 use stdClass;
 
@@ -703,7 +704,7 @@ class MetricExplorer extends Common
         // Check if the realms were specified, and if not, use all realms.
         $realmsSpecified = !empty($realms);
         if (!$realmsSpecified) {
-            $realms = self::getRealmsFromUser($user);
+            $realms = Realms::getRealmsForUser($user);
         }
 
         // Determine which aggregation unit to use for dimension values queries.
@@ -901,7 +902,7 @@ class MetricExplorer extends Common
         XDUser $user,
         $dimension_id
     ) {
-        $realms = self::getRealmsFromUser($user);
+        $realms = Realms::getRealmsForUser($user);
 
         foreach ($realms as $realm) {
             try {
@@ -932,7 +933,7 @@ class MetricExplorer extends Common
         XDUser $user,
         $dimension_id
     ) {
-        $realms = self::getRealmsFromUser($user);
+        $realms = Realms::getRealmsForUser($user);
 
         $dimensionRealms = array();
         foreach ($realms as $realm) {
@@ -974,7 +975,7 @@ class MetricExplorer extends Common
         $value_id,
         $getLongName = false
     ) {
-        $realms = self::getRealmsFromUser($user);
+        $realms = Realms::getRealmsForUser($user);
 
         $dimensionValueName = null;
         foreach ($realms as $realm) {
@@ -997,18 +998,6 @@ class MetricExplorer extends Common
         }
 
         return $dimensionValueName;
-    }
-
-    /**
-     * Get a list of realms available to a user.
-     *
-     * @param  XDUser $user       The user whose realms are being retrieved.
-     * @param  string $queryGroup (Optional) The query group of the realms.
-     *                            (Defaults to 'tg_usage'.)
-     * @return array              The realms available to the user.
-     */
-    public static function getRealmsFromUser(XDUser $user, $queryGroup = 'tg_usage') {
-        return array_keys($user->getMostPrivilegedRole()->getAllQueryRealms($queryGroup));
     }
 
     /**

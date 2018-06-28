@@ -5,6 +5,7 @@ namespace NewRest\Controllers;
 use DataWarehouse\Query\Exceptions\AccessDeniedException;
 use DataWarehouse\Query\Exceptions\NotFoundException;
 use DataWarehouse\Query\Exceptions\BadRequestException;
+use Models\Services\Realms;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Silex\ControllerCollection;
@@ -704,16 +705,14 @@ class WarehouseControllerProvider extends BaseControllerProvider
      *                              success: A boolean indicating if the call was successful.
      *                              results: An object containing data about
      *                                       the realms retrieved.
+     * @throws \Exception
      */
     public function getRealms(Request $request, Application $app)
     {
         $user = $this->authorize($request);
 
-        // Get parameters.
-        $queryGroup = $this->getStringParam($request, 'querygroup', false, self::_DEFAULT_QUERY_GROUP);
-
         // Get the realms for the query group and the user's active role.
-        $realms = array_keys($user->getActiveRole()->getAllQueryRealms($queryGroup));
+        $realms = Realms::getRealmsForUser($user);
 
         // Return the realms found.
         return $app->json(array(
@@ -733,6 +732,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
      *                              success: A boolean indicating if the call was successful.
      *                              results: An object containing data about
      *                                       the dimensions retrieved.
+     * @throws \Exception
      */
     public function getDimensions(Request $request, Application $app)
     {
@@ -744,7 +744,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
         // Get the dimensions for the query group, realm, and user's active role.
         $dimensionsToReturn = array();
-        $realms = $user->getActiveRole()->getAllQueryRealms($queryGroup);
+        $realms = Realms::getRealmsForUser($user);
         foreach ($realms as $query_realm_key => $query_realm_object) {
             if ($realm == NULL || $realm == $query_realm_key) {
                 foreach ($query_realm_object as $k => $v) {
@@ -996,6 +996,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
      *                              success: A boolean indicating if the call was successful.
      *                              results: An object containing data about
      *                                       the metrics retrieved.
+     * @throws \Exception
      */
     public function getMetrics(Request $request, Application $app)
     {
@@ -1009,7 +1010,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
         // Get the metrics available for the query group, realm, dimension, and
         // user's active role.
         $factsToReturn = array();
-        $realms = $user->getActiveRole()->getAllQueryRealms($queryGroup);
+        $realms = Realms::getRealmsForUser($user);
         foreach ($realms as $query_realm_key => $query_realm_object) {
             if ($realm == NULL || $realm == $query_realm_key) {
                 $query_class_name = \DataWarehouse\QueryBuilder::getQueryRealmClassname($query_realm_key);
@@ -1226,9 +1227,7 @@ class WarehouseControllerProvider extends BaseControllerProvider
 
     public function _processJobSearch(Request $request, Application $app, XDUser $user, $realm, $startDate, $endDate, $action)
     {
-
-        $activeRole = $user->getActiveRole();
-        $queryRealms = isset($activeRole) ? $activeRole->getAllQueryRealms('tg_usage') : array();
+        $queryRealms = Realms::getRealmsForUser($user);
 
         $offset = $this->getIntParam($request, 'start', true);
         $limit = $this->getIntParam($request, 'limit', true);
