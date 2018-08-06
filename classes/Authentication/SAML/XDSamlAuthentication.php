@@ -243,7 +243,7 @@ class XDSamlAuthentication
         // this is an error case and we need to notify the admins that there will
         // be additional setup required.
         $unableToFindOrganization =
-            (!isset($userOrganization) || $userOrganization === UNKNOWN_ORGANIZATION) &&
+            (!isset($userOrganization) || $userOrganization === -1) &&
             (isset($samlAttributes['organization_id']) || isset($samlAttributes['organization']));
 
         if ($unableToFindOrganization) {
