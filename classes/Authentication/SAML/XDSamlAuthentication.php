@@ -129,7 +129,7 @@ class XDSamlAuthentication
             $personId = \DataWarehouse::getPersonIdByUsername($thisSystemUserName);
 
             if (!isset($samlAttrs['organization_id'])) {
-                $userOrganization = null;
+                $userOrganization = -1;
             } else {
                 // Attempt to look up their organization by the most reliable method we have
                 // currently.
@@ -138,7 +138,7 @@ class XDSamlAuthentication
 
             // If we didn't find their organization via organization_id then fall back to trying
             // organization.
-            if ($userOrganization === null && isset($samlAttrs['organization'])) {
+            if ($userOrganization === -1 && isset($samlAttrs['organization'])) {
                 $userOrganization = Organizations::getOrganizationIdByLongName($samlAttrs['organization'][0]);
             }
 
