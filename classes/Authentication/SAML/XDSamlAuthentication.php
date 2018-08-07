@@ -265,7 +265,9 @@ class XDSamlAuthentication
         }
 
         if ($unableToFindOrganization) {
-            $this->emailLogger->notice("Additional SSO User Action Required". $body);
+            if (\xd_utilities\getConfiguration('internal', 'email_admin_sso_unknown_org') === 'on') {
+                $this->emailLogger->notice("Additional SSO User Action Required". $body);
+            }
 
             $emailAddress = $user->getEmailAddress()
                 ? $user->getEmailAddress()
