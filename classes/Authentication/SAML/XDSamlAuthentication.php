@@ -267,17 +267,15 @@ class XDSamlAuthentication
         if ($unableToFindOrganization) {
             $this->emailLogger->notice("Additional SSO User Action Required". $body);
 
-            $emailAddress = $user->getEmailAddress();
-            if (!isset($emailAddress)) {
-                $emailAddress = $samlAttributes['email_address'][0];
-            }
-            if (!isset($emailAddress)) {
-                $emailAddress = $samlAttributes['email'][0];
-            }
+            $emailAddress = $user->getEmailAddress()
+                ? $user->getEmailAddress()
+                : $samlAttributes['email_address'][0];
+
             if (!isset($emailAddress)) {
                 $this->logger->err("Unable to determine email address for new SSO User." . $body);
                 return;
             }
+
             try {
 
                 MailWrapper::sendMail(
