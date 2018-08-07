@@ -105,7 +105,7 @@ SQL;
             "SELECT o.id FROM modw.organization o WHERE o.name = :organization_name;",
             array(':organization_name' => $organizationName)
         );
-        return !empty($rows) ? $rows[0]['id'] : null;
+        return !empty($rows) ? $rows[0]['id'] : -1;
     }
 
     /**
@@ -123,6 +123,6 @@ SQL;
             "SELECT o.id FROM modw.organization o WHERE o.long_name = :organization_name;",
             array(':organization_name' => $organizationLongName)
         );
-        return !empty($rows) ? $rows[0]['id'] : null;
+        return !empty($rows) ? $rows[0]['id'] : -1;
     }
 }
