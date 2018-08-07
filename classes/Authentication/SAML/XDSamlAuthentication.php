@@ -133,7 +133,7 @@ class XDSamlAuthentication
             } else {
                 // Attempt to look up their organization by the most reliable method we have
                 // currently.
-                $userOrganization = Organizations::getOrganizationIdByName($samlAttrs['organization_id'][0]);
+                $userOrganization = Organizations::getIdByName($samlAttrs['organization_id'][0]);
             }
 
             // If we didn't find their organization via organization_id then fall back to trying
