@@ -46,6 +46,7 @@ multiple_service_providers = "off"
 
 [internal]
 dw_desc_cache = "off"
+email_admin_sso_unknown_org = "on"
 
 ; Settings that control the "Roadmap" action on the "About" tab.
 [roadmap]
