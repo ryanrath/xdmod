@@ -256,7 +256,7 @@ class XDSamlAuthentication
         if (count($samlAttributes) != 0) {
             $body = $body . "\n\n" .
                 "Additional SAML Attributes ----------------------------------\n\n" .
-                print_r($samlAttributes, true);
+                json_encode($samlAttributes, JSON_PRETTY_PRINT);
         }
         if ($error) {
             $this->logger->err("Error Creating Single Sign On user" . $body);
