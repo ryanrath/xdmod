@@ -37,6 +37,29 @@ class XDSamlAuthentication
      */
     protected $_allowLocalAccessViaSSO = true;
 
+    /**
+     * The name of the organization to be used when `force_default_organization` is true.
+     *
+     * @var string
+     */
+    protected $_defaultOrganizationName;
+
+    /**
+     * Always use the organization identified by `default_organization_name` when assigning an
+     * organization to a new SSO user.
+     *
+     * @var bool
+     */
+    protected $_forceDefaultOrganization;
+
+    /**
+     * Controls when the admins are notified when an organization cannot be identified for a new SSO
+     * user.
+     *
+     * @var bool
+     */
+    protected $_emailAdminForUnknownUserOrganization;
+
     private $logger = null;
 
     private $emailLogger = null;
@@ -81,6 +104,10 @@ class XDSamlAuthentication
                 $this->_as = new \SimpleSAML_Auth_Simple($this->_sources[0]);
             }
         }
+
+        $this->_defaultOrganizationName = \xd_utilities\getConfiguration('sso', 'default_organization_name');
+        $this->_forceDefaultOrganization = \xd_utilities\getConfiguration('sso', 'force_default_organization') === 'on';
+        $this->_emailAdminForUnknownUserOrganization = \xd_utilities\getConfiguration('sso', 'email_admin_sso_unknown_org') === 'on';
     }
 
     /**
@@ -98,6 +125,7 @@ class XDSamlAuthentication
      * Attempts to find a valid XDMoD user associated with the attributes we receive from SAML
      *
      * @return mixed a valid XDMoD user if we have one, false otherwise
+     * @throws Exception
      */
     public function getXdmodAccount()
     {
@@ -128,18 +156,13 @@ class XDSamlAuthentication
             $emailAddress = !empty($samlAttrs['email_address'][0]) ? $samlAttrs['email_address'][0] : NO_EMAIL_ADDRESS_SET;
             $personId = \DataWarehouse::getPersonIdByUsername($thisSystemUserName);
 
-            if (!isset($samlAttrs['organization_id'])) {
-                $userOrganization = -1;
+            $samlOrganization = $samlAttrs['organization'];
+            if ($this->_forceDefaultOrganization) {
+                $userOrganization = Organizations::getIdByName($this->_defaultOrganizationName);
+            } elseif (!empty($samlOrganization)) {
+                $userOrganization = Organizations::getIdByName($samlOrganization[0]);
             } else {
-                // Attempt to look up their organization by the most reliable method we have
-                // currently.
-                $userOrganization = Organizations::getIdByName($samlAttrs['organization_id'][0]);
-            }
-
-            // If we didn't find their organization via organization_id then fall back to trying
-            // organization.
-            if ($userOrganization === -1 && isset($samlAttrs['organization'])) {
-                $userOrganization = Organizations::getOrganizationIdByLongName($samlAttrs['organization'][0]);
+                $userOrganization = -1;
             }
 
             if (!isset($samlAttrs["first_name"])) {
@@ -224,6 +247,7 @@ class XDSamlAuthentication
      * @param array $samlAttributes SAML attributes associated with this user
      * @param boolean $linked whether Single Sign On user is linked to this account
      * @param boolean $error whether or not we had issues creating Single Sign On user
+     * @throws Exception
      */
     private function notifyAdminOfUserWithUnknownOrganization($user, $samlAttributes, $linked, $error = false)
     {
@@ -265,7 +289,7 @@ class XDSamlAuthentication
         }
 
         if ($unableToFindOrganization) {
-            if (\xd_utilities\getConfiguration('internal', 'email_admin_sso_unknown_org') === 'on') {
+            if (\xd_utilities\getConfiguration('sso', 'email_admin_sso_unknown_org') === 'on') {
                 $this->emailLogger->notice("Additional SSO User Action Required". $body);
             }
 
