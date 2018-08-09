@@ -134,7 +134,7 @@ cat > /usr/share/xdmod/vendor/simplesamlphp/simplesamlphp/config/authsources.php
         'middleName' => 'middle_name',
         'lastName' => 'last_name',
         'personId' => 'person_id',
-        'orgId' => 'organization_id',
+        'orgId' => 'organization',
         'fieldOfScience' => 'field_of_science',
         'itname' => 'username'
       )
