@@ -5,6 +5,7 @@
 
 namespace OpenXdmod\Tests\Setup;
 
+use TestHarness\TestFiles;
 use Xdmod\Template;
 
 /**
@@ -13,13 +14,38 @@ use Xdmod\Template;
 class TemplateTest extends \PHPUnit_Framework_TestCase
 {
 
+    private $testFiles;
+
+    /**
+     * TemplateTest constructor.
+     * @param $name
+     * @param $data
+     * @param $dataName
+     * @throws \Exception
+     */
+    public function __construct($name = null, $data = array(), $dataName = '')
+    {
+        $baseDir = implode(
+            DIRECTORY_SEPARATOR,
+            array(
+                __DIR__,
+                './../../../../'
+            )
+        );
+
+        $this->testFiles = new TestFiles($baseDir);
+        parent::__construct($name, $data, $dataName);
+    }
+
+
     /**
      * Test to make sure the template portal_settings.ini matches the
      * default portal_settings.ini file.
      */
     public function testPortalSettingsTemplate()
     {
-        $portalSettingsPath = BASE_DIR . '/configuration/portal_settings.ini';
+        $portalSettingsPath = $this->testFiles->getFile('templates', 'portal_settings', 'output', '.ini');
+
         $defaultContents = file_get_contents($portalSettingsPath);
         $data = $this->getSettingsData($portalSettingsPath);
 
