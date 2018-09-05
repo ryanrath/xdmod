@@ -875,9 +875,9 @@ class WarehouseControllerProvider extends BaseControllerProvider
         // Generate user-specific quick filters if logged in.
         if (!$user->isPublicUser()) {
             $roles = $user->getAllRoles();
-            $mostPrivilegedRoleIdentifier = $user->getMostPrivilegedRole()->getIdentifier(true);
+            $mostPrivilegedRoleIdentifier = $user->getMostPrivilegedRole()->getIdentifier();
             foreach ($roles as $role) {
-                $roleIdentifier = $role->getIdentifier(true);
+                $roleIdentifier = $role->getIdentifier();
                 $isMostPrivilegedRole = $roleIdentifier === $mostPrivilegedRoleIdentifier;
 
                 $parameters = Parameters::getParameters($user, $role->getIdentifier());
