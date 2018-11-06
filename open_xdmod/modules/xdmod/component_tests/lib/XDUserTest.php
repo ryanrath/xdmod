@@ -489,26 +489,6 @@ class XDUserTest extends BaseTest
     }
 
     /**
-     * @throws Exception
-     */
-    public function testGetActiveRoleWithPublicUser()
-    {
-        $user = XDUser::getPublicUser();
-        $activeRole = $user->getActiveRole();
-
-        $this->assertNotNull($activeRole);
-    }
-
-    /**
-     * @expectedException Exception
-     **/
-    public function testGetActiveRoleWithNewUserShouldFail()
-    {
-        $user = self::getUser(null, 'test', 'a', 'user');
-        $user->getActiveRole();
-    }
-
-    /**
      * Expect that it should complain about not having a valid user type.
      *
      * @expectedException Exception
@@ -568,7 +548,7 @@ class XDUserTest extends BaseTest
 
         $user->saveUser();
 
-        $actual = $user->getActiveRole()->getIdentifier();
+        $actual = $user->getMostPrivilegedRole()->getIdentifier();
 
         // This is due to the way 'most privileged' works. It prefers acls that
         // take part in a hierarchy as opposed to those that do not. Since 'usr'
@@ -670,16 +650,6 @@ class XDUserTest extends BaseTest
     {
         $user = XDUser::getUserByID(null);
         $this->assertNull($user);
-    }
-
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage You must call saveUser() on this newly created XDUser prior to using getActiveRole()
-     */
-    public function testGetActiveRoleOnUnSavedUserFails()
-    {
-        $anotherUser = self::getUser(null, 'public', 'a', 'user');
-        $anotherUser->getActiveRole();
     }
 
     /**

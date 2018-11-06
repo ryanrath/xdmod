@@ -239,7 +239,7 @@ EML;
         // These roles cannot be used immediately after constructing a new XDUser (since a user id has not been defined at this point).
         // If you are explicitly calling 'new XDUser(...)', saveUser() must be called on the newly created XDUser object before accessing
         // these roles using getPrimaryRole() and getActiveRole()
-        $this->_primary_role = $this->_active_role = \User\aRole::factory($primary_role_name);
+        $this->_primary_role = \User\aRole::factory($primary_role_name);
 
         $this->sticky = $sticky;
 
@@ -566,8 +566,7 @@ EML;
         $mostPrivilegedAcl = Acls::getMostPrivilegedAcl($user);
         $activeRoleFormalName = self::_getFormalRoleName($mostPrivilegedAcl->getName());
 
-        $user->_primary_role = $user->_active_role = aRole::factory($activeRoleFormalName);
-        $user->_active_role->configure($user);
+        $user->_primary_role = aRole::factory($activeRoleFormalName);
 
         // BEGIN: ACL population
         $query = <<<SQL
@@ -1023,9 +1022,7 @@ SQL;
         }
 
         $activeRoleName = self::_getFormalRoleName($mostPrivilegedAcl->getName());
-        $this->_primary_role = $this->_active_role = aRole::factory($activeRoleName);
-
-        $this->_active_role->configure($this);
+        $this->_primary_role = aRole::factory($activeRoleName);
 
         $timestampData = $this->_pdo->query(
             "SELECT time_created, time_last_updated, password_last_updated
@@ -1468,43 +1465,6 @@ SQL;
         }
 
     }//setPrimaryRole
-
-    // ---------------------------
-
-    /*
-     *
-     * @function getActiveRole
-     *
-     * @return aRole subclass instance
-     *
-     */
-
-    public function getActiveRole()
-    {
-        if ($this->_id == NULL) {
-            throw new Exception('You must call saveUser() on this newly created XDUser prior to using getActiveRole()');
-        }
-
-        return $this->_active_role;
-
-    }//getActiveRole
-
-
-    public function setCachedActiveRole($role)
-    {
-
-        $this->_cachedActiveRole = $role;
-
-    }
-
-    public function getCachedActiveRole()
-    {
-
-        return $this->_cachedActiveRole;
-
-    }
-
-    // ---------------------------
 
     /*
      *
