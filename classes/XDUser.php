@@ -1650,11 +1650,21 @@ SQL;
     /**
      * Overwrite this users current set of acls with the provided ones.
      *
-     * @param array[] $acls
+     * @param Acl[]|string[] $acls
+     *
+     * @throws Exception
      */
     public function setAcls(array $acls)
     {
-        $this->_acls = $acls;
+        unset($this->_acls);
+
+        foreach($acls as $acl) {
+            if (is_string($acl)) {
+                $this->_acls[$acl] = Acls::getAclByName($acl);
+                continue;
+            }
+            $this->_acls[$acl->getName()] = $acl;
+        }
     } // setAcls
 
     /**
@@ -1663,27 +1673,30 @@ SQL;
      * added ( or overwrite the existing acl ) regardless of whether or not the
      * user currently has it.
      *
-     * @param Acl $acl
+     * @param Acl|string $acl
      * @param bool $overwrite
      */
-    public function addAcl(Acl $acl, $overwrite = false)
+    public function addAcl($acl, $overwrite = false)
     {
-        if ( ( !array_key_exists($acl->getName(), $this->_acls) && !$overwrite ) ||
+        $aclName = is_string($acl) ? $acl : $acl->getName();
+        if ( ( !array_key_exists($aclName, $this->_acls) && !$overwrite ) ||
             $overwrite === true
         ) {
-            $this->_acls[$acl->getName()] = $acl;
+            $value = is_string($acl) ? Acls::getAclByName($acl) : $acl;
+            $this->_acls[$aclName] = $value;
         }
     } // addAcl
 
     /**
      * Remove the provided acl from this users set of acls.
      *
-     * @param Acl $acl
+     * @param Acl|string $acl
      */
-    public function removeAcl(Acl $acl)
+    public function removeAcl($acl)
     {
-        if (array_key_exists($acl->getName(), $this->_acls)) {
-            unset($this->_acls[$acl->getName()]);
+        $aclName = is_string($acl) ? $acl : $acl->getName();
+        if (array_key_exists($aclName, $this->_acls)) {
+            unset($this->_acls[$aclName]);
         }
     } // removeAcl
 
