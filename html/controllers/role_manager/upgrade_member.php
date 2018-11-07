@@ -43,7 +43,7 @@ try {
     }
 
     // Add the Center Staff acl to the user.
-    $member->setRoles(array_merge($member->getAcls(true), array(ROLE_ID_CENTER_STAFF)));
+    $member->addAcl(ROLE_ID_CENTER_STAFF);
 
     // Save changes
     $member->saveUser();

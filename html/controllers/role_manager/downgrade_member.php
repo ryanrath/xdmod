@@ -22,7 +22,7 @@ try {
     }
 
     // Remove the center staff acl from the user.
-    $member->setRoles(array_diff($member->getAcls(true), array(ROLE_ID_CENTER_STAFF)));
+    $member->removeAcl(ROLE_ID_CENTER_STAFF);
 
     // Save the acl changes.
     $member->saveUser();
