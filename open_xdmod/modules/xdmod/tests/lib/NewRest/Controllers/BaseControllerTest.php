@@ -155,7 +155,6 @@ class BaseControllerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(
                 array(
-                    'getRoles',
                     'isManager',
                     'isPublicUser',
                     'getActiveRole',
@@ -164,7 +163,6 @@ class BaseControllerTest extends \PHPUnit_Framework_TestCase
                 )
             );
         $stub = $builder->getMock();
-        $stub->method('getRoles')->willReturn($roles);
         $stub->method('isManager')->willReturnCallback(function () use ($roles) {
             return in_array(ROLE_ID_MANAGER, $roles);
         });
