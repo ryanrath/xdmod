@@ -36,7 +36,6 @@ class XDUser extends CCR\Loggable implements JsonSerializable
     private $_timeUpdated;
     private $_timePasswordUpdated;
 
-    private $_roles;
     private $_primary_role;             // Instance of class \User\aRole
     private $_active_role;              // Instance of class \User\aRole
 
@@ -202,21 +201,7 @@ EML;
         $this->_middleName = $middle_name;
         $this->_lastName = $last_name;
 
-        $this->setRoles($role_set);
-
-        // Role Checking ====================
-
-        if (count($this->_roles) == 0) {
-            throw new Exception("At least one role must be associated with this user");
-        }
-
-        foreach ($this->_roles as $role) {
-
-            if (self::_getFormalRoleName($role) == NULL) {
-                throw new Exception("Unrecognized role $role");
-            }
-
-        }
+        $this->setAcls($role_set);
 
         // =================================
 
@@ -606,12 +591,6 @@ SQL;
         $user->setAcls($acls);
         // END: ACL population
 
-        // we do this instead of calling `setRoles` as `setRoles` will end up
-        // making a db call per role to keep the acls in sync. And in the end
-        // the results will be the same.
-        $user->_roles = $user->getAcls(true);
-
-
         return $user;
 
     }//getUserByID
@@ -862,10 +841,6 @@ SQL;
             throw new Exception('The user must have a valid user type.');
         }
 
-        if (count($this->_roles) === 0) {
-            throw new Exception('A user must have at least one role.');
-        }
-
         if (count($this->_acls) === 0) {
             throw new Exception('A user must have at least one acl.');
         }
@@ -1001,18 +976,6 @@ SQL;
             'DELETE FROM UserRoles WHERE user_id=:id',
             array('id' => $this->_id)
         );
-
-        foreach ($this->_roles as $role) {
-            $roleId = $this->_getRoleID($role);
-            if ($roleId === null) {
-                continue;
-            }
-            $this->_pdo->execute(
-                "INSERT INTO UserRoles VALUES(:id, :roleId, '0', '0')",
-                array('id' => $this->_id,
-                    'roleId' => $roleId)
-            );
-        }
 
         // Retrieve this users most privileged acl as it will be used to set the
         // the _active_role property.
@@ -1347,81 +1310,6 @@ SQL;
     {
         $this->_lastName = $lastName;
     }
-
-    /*
-     *
-     * @function getRoles
-     *
-     * @param string $flag ('formal' or 'informal')
-     *
-     * @return array
-     *
-     */
-
-    public function getRoles($flag = 'informal')
-    {
-
-        if ($flag == 'informal') {
-            $roles = array_reduce($this->_acls, function ($carry, Acl $item) {
-                $carry[] = $item->getName();
-                return $carry;
-            }, array());
-            return $roles;
-        }
-
-        if ($flag == 'formal') {
-            $query = <<<SQL
-SELECT
-a.display,
-a.name
-FROM user_acls ua
-JOIN acls a
-ON a.acl_id = ua.acl_id
-WHERE ua.user_id = :user_id
-SQL;
-
-            $results = $this->_pdo->query($query, array(
-                ':user_id' => $this->_id,
-            ));
-
-            $roles = array();
-
-            foreach ($results as $roleSet) {
-
-                $roles[$roleSet['display']] = $roleSet['name'];
-
-            }
-
-            return $roles;
-        }
-
-    }//getRoles
-
-    // ---------------------------
-
-    /*
-     *
-     * @function setRoles
-     *
-     * @param array $role_set
-     *
-     */
-
-    public function setRoles($role_set)
-    {
-        $this->_roles = $role_set;
-        // Make sure to also set the Acls
-        $acls = array_reduce($role_set, function ($carry, $roleName) {
-            $acl = Acls::getAclByName($roleName);
-            if ($acl !== null) {
-                $carry [] = $acl;
-            }
-            return $carry;
-        }, array());
-        $this->setAcls($acls);
-    }
-
-    // ---------------------------
 
     /*
      *
