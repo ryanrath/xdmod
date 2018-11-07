@@ -15,15 +15,27 @@ class XDStatistics {
       if (count($user_types) > 0) {
          $user_type_filter = 'AND u.user_type IN ('.implode(',', $user_types).') ';
       }
-      
-      $query = "SELECT u.id, u.last_name, u.first_name, u.email_address, sm.init_time, u.username, 
-                GROUP_CONCAT(r.description ORDER BY r.description) AS role_list, u.user_type  
-                FROM SessionManager AS sm, UserRoles AS ur, Users AS u, Roles AS r 
-                WHERE u.id = ur.user_id AND ur.role_id = r.role_id AND sm.user_id = u.id 
-                $user_type_filter 
-                GROUP BY CONCAT(u.id, '-', sm.init_time) ORDER BY sm.init_time DESC, r.description DESC";
 
-      $results = $db->query($query);
+      $query = <<<SQL
+          SELECT
+              u.id,
+              u.last_name,
+              u.first_name,
+              u.email_address,
+              sm.init_time,
+              u.username,
+              GROUP_CONCAT(a.display ORDER BY a.display) AS role_list,
+              u.user_type
+          FROM SessionManager AS sm
+          JOIN Users u ON sm.user_id = u.id
+          JOIN user_acls ua ON ua.user_id = u.id
+          JOIN acls a ON a.acl_id = ua.acl_id
+          %s
+          GROUP BY CONCAT(u.id, '-', sm.init_time)
+          ORDER BY sm.init_time DESC, a.display DESC;
+SQL;
+
+      $results = $db->query(sprintf($query, $user_type_filter));
 
       foreach ($results as &$r) {
    
