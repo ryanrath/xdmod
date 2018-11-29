@@ -284,9 +284,6 @@ class WarehouseControllerProvider extends BaseControllerProvider
             ->get("$root/quick_filters", "$current::getQuickFilters");
 
         $controller
-            ->get("$root/metrics", "$current::getMetrics");
-
-        $controller
             ->get("$root/aggregation_units", "$current::getAggregationUnits");
 
         $controller
