@@ -183,7 +183,7 @@ TXT;
 
         $user = XDUser::getUserByUserName($username);
 
-        $acls = $user->getAcls();
+        $acls = $user->getAcls(true);
         foreach ($acls as $acl) {
             if (isset($realm) && isset($groupBy) && isset($statistic)) {
                 $actual = $this->extractDataFrom(
