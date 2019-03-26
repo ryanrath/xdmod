@@ -181,7 +181,7 @@ $page_title = xd_utilities\getConfiguration('general', 'title');
     <?php endif; ?>
     <link rel="stylesheet" type="text/css" href="gui/css/aboutus.css"/>
     <?php if ($userLoggedIn): ?>
-        <link rel="stylesheet" type="text/css" href="../gui/css/GroupTab.css"/>
+        <link rel="stylesheet" type="text/css" href="gui/css/GroupTab.css"/>
     <?php endif; ?>
 
     <?php if ($userLoggedIn): ?>
@@ -194,8 +194,10 @@ $page_title = xd_utilities\getConfiguration('general', 'title');
         <script type="text/javascript" src="gui/lib/extjs/examples/ux/treegrid/TreeGridColumns.js"></script>
         <script type="text/javascript" src="gui/lib/extjs/examples/ux/treegrid/TreeGrid.js"></script>
         <script type="text/javascript" src="gui/lib/extjs/examples/ux/GroupTabPanel.js"></script>
-        <script type="text/javascript" src="../gui/lib/extjs/examples/ux/GroupTab.js"></script>
+        <script type="text/javascript" src="gui/lib/extjs/examples/ux/GroupTab.js"></script>
     <?php endif; ?>
+
+    <script type="text/javascript" src="gui/lib/extjs/examples/ux/Spotlight.js"></script>
 
     <script type="text/javascript" src="gui/lib/MultiSelect.js"></script>
     <script type="text/javascript" src="gui/lib/ItemSelector.js"></script>

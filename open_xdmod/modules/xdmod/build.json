@@ -93,6 +93,8 @@
             "configuration/assets.json",
             "configuration/modules.json",
             "configuration/hierarchies.json",
+            "configuration/tutorials.json",
+            "configuration/tutorials.d",
             {"configuration/hierarchies.d/xdmod.json": "hierarchies.d/xdmod.json"},
             {"configuration/modules.d/xdmod.json": "modules.d/xdmod.json"},
             "email_templates"

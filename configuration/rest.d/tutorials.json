@@ -1,0 +1,6 @@
+{
+  "tutorials": {
+    "prefix": "tutorials",
+    "controller": "Rest\\Controllers\\TutorialControllerProvider"
+  }
+}
