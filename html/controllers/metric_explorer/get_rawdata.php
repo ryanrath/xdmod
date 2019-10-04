@@ -135,8 +135,8 @@ try {
         // DEFINE: that we're going to be sending back json.
         header('Content-type: application/json');
 
-        $limit = isset($_REQUEST['limit']) ? $_REQUEST['limit'] : null;
-        $offset = isset($_REQUEST['start']) ? $_REQUEST['start'] : null;
+        $limit = isset($_REQUEST['limit']) ? (int)$_REQUEST['limit'] : null;
+        $offset = isset($_REQUEST['start']) ? (int)$_REQUEST['start'] : null;
 
         $hasLimit = isset($limit);
         $hasOffset = isset($offset);
