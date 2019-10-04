@@ -13,6 +13,9 @@ env:
         - NODE_VERSION=6
         - XDMOD_TEST_ARTIFACTS_MIRROR="$HOME/xdmod-test-artifacts.git"
         - XDMOD_IS_CORE=true
+addons:
+    sonarcloud:
+        organization: "ryanrath"
 
 # Add dependency directories to the Travis cache
 cache:
@@ -29,4 +32,7 @@ before_install: git clone --depth=1 --branch="v1" https://github.com/ubccr/xdmod
 install: .qa/travis/install.sh
 
 # Delegate the build step to the shared Travis build script
-script: .qa/travis/build.sh
+script:
+    .qa/travis/build.sh
+    sonar-scanner
+
