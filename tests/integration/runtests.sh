@@ -22,9 +22,9 @@ if [ ! -x "$phpunit" ]; then
 fi
 
 # Run the tests in UserAdminTest.createUsers
-$phpunit --testsuite default --group UserAdminTest.createUsers $UATCU
+$phpunit --testsuite default --group UserAdminTest.createUsers $UATCU --coverage-xml $SHIPPABLE_BUILD_DIR/shippable/codecoverage
 
 # Run everything else
-$phpunit --testsuite default --exclude-group UserAdminTest.createUsers $UATXCU
+$phpunit --testsuite default --exclude-group UserAdminTest.createUsers $UATXCU --coverage-xml $SHIPPABLE_BUILD_DIR/shippable/codecoverage
 
 ./email-subject-test.sh
