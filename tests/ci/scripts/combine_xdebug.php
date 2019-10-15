@@ -24,8 +24,6 @@ foreach ($coverageFiles as $coverageFile) {
     if ($codeCoverageData !== null) {
         $testName = str_ireplace("coverage-", "", basename($coverageFile, ".json"));
         $testName = substr($testName, 0, strrpos($testName, '-'));
-        echo "Test Name: $testName\n";
-        echo "Coverage Keys: " . print_r(array_keys($coverageData), true) . PHP_EOL;
         if (!array_key_exists($testName, $coverageData)) {
             echo "\tGenerating new Code Coverage for : $testName\n";
             $coverage = new PHP_CodeCoverage();
