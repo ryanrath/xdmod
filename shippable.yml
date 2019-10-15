@@ -20,6 +20,7 @@ build:
         - ./tests/ci/bootstrap.sh
         - ./tests/ci/validate.sh
         - composer install --no-progress
+        - ./tests/ci/scripts/codeCoverageSetup.sh
         - ./tests/regression/runtests.sh --junit-output-dir `pwd`/shippable/testresults/
         - cp ./configuration/portal_settings.ini ./configuration/portal_settings.ini.old
         - cp -f /etc/xdmod/portal_settings.ini ./configuration/portal_settings.ini
