@@ -365,25 +365,25 @@ fi
 ### Runtime
 ##############################################################################
 # Check that both the script and install directories exist.
-#if [[ ! -e "${arg_b}" ]]; then
-#    emergency "The base source directory does not exist. Unable to continue."
-#    exit -1
-#fi
-#
-#if [[ ! -e "${arg_x}" ]]; then
-#    emergency "The provided xdebug script does not exist. Unable to continue."
-#    exit -1
-#fi
-#
-#if [[ ! -e "${arg_p}" ]]; then
-#    emergency "The provided processing script does not exist. Unable to continue"
-#    exit -1
-#fi
-#
-#if [[ ! -e "${arg_i}" ]]; then
-#    emergency "The provided install directory does not exist. Unable to continue."
-#    exit -1
-#fi
+if [[ ! -e "${arg_b}" ]]; then
+    emergency "The base source directory does not exist. Unable to continue."
+    exit -1
+fi
+
+if [[ ! -e "${arg_x}" ]]; then
+    emergency "The provided xdebug script does not exist. Unable to continue."
+    exit -1
+fi
+
+if [[ ! -e "${arg_p}" ]]; then
+    emergency "The provided processing script does not exist. Unable to continue"
+    exit -1
+fi
+
+if [[ ! -e "${arg_i}" ]]; then
+    emergency "The provided install directory does not exist. Unable to continue."
+    exit -1
+fi
 
 # *** Install / Setup XDebug ***
 
@@ -411,17 +411,17 @@ echo "xdebug.collect_params=3">> /etc/php.d/xdebug.ini
 
 ### Pre-generating the location that the xdebug script will be copied to as we'll
 ### be referencing it a number of times.
-#PREPEND_FILE_INSTALL_PATH="${arg_i}/$(basename ${arg_x})"
+PREPEND_FILE_INSTALL_PATH="${arg_i}/$(basename ${arg_x})"
 
 ### Copy the auto-prepend file into place
-#cp "${arg_x}" "${PREPEND_FILE_INSTALL_PATH}"
+cp "${arg_x}" "${PREPEND_FILE_INSTALL_PATH}"
 
 ### Setting php to auto-prepend our script that manages code coverage gathering
-#echo ';;; XDebug Hook' >> /etc/php.ini
-#echo "auto_prepend_file=${PREPEND_FILE_INSTALL_PATH}" >> /etc/php.ini
+echo ';;; XDebug Hook' >> /etc/php.ini
+echo "auto_prepend_file=${PREPEND_FILE_INSTALL_PATH}" >> /etc/php.ini
 
 ### Update the prepended file w/ where code coverage is supposed to be placed.
-#sed -i "s,__CODE_COVERAGE_DIR__,${arg_c},g" "${PREPEND_FILE_INSTALL_PATH}"
+sed -i "s,__CODE_COVERAGE_DIR__,${arg_c},g" "${PREPEND_FILE_INSTALL_PATH}"
 
 ### ( Optional ) uncommenting the line below has Apache handle the auto-prepending
 ### as opposed to PHP. This will mean that code coverage will only be generated
@@ -430,24 +430,24 @@ echo "xdebug.collect_params=3">> /etc/php.d/xdebug.ini
 
 ### Pre-generating the location that our code coverage processing / reporting
 ### script will be copied to as we'll be referencing it a number of times.
-#PROCESS_FILE_INSTALL_PATH="${arg_i}/$(basename ${arg_p})"
+PROCESS_FILE_INSTALL_PATH="${arg_i}/$(basename ${arg_p})"
 
 ### Copy the processing script into place
-#cp "${arg_p}" "$PROCESS_FILE_INSTALL_PATH"
+cp "${arg_p}" "$PROCESS_FILE_INSTALL_PATH"
 
 ### Update the processing script w/ the required generated paths.
-#sed -i "s,__BASE_DIR__,${arg_b},g" "${PROCESS_FILE_INSTALL_PATH}"
-#sed -i "s,__CODE_COVERAGE_DIR__,${arg_c},g" "${PROCESS_FILE_INSTALL_PATH}"
-#sed -i "s,__INSTALL_DIR__,${arg_i},g" "${PROCESS_FILE_INSTALL_PATH}"
-#sed -i "s,__REPORT_DIR__,${arg_r},g" "${PROCESS_FILE_INSTALL_PATH}"
+sed -i "s,__BASE_DIR__,${arg_b},g" "${PROCESS_FILE_INSTALL_PATH}"
+sed -i "s,__CODE_COVERAGE_DIR__,${arg_c},g" "${PROCESS_FILE_INSTALL_PATH}"
+sed -i "s,__INSTALL_DIR__,${arg_i},g" "${PROCESS_FILE_INSTALL_PATH}"
+sed -i "s,__REPORT_DIR__,${arg_r},g" "${PROCESS_FILE_INSTALL_PATH}"
 
 ### Create / Update privs for the directory that will contain the code coverage reports.
-#mkdir "${arg_c}"
-#chown apache:apache "${arg_c}"
+mkdir "${arg_c}"
+chown apache:apache "${arg_c}"
 
 ### Make sure to restart the services so that these changes take effect.
-#~/bin/services stop
-#~/bin/services start
+~/bin/services stop
+~/bin/services start
 
 
 
