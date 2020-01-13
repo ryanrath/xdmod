@@ -56,6 +56,10 @@ class XdmodConfiguration extends Configuration
 
         $this->processExtends();
 
+        $this->processReplacements();
+
+        $this->processFilters();
+
         return $this;
     }
 
@@ -82,6 +86,39 @@ class XdmodConfiguration extends Configuration
             }
         }
     } // processExtends
+
+    protected function processReplacements()
+    {
+        if (!$this->isLocalConfig) {
+            if (is_array($this->transformedConfig)) {
+                foreach($this->transformedConfig as $key => &$value) {
+                    if (is_object($value)) {
+                        $this->handleReplacementsFor($value);
+                    }
+                }
+            } elseif (is_object($this->transformedConfig)) {
+                $this->handleReplacementsFor($this->transformedConfig);
+            }
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function processFilters()
+    {
+        if (!$this->isLocalConfig) {
+            if (is_array($this->transformedConfig)) {
+                foreach($this->transformedConfig as $key => &$value) {
+                    if (is_object($value)) {
+                        $this->transformedConfig[$key] = $this->handleFiltersFor($value);
+                    }
+                }
+            } elseif (is_object($this->transformedConfig)) {
+                $this->transformedConfig = $this->handleFiltersFor($this->transformedConfig);
+            }
+        }
+    }
 
     /**
      * This function will handle the `extends` keyword for the provided $source object. This will
@@ -129,6 +166,112 @@ class XdmodConfiguration extends Configuration
             }
         }
     }
+
+    /**
+     * @param stdClass $source
+     */
+    protected function handleReplacementsFor(stdClass $source)
+    {
+        #$replacements = $this->findReplacements();
+
+    }
+
+    /**
+     * @param stdClass $source
+     * @return stdClass
+     * @throws Exception
+     */
+    protected function handleFiltersFor(stdClass $source)
+    {
+        $filters = array_filter(
+            get_object_vars($source),
+            function($key) {
+                return $key[0] === '-';
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+
+        $source = $this->applyFilters($source, $filters);
+
+        // Clean Up the source object so that the filter values are no longer present.
+        $filterKeys = array_keys($filters);
+        foreach($filterKeys as $filterKey) {
+            unset($source->$filterKey);
+        }
+
+        return $source;
+    }
+
+    protected function findFilters(stdClass $source)
+    {
+        $results = array();
+    }
+
+    /**
+     * @param stdClass $source
+     * @param iterable $filters
+     * @return stdClass
+     * @throws Exception
+     */
+    protected function applyFilters(stdClass &$source, $filters)
+    {
+        foreach($filters as $rawProperty => $value) {
+            if ($rawProperty[0] !== '-') {
+                continue;
+            }
+
+            $property = substr($rawProperty, 1);
+
+            // If the filter value is empty ( '', [], {} etc. ) && source has a $property then we should remove it.
+            if (empty($value) && isset($source->$property)) {
+                unset($source->$property);
+            } elseif (isset($source->$property)) {
+                // we have a property *and* the filter value is not empty. We should continue processing the values.
+                if (is_object($value)) {
+                    $source->$property = $this->applyFilters($source->$property, $value);
+                } elseif (is_array($value) && !empty($value) && is_array($source->$property)) {
+                    $toBeRemoved = $this->filterArray($source->$property, $value);
+                    foreach($toBeRemoved as $index) {
+                        $rest = array_slice($source->$property, 0, $index);
+                        $rest = array_merge($rest, array_slice($source->$property, $index + 1));
+                        $source->$property = $rest;
+                    }
+                }
+            }
+        }
+        return $source;
+    }
+
+    protected function filterArray(array $source, array $filters)
+    {
+        $results = array();
+        foreach($source as $key => $value) {
+            foreach($filters as $filter) {
+                $filterKeys = array_keys(get_object_vars($filter));
+                $valueKeys = array_keys(get_object_vars($value));
+
+                $same = array_intersect($filterKeys, $valueKeys);
+
+                $include = true;
+                if (!empty($same)) {
+                    foreach($same as $sameProperty) {
+                        $expected = $filter->$sameProperty;
+                        $actual = $value->$sameProperty;
+                        if ($actual !== $expected) {
+                            $include = false;
+                            break;
+                        }
+                    }
+                }
+
+                if ($include === true) {
+                    $results[] = $key;
+                }
+            }
+        }
+        return $results;
+    }
+
 
     /**
      * Iterate through $config and find any objects that contain an `extends` property for later
