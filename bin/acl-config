@@ -1565,16 +1565,18 @@ SQL;
         $log->info("Processed $processed statistics");
     }
 
-    fflush($bulkdatafile);
+    if (!$dryRun) {
+        fflush($bulkdatafile);
 
-    $bulkload = 'LOAD DATA LOCAL INFILE \'' . stream_get_meta_data($bulkdatafile)['uri'] . '\' INTO TABLE `acl_group_bys_staging` FIELDS TERMINATED BY \',\' (realm_id, acl_id, group_by_id, statistic_id, visible, enabled)';
-    $databaseHelper = CCR\DB\MySQLHelper::factory($db);
-    $output = $databaseHelper->executeStatement($bulkload);
+        $bulkload = 'LOAD DATA LOCAL INFILE \'' . stream_get_meta_data($bulkdatafile)['uri'] . '\' INTO TABLE `acl_group_bys_staging` FIELDS TERMINATED BY \',\' (realm_id, acl_id, group_by_id, statistic_id, visible, enabled)';
+        $databaseHelper = CCR\DB\MySQLHelper::factory($db);
+        $output = $databaseHelper->executeStatement($bulkload);
 
-    if (count($output) > 0) {
-        $this->logger->warning($bulkload);
-        foreach ($output as $line) {
-            $this->logger->warning($line);
+        if (count($output) > 0) {
+            $this->logger->warning($bulkload);
+            foreach ($output as $line) {
+                $this->logger->warning($line);
+            }
         }
     }
 
