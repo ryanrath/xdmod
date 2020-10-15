@@ -12,8 +12,8 @@ BuildRoot:     %(mktemp -ud %{_tmppath}/%{name}-%{version}__PRERELEASE__-%{relea
 BuildArch:     noarch
 BuildRequires: php-cli
 Requires:      httpd mod_ssl
-Requires:      mariadb >= 5.5.3
-Requires:      php >= 5.4 php-cli php-mysqlnd php-pdo php-gd php-xml php-mbstring php-zip
+Requires:      mariadb >= 10.3.17
+Requires:      php >= 7.2 php-cli php-mysqlnd php-pdo php-gd php-xml php-mbstring php-zip
 Requires:      php-pecl-apcu
 Requires:      java-1.8.0-openjdk java-1.8.0-openjdk-devel
 Requires:      chromium-headless
