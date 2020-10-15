@@ -396,7 +396,8 @@ SQL;
      */
     public static function demoteUserFromCenterStaff(XDUser $user, $centerId)
     {
-        $currentCenters = array_pop(array_values(Users::getCentersFor($user)));
+        $userCenters = array_values(Users::getCentersFor($user));
+        $currentCenters = array_pop($userCenters);
 
         // If this user has no more center staff centers then remove the center
         // staff acl.

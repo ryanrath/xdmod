@@ -49,11 +49,24 @@ class CCRDBHandler extends AbstractProcessingHandler
     {
         $sql = sprintf("INSERT INTO %s.%s (id, logtime, ident, priority, message) VALUES(:id, NOW(), :ident, :priority, :message)", $this->schema, $this->table, $this->schema);
 
+        $message = $record['message'];
+
+        try {
+            // If the message is already a valid json object then go ahead and use it.
+            $test = json_decode($message);
+            if (!is_array($test) || !is_object($test)) {
+                $message = json_encode(array('message' => $message));
+            }
+        } catch (\Exception $e) {
+            // If it's not, then create a wrapper json object
+            $message = json_encode(array('message' => $message));
+        }
+
         $this->db->execute($sql, array(
             ':id' => $this->getNextId(),
             ':ident' => $record['channel'],
             ':priority' =>$record['level'],
-            ':message' => $record['formatted']
+            ':message' => $message
         ));
     }
 
@@ -72,7 +85,9 @@ class CCRDBHandler extends AbstractProcessingHandler
         $insertSQL = sprintf('INSERT INTO %s.log_id_seq (sequence) VALUES(NULL);', $this->schema);
 
         $results = $this->db->execute($insertSQL);
-        if (count($results) <= 0) {
+
+        // The result of an execute is the number of rows changed. This should always be 1.
+        if ($results !== 1) {
             $this->db->rollBack();
             throw new \Exception('Incrementing log id seq failed');
         }
@@ -86,7 +101,7 @@ class CCRDBHandler extends AbstractProcessingHandler
         }
 
         $results = $this->db->execute(sprintf("DELETE FROM %s.log_id_seq WHERE sequence < :id", $this->schema), array(':id' => $id));
-        if (count($results) <= 0) {
+        if ($results <= 0) {
             $this->db->rollBack();
             throw new \Exception('');
         }

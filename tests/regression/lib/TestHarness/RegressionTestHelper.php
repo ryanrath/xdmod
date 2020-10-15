@@ -461,22 +461,26 @@ class RegressionTestHelper extends XdmodTestHelper
         }
 
         $failures = [];
-        $expectedHeader = $expectedCSV[0];
-        $providedHeader = $providedCSV[0];
-        $useAssoc = false;
+        if (count($expectedCSV) < 1 || count($providedCSV) < 1) {
+            $failures[] = 'Missing CSV Header';
+        } else {
+            $expectedHeader = $expectedCSV[0];
+            $providedHeader = $providedCSV[0];
+            $useAssoc = false;
 
-        if (count(array_diff_assoc($expectedHeader, $providedHeader)) > 0) {
-            sort($expectedHeader);
-            sort($providedHeader);
+            if (count(array_diff_assoc($expectedHeader, $providedHeader)) > 0) {
+                sort($expectedHeader);
+                sort($providedHeader);
 
-            if ($expectedHeader !== $providedHeader) {
-                $failures[] = 'CSV headers differ';
+                if ($expectedHeader !== $providedHeader) {
+                    $failures[] = 'CSV headers differ';
+                }
+
+                $useAssoc = true;
+                $this->messages[] = 'Column order mismatch';
+                $expectedCSV = self::getAssocCSV($expectedCSV);
+                $providedCSV = self::getAssocCSV($providedCSV);
             }
-
-            $useAssoc = true;
-            $this->messages[] = 'Column order mismatch';
-            $expectedCSV = self::getAssocCSV($expectedCSV);
-            $providedCSV = self::getAssocCSV($providedCSV);
         }
 
         for ($i = 1; $i < $expectedRowCount; $i++) {

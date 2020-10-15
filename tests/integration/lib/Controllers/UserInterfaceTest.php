@@ -61,7 +61,8 @@ class UserInterfaceTest extends BaseUserAdminTest
             false
         );
         $validator = new Validator();
-        $validator->validate(json_decode(json_encode($actual)), $schemaObject);
+        $actualJson = json_decode(json_encode($actual));
+        $validator->validate($actualJson, $schemaObject);
         $errors = array();
         foreach ($validator->getErrors() as $err) {
             $errors[] = sprintf("[%s] %s\n", $err['property'], $err['message']);
