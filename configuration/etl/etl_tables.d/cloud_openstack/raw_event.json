@@ -115,7 +115,7 @@
             },
             {
                 "name": "size",
-                "type": "int(11)",
+                "type": "bigint(11)",
                 "nullable": true,
                 "default": null
             },
