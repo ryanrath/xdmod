@@ -3528,10 +3528,7 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {
-        "ext-pdo": "*",
-        "ext-json": "*"
-    },
+    "platform": [],
     "platform-dev": [],
     "platform-overrides": {
         "php": "5.4"
