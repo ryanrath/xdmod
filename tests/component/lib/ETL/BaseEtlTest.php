@@ -7,6 +7,7 @@
 namespace ComponentTests\ETL;
 
 use CCR\Log;
+use ETL\EtlOverseer;
 use ETL\EtlOverseerOptions;
 use ETL\Configuration\EtlConfiguration;
 use ETL\aAction;
@@ -78,7 +79,14 @@ abstract class BaseEtlTest extends \PHPUnit_Framework_TestCase
         EtlConfiguration $etlConfig,
         EtlOverseerOptions $overseerOptions
     ) {
-        $action = aAction::factory($etlConfig, $actionName);
-        $action->execute($overseerOptions);
+        if (!isset(self::$logger)) {
+            self::$logger = self::createLogger('base-etl-test', Log::DEBUG);
+        }
+
+        $overseerOptions->setActionNames($actionName);
+        $overseerOptions->setLogger(self::$logger);
+
+        $overseer = new EtlOverseer($overseerOptions, self::$logger);
+        $overseer->execute($etlConfig);
     }
 }
