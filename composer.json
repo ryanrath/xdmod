@@ -23,7 +23,9 @@
         "ubccr/simplesamlphp-module-authglobus": "^1.3",
         "ubccr/simplesamlphp-module-authoidcoauth2": "^1.1",
         "phpoffice/phpword": "^0.17.0",
-        "monolog/monolog": "^1.25"
+        "monolog/monolog": "^1.25",
+        "cytoscape/cytoscape": "^3.16",
+        "cytoscape/cytoscape-dagre": "^2.3"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
@@ -200,6 +202,47 @@
                     "installer-name": "rsvp"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "cytoscape/cytoscape",
+                "type": "vanilla-plugin",
+                "version": "3.16.1",
+                "license": "MIT",
+                "homepage": "https://github.com/cytoscape/cytoscape.js",
+                "dist": {
+                    "type": "file",
+                    "url": "https://github.com/cytoscape/cytoscape.js/blob/v3.16.1/dist/cytoscape.min.js",
+                    "shasum": "556dc2b91ac4f91c24544313ca790c514c6952fb"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                },
+                "extra": {
+                    "installer-name": "cytoscape"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "cytoscape/cytoscape-dagre",
+                "type": "vanilla-plugin",
+                "version": "2.3.2",
+                "license": "MIT",
+                "homepage": "https://github.com/cytoscape/cytoscape.js-dagre",
+                "dist": {
+                    "type": "file",
+                    "url": "https://github.com/cytoscape/cytoscape.js-dagre/blob/v2.3.2/cytoscape-dagre.js"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                },
+                "extra": {
+                    "installer-name": "cytoscape-dagre"
+                }
+            }
         }
     ],
     "extra": {
@@ -210,7 +253,9 @@
                 "moment/moment-min-file",
                 "moment/moment-timezone-min-file",
                 "jquery/jquery-min-file",
-                "tildeio/rsvpjs-min-file"
+                "tildeio/rsvpjs-min-file",
+                "cytoscape/cytoscape",
+                "cytoscape/cytoscape-dagre"
             ],
             "html/gui/lib/jquery-plugins/{$name}": [
                 "carlo/jquery-base64-file"
