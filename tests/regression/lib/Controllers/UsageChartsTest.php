@@ -81,15 +81,11 @@ class UsageChartsTest extends \PHPUnit_Framework_TestCase
         $expectedHashes = array();
         $hashFiles = array();
 
-        $osInfo = false;
-        try {
-            $osInfo = parse_ini_file('/etc/os-release');
-        } catch (\Exception $e) {
-            // if we don't have access to OS related info then that's fine, we'll just use the default expected.json
-        }
+
+        $osInfo = $this::getOsInfo(array('VERSION_ID', 'ID'));
 
         // If we have OS info available to us then look for an OS specific expected output file based on this info.
-        if ($osInfo !== false && isset($osInfo['VERSION_ID']) && isset($osInfo['ID'])) {
+        if (isset($osInfo['VERSION_ID']) && isset($osInfo['ID'])) {
             $hashFiles[] = sprintf("expected-%s%s.json", $osInfo['ID'], $osInfo['VERSION_ID']);
         }
         // Otherwise try the default expected.json
@@ -206,5 +202,36 @@ class UsageChartsTest extends \PHPUnit_Framework_TestCase
         } else {
             return array_intersect_key($output, array_flip(array_rand($output, 35)));
         }
+    }
+
+    private static function getOsInfo(array $requestedProperties = array(), array $requiredProperties = array())
+    {
+        $osInfo = false;
+        try {
+            $osInfo = parse_ini_file('/etc/os-release');
+        } catch (\Exception $e) {
+            // if we don't have access to OS related info then that's fine, we'll just use the default expected.json
+        }
+
+        if ($osInfo !== false && !empty($requiredProperties)) {
+            $actual = array_keys($osInfo);
+            if (count(array_intersect($actual, $requiredProperties)) !== count($requiredProperties)) {
+                throw new Exception(
+                    sprintf(
+                        "Expected %s to be present. Found: %s\n",
+                        json_encode($requiredProperties),
+                        json_encode(array_keys($osInfo))
+                    )
+                );
+            }
+        }
+
+        // If there are no requested properties than just return them all.
+        if (empty($requestedProperties)) {
+            return $osInfo;
+        }
+
+        // Otherwise return the
+        return array_intersect_key($osInfo, array_flip($requestedProperties));
     }
 }
