@@ -210,75 +210,93 @@ abstract class TimePeriodGenerator
         // (Parameter names are the table column names prefixed with a colon.)
         $db_table = $this->getDatabaseMainTableName();
         $db_unit = $this->getDatabaseUnitName();
-        $db_time_period_of_year_param = ":{$db_unit}";
-        $db_start_param = ":{$db_unit}_start";
-        $db_end_param = ":{$db_unit}_end";
-        $db_start_ts_param = ":{$db_unit}_start_ts";
-        $db_end_ts_param = ":{$db_unit}_end_ts";
-        $db_middle_ts_param = ":{$db_unit}_middle_ts";
+        $db_start_param = "{$db_unit}_start";
+        $db_end_param = "{$db_unit}_end";
+        $db_start_ts_param = "{$db_unit}_start_ts";
+        $db_end_ts_param = "{$db_unit}_end_ts";
+        $db_middle_ts_param = "{$db_unit}_middle_ts";
 
         // Truncate this table in case this is part of migration
-        $current_start_datetime = $this->getTimePeriodStart($min_datetime);
-        $db->execute("TRUNCATE $db_table");
+        $current_datetime = $this->getTimePeriodStart($min_datetime);
 
-        // Create a database entry for each time period in the range.
-        $insert_statement = null;
-        while ($current_start_datetime < $max_datetime) {
-            $current_end_datetime = $this->getTimePeriodEnd($current_start_datetime);
+
+        // Create the temporary file that will be used to store the bulk data prior to loading it into the DB.
+        $bulk_data_file = tmpfile();
+        if ($bulk_data_file === false) {
+            throw new \Exception('Error Creating Temporary File.');
+        }
+
+        $columns = array(
+            'id',
+            'year',
+            $db_start_param,
+            $db_end_param,
+            'hours',
+            'seconds',
+            $db_start_ts_param,
+            $db_end_ts_param,
+            $db_middle_ts_param,
+        );
+        while ($current_datetime < $max_datetime) {
+            $current_end_datetime = $this->getTimePeriodEnd($current_datetime);
             if ($current_end_datetime > $max_datetime) {
                 $current_end_datetime = $max_datetime;
             }
 
             // Calculate the current time period's year, index in year, and ID.
-            $current_year = $this->getYearFromDateTime($current_start_datetime);
-            $current_time_period_in_year = $this->getTimePeriodInYear($current_start_datetime);
+            $current_year = $this->getYearFromDateTime($current_datetime);
+            $current_time_period_in_year = $this->getTimePeriodInYear($current_datetime);
             $current_id = $this->getTimePeriodId($current_year, $current_time_period_in_year);
 
             // Generate the datetime strings readable by the database.
-            $current_start_datetime_str = $this->getDatabaseDateTimeString($current_start_datetime);
+            $current_start_datetime_str = $this->getDatabaseDateTimeString($current_datetime);
             $current_end_datetime_str = $this->getDatabaseDateTimeString($current_end_datetime);
 
             // Calculate timestamp and total time information for the time period.
-            $current_info = $this->getTimestampsAndTotals($current_start_datetime, $current_end_datetime);
+            $current_info = $this->getTimestampsAndTotals($current_datetime, $current_end_datetime);
 
             // Insert the calculated values into the database.
             // If the statement string has not been created yet, create it.
             $insert_param_values = array(
-                ':id' => $current_id,
-                ':year' => $current_year,
-                $db_start_param => $current_start_datetime_str,
-                $db_end_param => $current_end_datetime_str,
-                ':hours' => $current_info['total_hours'],
-                ':seconds' => $current_info['total_seconds'],
-                $db_start_ts_param => $current_info['start_ts'],
-                $db_end_ts_param => $current_info['end_ts'],
-                $db_middle_ts_param => $current_info['middle_ts'],
+                $current_id,
+                $current_year,
+                $current_start_datetime_str,
+                $current_end_datetime_str,
+                $current_info['total_hours'],
+                $current_info['total_seconds'],
+                $current_info['start_ts'],
+                $current_info['end_ts'],
+                $current_info['middle_ts'],
             );
+
             if ($current_time_period_in_year > 0) {
-                $insert_param_values[$db_time_period_of_year_param] = $current_time_period_in_year;
+                $insert_param_values[] = $current_time_period_in_year;
             }
 
-            if ($insert_statement === null) {
-                $insert_params = array_keys($insert_param_values);
-                $insert_columns = array_map(
-                    function ($insert_param) {
-                        return substr($insert_param, 1);
-                    },
-                    $insert_params
-                );
-
-                $insert_columns_str = implode(', ', $insert_columns);
-                $insert_params_str = implode(', ', $insert_params);
-
-                $insert_statement =
-                    "INSERT INTO $db_table ($insert_columns_str)
-                    VALUES ($insert_params_str)";
-            }
-
-            $db->execute($insert_statement, $insert_param_values);
+            // INSERT INTO days (id, year, day_start, day_end, hours, seconds, day_start_ts, day_end_ts, day_middle_ts, day)
+            #echo 'Parameters: ' . var_export($insert_param_values, true);
+            fwrite($bulk_data_file, implode(',', $insert_param_values) . "\n");
 
             // Get the start of the next time period for the next entry.
-            $current_start_datetime = $this->getNextTimePeriodStart($current_start_datetime);
+            $current_datetime = $this->getNextTimePeriodStart($current_datetime);
         } // while
+
+        fflush($bulk_data_file);
+
+        // Since we already have a `year` column present by default we don't need to add it again for the Year Generator.
+        if ($this->getDatabaseUnitName() !== 'year') {
+            $columns[] = $db_unit;
+        }
+
+        $db->execute("TRUNCATE $db_table");
+        $bulk_load = 'LOAD DATA LOCAL INFILE \'' . stream_get_meta_data($bulk_data_file)['uri'] . "' INTO TABLE $db_table FIELDS TERMINATED BY ',' (" . implode(', ', $columns) . ')';
+        $db_helper = \CCR\DB\MySQLHelper::factory($db);
+        $output = $db_helper->executeStatement($bulk_load);
+        if (count($output) > 0) {
+//            $this->$log->warning($bulk_load);
+//            foreach ($output as $line) {
+//                $log->warning($line);
+//            }
+        }
     }
 }
