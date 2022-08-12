@@ -56,6 +56,15 @@ user_dashboard = "[:features_user_dashboard:]"
 ; Set to "on" to enable the local user option in login modal.
 show_local_login = "off"
 
+[saml_properties]
+username="eppn"
+email_address="email"
+system_username="system_username"
+first_name="first_name"
+middle_name="middle_name"
+last_name="last_name"
+organization="organization"
+
 [internal]
 dw_desc_cache = "off"
 

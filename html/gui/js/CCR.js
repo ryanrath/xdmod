@@ -1306,7 +1306,7 @@ CCR.xdmod.ui.actionLogin = function (config, animateTarget) {
         width: 321,
         items: [{
             xtype: 'button',
-            text: '<img src="' + CCR.xdmod.SSOLoginLink.icon + '" alt="Login here."></img>',
+            text: '<img src="' + CCR.xdmod.SSOLoginLink.icon + '" alt="Login here." style="width:278px;"></img>',
             anchor: '100%',
             id: 'SSOLoginLink',
             handler: function () {

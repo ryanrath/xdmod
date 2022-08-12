@@ -3,6 +3,7 @@
 namespace Authentication\SAML;
 
 use CCR\MailWrapper;
+use Configuration\Configuration;
 use \Exception;
 use CCR\Log;
 use Models\Services\Organizations;
@@ -48,11 +49,22 @@ Unable to Identify Users Organization.
 Additional Setup Required.
 EML;
 
+    private $emailAddress;
+    private $systemUsername;
+    private $firstName;
+    private $middleName;
+    private $lastName;
+    private $organization;
+    private $userName;
+
     /**
      * @var LoggerInterface
      */
     private $logger = null;
 
+    /**
+     * @throws Exception
+     */
     public function __construct()
     {
         $this->logger = Log::factory(
@@ -64,6 +76,16 @@ EML;
                 'console' => false
             )
         );
+
+        $samlSettings = \xd_utilities\getConfigurationSection('saml_properties');
+
+        $this->emailAddress = $samlSettings['email_address'];
+        $this->systemUsername = $samlSettings['system_username'];
+        $this->firstName = $samlSettings['first_name'];
+        $this->middleName = $samlSettings['middle_name'];
+        $this->lastName = $samlSettings['last_name'];
+        $this->organization = $samlSettings['organization'];
+        $this->userName = $samlSettings['username'];
 
         $this->_sources = \SimpleSAML_Auth_Source::getSources();
         if ($this->isSamlConfigured()) {
@@ -114,7 +136,7 @@ EML;
          */
         \SimpleSAML_Session::getSessionFromRequest()->cleanup();
         if ($this->_as->isAuthenticated()) {
-            $userName = $samlAttrs['username'][0];
+            $userName = $this->emailToUsername($this->retrieve($samlAttrs, $this->userName));
 
             $xdmodUserId = \XDUser::userExistsWithUsername($userName);
 
@@ -126,12 +148,12 @@ EML;
 
             // If we've gotten this far then we're creating a new user. Proceed with gathering the
             // information we'll need to do so.
-            $emailAddress = isset($samlAttrs['email_address']) ? $samlAttrs['email_address'][0] : NO_EMAIL_ADDRESS_SET;
-            $systemUserName = isset($samlAttrs['system_username']) ? $samlAttrs['system_username'][0] : $userName;
-            $firstName = isset($samlAttrs['first_name']) ? $samlAttrs['first_name'][0] : 'UNKNOWN';
-            $middleName = isset($samlAttrs['middle_name']) ? $samlAttrs['middle_name'][0] : null;
-            $lastName = isset($samlAttrs['last_name']) ? $samlAttrs['last_name'][0] : null;
-            $personId = \DataWarehouse::getPersonIdFromPII($systemUserName, $samlAttrs['organization'][0]);
+            $emailAddress = $this->retrieve($samlAttrs, $this->emailAddress, NO_EMAIL_ADDRESS_SET);
+            $systemUserName = $this->retrieve($samlAttrs, $this->systemUsername, $userName);
+            $firstName = $this->retrieve($samlAttrs, $this->firstName, 'UNKNOWN');
+            $middleName = $this->retrieve($samlAttrs, $this->middleName);
+            $lastName = $this->retrieve($samlAttrs, $this->lastName);
+            $personId = \DataWarehouse::getPersonIdFromPII($systemUserName, $this->retrieve($samlAttrs, $this->organization));
 
             // Attempt to identify which organization this user should be associated with. Prefer
             // using the personId if not unknown, then fall back to the saml attributes if the
@@ -154,7 +176,7 @@ EML;
                     $samlAttrs
                 );
             } catch (Exception $e) {
-                throw new Exception('An account is currently configured with this information, please contact an administrator.');
+                throw new Exception('An account is currently configured with this information, please contact an administrator.', 0, $e);
             }
 
             $newUser->setUserType(SSO_USER_TYPE);
@@ -226,8 +248,7 @@ EML;
         if (!$this->isSamlConfigured()) {
             return false;
         }
-        $idp = \SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler()->getMetadata(
-            \SimpleSAML_Auth_Source::getById($this->authSourceName)->getMetadata()->toArray()['idp'],
+        $idp = \SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler()->getMetadata('xdmod-hosted-idp-ccr-oidc',
             'saml20-idp-remote'
         );
         if (!empty($idp['OrganizationDisplayName'])) {
@@ -301,5 +322,20 @@ EML;
 
             throw $e;
         }
+    }
+
+    private function retrieve(array $source, $key, $default = null, $offset = 0)
+    {
+        return array_key_exists($key, $source) && isset($source[$key][$offset]) ? $source[$key][$offset] : $default;
+    }
+
+    private function emailToUsername($eppn)
+    {
+        $atPos = strpos($eppn, '@');
+        if ($atPos !== false) {
+            return substr($eppn, 0, $atPos - 1);
+        }
+
+        return $eppn;
     }
 }
