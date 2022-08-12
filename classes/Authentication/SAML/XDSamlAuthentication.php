@@ -248,23 +248,22 @@ EML;
         if (!$this->isSamlConfigured()) {
             return false;
         }
+
         $idp = \SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler()->getMetadata('xdmod-hosted-idp-ccr-oidc',
             'saml20-idp-remote'
         );
+
+        $orgDisplay = array('en' => 'Single Sign On');
+        $icon = '';
+
         if (!empty($idp['OrganizationDisplayName'])) {
             $orgDisplay = $idp['OrganizationDisplayName'];
         }
-        else {
-            $orgDisplay = array(
-                'en' => 'Single Sign On'
-            );
-        }
+
         if (!empty($idp['icon'])) {
             $icon = $idp['icon'];
         }
-        else {
-            $icon = "";
-        }
+
         return array(
             'organization' => $orgDisplay,
             'icon' => $icon
