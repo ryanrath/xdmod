@@ -8,6 +8,7 @@ namespace OpenXdmod\Tests\Shredder;
 use CCR\DB\NullDB;
 use Exception;
 use CCR\Log;
+use PHPUnit\Framework\TestCase;
 use PHPUnit_Framework_TestCase;
 use Psr\Log\LoggerInterface;
 use TestHarness\TestFiles;
@@ -15,7 +16,7 @@ use TestHarness\TestFiles;
 /**
  * Base class for job shredder test classes.
  */
-abstract class JobShredderBaseTestCase extends PHPUnit_Framework_TestCase
+abstract class JobShredderBaseTestCase extends TestCase
 {
     /**
      * @var \TestHarness\TestFiles
@@ -35,7 +36,7 @@ abstract class JobShredderBaseTestCase extends PHPUnit_Framework_TestCase
     /**
      * Create a null database and logger.
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->db = new NullDB();
         $this->logger = Log::singleton('null');

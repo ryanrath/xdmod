@@ -2,9 +2,10 @@
 
 namespace RegressionTests\Controllers;
 
+use PHPUnit\Framework\TestCase;
 use TestHarness\Utilities;
 
-class MetricExplorerChartsTest extends \PHPUnit_Framework_TestCase
+class MetricExplorerChartsTest extends TestCase
 {
     private static $chartFilterTestData = array();
 

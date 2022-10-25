@@ -5,6 +5,7 @@
 
 namespace OpenXdmod\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Xdmod\NodeSet;
 
 /**
@@ -13,7 +14,7 @@ use Xdmod\NodeSet;
  * @package OpenXdmod
  * @subpackage Tests
  */
-class NodeSetTest extends \PHPUnit_Framework_TestCase
+class NodeSetTest extends TestCase
 {
     public function testNodeSetIterator()
     {

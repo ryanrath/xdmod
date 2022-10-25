@@ -3,9 +3,10 @@
 namespace IntegrationTests;
 
 use JsonSchema\Validator;
+use PHPUnit\Framework\TestCase;
 use \TestHarness\Utilities;
 
-abstract class BaseTest extends \PHPUnit_Framework_TestCase
+abstract class BaseTest extends TestCase
 {
     protected static $XDMOD_REALMS;
 

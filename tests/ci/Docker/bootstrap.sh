@@ -22,6 +22,16 @@ cp -r $REF_SOURCE /var/tmp/
 set -e
 set -o pipefail
 
+# Detect what version of CentOS we're running in, if it's 8 then we need to do some rejiggering of the yum repos to
+# make things work. From: https://stackoverflow.com/questions/70926799/centos-through-vm-no-urls-in-mirrorlist
+OS_VERSION=$(grep VERSION_ID < /etc/os-release  | cut -d"=" -f 2 | tr -d '"')
+case "$OS_VERSION" in
+    "8")
+        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+        ;;
+esac
+
 if [ "$XDMOD_TEST_MODE" = "fresh_install" ];
 then
     rpm -qa | grep ^xdmod | xargs yum -y remove || true
@@ -31,8 +41,8 @@ then
     yum -y install ~/rpmbuild/RPMS/*/*.rpm
     copy_template_httpd_conf
     ~/bin/services start
-    mysql -e "CREATE USER 'root'@'_gateway' IDENTIFIED BY '';
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'gateway' WITH GRANT OPTION;
+    mysql -e "CREATE USER 'xdmod'@'_gateway' IDENTIFIED BY 'xdmod123';
+    GRANT ALL PRIVILEGES ON *.* TO 'xdmod'@'_gateway' WITH GRANT OPTION;
     FLUSH PRIVILEGES;"
 
     # TODO: Replace diff files with hard fixes
@@ -147,3 +157,7 @@ then
         sudo -u xdmod xdmod-ingestor --aggregate=storage --last-modified-start-date "$last_modified_start_date"
     fi
 fi
+
+# Remove old PEAR dependencies.
+# NOTE: `php-pear-MDB2-Driver-mysql` will also be removed as it depends on `php-pear-MDB2`
+yum -y remove php-pear-MDB2
