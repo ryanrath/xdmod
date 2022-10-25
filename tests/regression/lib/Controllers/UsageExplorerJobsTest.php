@@ -6,12 +6,13 @@
 
 namespace Controllers;
 
+use PHPUnit\Framework\TestCase;
 use TestHarness\RegressionTestHelper;
 
 /**
  * Test the usage explorer for jobs realm regressions.
  */
-class UsageExplorerJobsTest extends \PHPUnit_Framework_TestCase
+class UsageExplorerJobsTest extends TestCase
 {
     /**
      * @var \RegressionTestHelper

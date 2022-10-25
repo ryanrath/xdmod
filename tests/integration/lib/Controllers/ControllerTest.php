@@ -1,11 +1,12 @@
 <?php namespace IntegrationTests\Controllers;
 
 use CCR\Json;
+use PHPUnit\Framework\TestCase;
 use TestHarness\TestFiles;
 use TestHarness\TestParameterHelper;
 use TestHarness\XdmodTestHelper;
 
-class ControllerTest extends \PHPUnit_Framework_TestCase
+class ControllerTest extends TestCase
 {
 
     /**

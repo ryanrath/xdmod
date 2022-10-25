@@ -2,7 +2,9 @@
 
 namespace RegressionTests\Controllers;
 
-class UsageChartsTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class UsageChartsTest extends TestCase
 {
     /**
      * The path relative to this file that contains the expected hashes for this test case.

@@ -2,7 +2,9 @@
 
 namespace IntegrationTests\Rest;
 
-class ReportThumbnailsTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ReportThumbnailsTest extends TestCase
 {
     protected static $helpers = array();
 

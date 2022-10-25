@@ -27,6 +27,9 @@ class EtlConfigurationTest extends \UnitTesting\BaseTest
 
     private $testFiles;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -34,7 +37,7 @@ class EtlConfigurationTest extends \UnitTesting\BaseTest
     }
 
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         // Query the configuration file for the default module name
 
@@ -43,7 +46,7 @@ class EtlConfigurationTest extends \UnitTesting\BaseTest
             if (isset($etlConfigOptions['default_module_name'])) {
                 self::$defaultModuleName = $etlConfigOptions['default_module_name'];
             }
-        } catch ( Exception $e ) {
+        } catch (\Exception $e ) {
             // Simply ignore the exception if there is no [etl] section in the config file
         }
     }
