@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f948e8053de91a015c0b1361459b83de",
+    "content-hash": "d557538be847f8534373ae91f3e8e04b",
     "packages": [
         {
             "name": "carlo/jquery-base64-file",
