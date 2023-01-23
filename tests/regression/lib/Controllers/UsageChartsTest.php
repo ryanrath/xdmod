@@ -28,7 +28,7 @@ class UsageChartsTest extends TestCase
     /**
      * Determine which JSON file to use for expected hash data.
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $osInfo = false;
         try {
@@ -60,7 +60,7 @@ class UsageChartsTest extends TestCase
         }
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         self::$helper->logout();
         if(!empty(self::$imagehashes)) {

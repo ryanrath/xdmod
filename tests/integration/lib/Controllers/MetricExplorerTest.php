@@ -3,10 +3,11 @@
 namespace IntegrationTests\Controllers;
 
 use IntegrationTests\BaseTest;
+use TestHarness\XdmodTestHelper;
 
 class MetricExplorerTest extends BaseTest
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->helper = new \TestHarness\XdmodTestHelper();
     }
@@ -76,7 +77,7 @@ class MetricExplorerTest extends BaseTest
             'selectedFilterIds' => ''
         );
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
+        $response = $this->helper->post('controllers/metric_explorer.php', null, $params);
 
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
@@ -86,7 +87,7 @@ class MetricExplorerTest extends BaseTest
 
         $this->helper->authenticate('cd');
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
+        $response = $this->helper->post('controllers/metric_explorer.php', null, $params);
 
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
@@ -97,7 +98,7 @@ class MetricExplorerTest extends BaseTest
 
         $this->helper->authenticate('pi');
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
+        $response = $this->helper->post('controllers/metric_explorer.php', null, $params);
 
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
@@ -105,9 +106,12 @@ class MetricExplorerTest extends BaseTest
         $this->assertLessThan($totalUsers, $response[0]['totalCount']);
 
         $this->helper->logout();
+        $helper = new XdmodTestHelper();
+        $response = $helper->post('controllers/metric_explorer.php', null, $params);
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
-
+        if (401 !== $response[1]['http_code']) {
+            print_r($response);
+        }
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(401, $response[1]['http_code']);
     }
@@ -228,7 +232,6 @@ class MetricExplorerTest extends BaseTest
         $this->helper->authenticate('cd');
 
         $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
-
         $this->assertArrayHasKey('data', $response[0]);
         $this->assertCount($limit, $response[0]['data']);
 
@@ -250,8 +253,10 @@ class MetricExplorerTest extends BaseTest
             'config' => $chartSettings
         );
         $this->helper->authenticate('cd');
-        $response = $this->helper->post('rest/v1/metrics/explorer/queries', null, array('data' => json_encode($settings)));
-
+        $response = $this->helper->post('metrics/explorer/queries', null, array('data' => json_encode($settings)));
+        if ('application/json' !== $response[1]['content_type'] || 200 !== $response[1]['http_code']) {
+            print_r($response);
+        }
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
 
@@ -264,7 +269,7 @@ class MetricExplorerTest extends BaseTest
 
         $recordid = $querydata['data']['recordid'];
 
-        $allcharts = $this->helper->get('rest/v1/metrics/explorer/queries');
+        $allcharts = $this->helper->get('metrics/explorer/queries');
         $this->assertTrue($allcharts[0]['success']);
 
         $seenchart = false;
@@ -277,11 +282,11 @@ class MetricExplorerTest extends BaseTest
         }
         $this->assertTrue($seenchart);
 
-        $justthischart = $this->helper->get('rest/v1/metrics/explorer/queries/' . $recordid);
+        $justthischart = $this->helper->get('metrics/explorer/queries/' . $recordid);
         $this->assertTrue($justthischart[0]['success']);
         $this->assertEquals("Test &lt; &lt;img src=&quot;test.gif&quot; onerror=&quot;alert()&quot; /&gt;", $justthischart[0]['data']['name']);
 
-        $cleanup = $this->helper->delete('rest/v1/metrics/explorer/queries/' . $recordid);
+        $cleanup = $this->helper->delete('metrics/explorer/queries/' . $recordid);
         $this->assertTrue($cleanup[0]['success']);
     }
 
