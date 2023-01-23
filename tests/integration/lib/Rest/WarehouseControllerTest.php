@@ -8,7 +8,7 @@ class WarehouseControllerTest extends BaseTest
 {
     protected static $helpers = array();
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         foreach (array('pub', 'cd') as $user) {
             self::$helpers[$user] = new \TestHarness\XdmodTestHelper();
@@ -18,7 +18,7 @@ class WarehouseControllerTest extends BaseTest
         }
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         foreach (self::$helpers as $helper) {
             $helper->logout();
@@ -85,7 +85,7 @@ class WarehouseControllerTest extends BaseTest
      */
     public function testGetAggregateDataMalformedRequests($user, $params)
     {
-        $response = self::$helpers[$user]->get('rest/warehouse/aggregatedata', $params);
+        $response = self::$helpers[$user]->get('warehouse/aggregatedata', $params);
 
         $this->assertEquals(400, $response[1]['http_code']);
         $this->assertFalse($response[0]['success']);
@@ -96,7 +96,7 @@ class WarehouseControllerTest extends BaseTest
      */
     public function testGetAggregateDataAccessControls($user, $http_code, $params)
     {
-        $response = self::$helpers[$user]->get('rest/warehouse/aggregatedata', $params);
+        $response = self::$helpers[$user]->get('warehouse/aggregatedata', $params);
 
         $this->assertEquals($http_code, $response[1]['http_code']);
         $this->assertFalse($response[0]['success']);
@@ -111,7 +111,7 @@ class WarehouseControllerTest extends BaseTest
 
         $params = $this->getAggDataParameterGenerator();
 
-        $response = self::$helpers['cd']->get('rest/warehouse/aggregatedata', $params);
+        $response = self::$helpers['cd']->get('warehouse/aggregatedata', $params);
 
         $this->assertEquals(200, $response[1]['http_code']);
         $this->assertTrue($response[0]['success']);
@@ -130,7 +130,7 @@ class WarehouseControllerTest extends BaseTest
 
         $params = $this->getAggDataParameterGenerator(array('filters' => array('jobsize' => 1)));
 
-        $response = self::$helpers['cd']->get('rest/warehouse/aggregatedata', $params);
+        $response = self::$helpers['cd']->get('warehouse/aggregatedata', $params);
 
         $this->assertEquals(200, $response[1]['http_code']);
         $this->assertTrue($response[0]['success']);

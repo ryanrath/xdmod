@@ -10,7 +10,7 @@ abstract class BaseTest extends TestCase
 {
     protected static $XDMOD_REALMS;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$XDMOD_REALMS = Utilities::getRealmsToTest();
     }

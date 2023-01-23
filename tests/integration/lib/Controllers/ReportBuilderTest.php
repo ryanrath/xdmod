@@ -73,7 +73,7 @@ class ReportBuilderTest extends BaseTest
         return $this->testFiles;
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->verbose = getenv('TEST_VERBOSE');
         if (!isset($this->verbose)) {
@@ -187,7 +187,7 @@ class ReportBuilderTest extends BaseTest
             'operation' => $operation
         );
 
-        $response = $this->helper->post("/controllers/report_builder.php", null, $params);
+        $response = $this->helper->post("controllers/report_builder.php", null, $params);
 
         $this->assertEquals($expected['content_type'], $response[1]['content_type']);
         $this->assertEquals($expected['http_code'], $response[1]['http_code']);
@@ -589,7 +589,7 @@ class ReportBuilderTest extends BaseTest
 
         $this->log("Processing Chart Action: $expectedAction");
 
-        $response = $this->helper->post('/controllers/chart_pool.php', null, $data);
+        $response = $this->helper->post('/chart_pool', null, $data);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
@@ -615,7 +615,7 @@ class ReportBuilderTest extends BaseTest
     private function createReport(array $data)
     {
         $this->log("Creating Report");
-        $response = $this->helper->post('/controllers/report_builder.php', null, $data);
+        $response = $this->helper->post('controllers/report_builder.php', null, $data);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
@@ -625,6 +625,14 @@ class ReportBuilderTest extends BaseTest
 
         $json = $response[0];
 
+        if (!isset($json['action'])) {
+            echo "Creating response missing action\n";
+            echo "Data:\n";
+            print_r($data);
+            echo "Response:\n";
+            print_r($response);
+            echo "\n";
+        }
         $this->assertArrayHasKey('action', $json);
         $this->assertArrayHasKey('phase', $json);
         $this->assertArrayHasKey('status', $json);
@@ -753,11 +761,13 @@ class ReportBuilderTest extends BaseTest
      */
     private function reportImageRenderer(array $params)
     {
-        $response = $this->helper->get('/report_image_renderer.php', $params);
+        $response = $this->helper->get('reports/builder/image', $params);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
-
+        if ('image/png' !== $response[1]['content_type'] || 200 !== $response[1]['http_code']) {
+            print_r($response);
+        }
         $this->assertEquals('image/png', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
     }

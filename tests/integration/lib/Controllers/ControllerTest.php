@@ -28,14 +28,14 @@ class ControllerTest extends TestCase
         return $this->testFiles;
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->helper = new XdmodTestHelper(__DIR__ . '/../../../');
     }
 
     public function testEnumExistingUsers()
     {
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $params = array(
             'operation' => 'enum_existing_users',
@@ -87,7 +87,7 @@ class ControllerTest extends TestCase
             $this->getTestFiles()->getFile('controllers', 'enum_user_types-8.0.0')
         );
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'operation' => 'enum_user_types'
@@ -119,7 +119,7 @@ class ControllerTest extends TestCase
             $this->getTestFiles()->getFile('controllers', 'enum_roles-add_default_center')
         );
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'operation' => 'enum_roles'
@@ -187,7 +187,7 @@ class ControllerTest extends TestCase
         $group = $options['user_group'];
         $outputFile = $options['output'];
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'operation' => 'list_users',
@@ -227,7 +227,7 @@ class ControllerTest extends TestCase
             $this->getTestFiles()->getFile('controllers', 'enum_user_types_and_roles-update_enum_user_types_and_roles')
         );
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'operation' => 'enum_user_types_and_roles'
@@ -257,7 +257,7 @@ class ControllerTest extends TestCase
     {
 
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'start' => 0,
@@ -318,7 +318,7 @@ class ControllerTest extends TestCase
 
     public function testCreateUser()
     {
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array(
             'operation' => 'create_user',
@@ -376,7 +376,7 @@ class ControllerTest extends TestCase
      */
     public function testModifyUser()
     {
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $users = $this->listUsers();
 
@@ -434,7 +434,7 @@ class ControllerTest extends TestCase
      */
     public function testDeleteUser()
     {
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $users = $this->listUsers();
         $user = array_values(
@@ -530,7 +530,7 @@ class ControllerTest extends TestCase
         $data = JSON::loadFile($this->getTestFiles()->getFile('controllers', 'enum_target_addresses-update_enum_user_types_and_roles', 'input'));
 
         $helper = new XdmodTestHelper();
-        $helper->authenticateDashboard('mgr');
+        $helper->authenticate('mgr');
 
         foreach($data as $key => $test) {
             foreach($test[0]['data'] as $dataKey => $value) {

@@ -24,7 +24,7 @@ class RoleDelegationTest extends BaseUserAdminTest
      */
     private $config;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->config = json_decode(file_get_contents(__DIR__ . '/../../../ci/testing.json'), true);

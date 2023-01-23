@@ -47,7 +47,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $this->helper->authenticate($user);
         }
 
-        $response = $this->helper->get('rest/v1/users/current');
+        $response = $this->helper->get('users/current');
 
         $this->validateResponse($response, $expectedHttpCode, $expectedContentType);
 

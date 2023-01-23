@@ -31,7 +31,7 @@ class UsageExplorerTest extends BaseTest
 {
     private static $publicView;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         self::$publicView = array(
@@ -51,7 +51,7 @@ class UsageExplorerTest extends BaseTest
      */
     protected $helper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->helper = new \TestHarness\XdmodTestHelper();
     }

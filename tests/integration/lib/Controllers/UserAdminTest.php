@@ -34,7 +34,7 @@ class UserAdminTest extends BaseUserAdminTest
      */
     public function testCreateUserFails(array $params, array $expected)
     {
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $response = $this->helper->post('controllers/user_admin.php', null, $params);
         $this->assertTrue(strpos($response[1]['content_type'], 'application/json') >= 0);
@@ -178,7 +178,7 @@ class UserAdminTest extends BaseUserAdminTest
         // users password so that it can be used to login in future tests.
         if ($userId !== null) {
             $username = array_search($userId, self::$newUsers);
-            $this->updateCurrentUser($userId, $username);
+            $this->updateCurrentUser($username, $username);
         }
     }
 
@@ -260,7 +260,7 @@ class UserAdminTest extends BaseUserAdminTest
 
         $this->helper->authenticateDirect($username, $username);
 
-        $response = $this->helper->get('rest/v0.1/warehouse/quick_filters');
+        $response = $this->helper->get('warehouse/quick_filters');
         $this->validateResponse($response);
 
         $this->assertArrayHasKey('results', $response[0]);
@@ -656,7 +656,10 @@ class UserAdminTest extends BaseUserAdminTest
                 $actual[] = array($key, $value);
             }
         }
-
+        if (count($actual) === 0) {
+            echo "\nNo Actual Rows: \n";
+            print_r($response);
+        }
         $fileType = $expectedSuccess ? '.csv' : '.json';
         $expectedFileName = $this->getTestFiles()->getFile('user_admin', $expectedOutput, 'output', $fileType);
 
@@ -768,7 +771,7 @@ class UserAdminTest extends BaseUserAdminTest
         );
 
         $helper = new \TestHarness\XdmodTestHelper();
-        $helper->authenticateDashboard('mgr');
+        $helper->authenticate('mgr');
 
         foreach($data as &$datum) {
             $datum[0]['helper'] = $helper;
@@ -848,7 +851,7 @@ class UserAdminTest extends BaseUserAdminTest
         $expectedData = $options['expected'];
         $expectedContentType = $expectedData['content_type'];
 
-        $this->helper->authenticateDashboard('mgr');
+        $this->helper->authenticate('mgr');
 
         $data = array_merge(
             array(

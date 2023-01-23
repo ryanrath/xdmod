@@ -18,7 +18,7 @@ abstract class BaseDatabaseTest extends BaseTest
     /**
      * @throws Exception
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->db = DB::factory('datawarehouse');
         $this->testFiles = new TestFiles(__DIR__ . '/../../../');

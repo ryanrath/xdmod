@@ -9,7 +9,7 @@ class MetricExplorerChartsTest extends TestCase
 {
     private static $chartFilterTestData = array();
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         // This is used to write expected results file for the
         // testChartFilters test. The output file is just written to
@@ -59,6 +59,7 @@ class MetricExplorerChartsTest extends TestCase
 
         $response = $helper->post('controllers/metric_explorer.php', null, $requestData);
 
+        print_r($response);
         if ($response[1]['http_code'] != 200) {
             var_export($response);
         }
