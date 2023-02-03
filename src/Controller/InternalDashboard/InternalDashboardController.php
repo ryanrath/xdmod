@@ -6,14 +6,18 @@ namespace Access\Controller\InternalDashboard;
 
 use Access\Controller\BaseController;
 use CCR\DB;
+use CCR\MailWrapper;
 use Exception;
 use Models\Services\Users;
 use OpenXdmod\Assets;
+use Realm\Realm;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Xdmod\EmailTemplate;
+use function xd_response\buildError;
 
 /**
  * @Route("/internal_dashboard")
@@ -132,6 +136,38 @@ class InternalDashboardController extends BaseController
             'count'    => 1,
         ];
         return $this->json($returnData);
+    }
+
+    /**
+     * @Route(path="/controllers/mailer.php")
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    public function mailer(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $this->authorize($request, ['mgr']);
+
+
+        $operation = $this->getStringParam($request, 'operation', true);
+        $data = [];
+        switch ($operation) {
+            case 'enum_presets':
+                return $this->json([
+                    'success' => true,
+                    'presets' => ['Maintenance', 'New Release'],
+                    'count'   => 2
+                ]);
+            case 'fetch_preset_message':
+                return $this->fetchPresetMessage($request);
+            case 'enum_target_addresses':
+                return $this->enumTargetAddresses($request);
+            case 'send_plain_mail':
+                return $this->sendPlainMail($request);
+            default:
+                return $this->json(['success' => false, 'message' => "Operation '$operation' not recognized"]);
+        }
     }
 
     /**
@@ -411,6 +447,90 @@ SQL;
         $data['count'] = count($testData);
 
         return $this->json($data);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    private function fetchPresetMessage(Request $request): Response
+    {
+        $preset = str_replace(' ', '_', strtolower($this->getStringParam($request, 'preset', true)));
+        $template = new EmailTemplate($preset);
+
+        $version = \xd_versioning\getPortalVersion(true);
+        $contact_email = \xd_utilities\getConfiguration('general', 'contact_page_recipient');
+        $site_address = \xd_utilities\getConfigurationUrlBase('general', 'site_address');
+
+        $template->apply([
+            'version'              => $version,
+            'contact_email'        => $contact_email,
+            'organization'         => ORGANIZATION_NAME,
+            'maintainer_signature' => MailWrapper::getMaintainerSignature(),
+            'date'                 => date('l, j F'),
+            'site_title'           => \xd_utilities\getConfiguration('general', 'title'),
+            'site_address'         => $site_address,
+            'product_name'         => MailWrapper::getProductName(),
+        ]);
+
+        return $this->json(['success' => true, 'content' => $template->getContents()]);
+    }
+
+    private function enumTargetAddresses(Request $request): Response
+    {
+        $groupFilter = $request->get('group_filter');
+        if (!isset($groupFilter)) {
+            return $this->json(buildError("'group_filter' not specified."));
+        }
+        $aclFilter = $request->get('role_filter');
+        if (!isset($aclFilter)) {
+            return $this->json(buildError("'role_filter' not specified."));
+        }
+
+        list($query, $params) = \xd_dashboard\listUserEmailsByGroupAndAcl($groupFilter, $aclFilter);
+        $pdo = DB::factory('database');
+        $results = $pdo->query($query, $params);
+
+        $addresses = [];
+
+        foreach ($results as $r) {
+            $addresses[] = $r['email_address'];
+        }
+
+        sort($addresses);
+
+        return $this->json([
+            'success'  => true,
+            'count'    => count($addresses),
+            'response' => $addresses
+        ], 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    private function sendPlainMail(Request $request): Response
+    {
+        $title = \xd_utilities\getConfiguration('general', 'title');
+        $contactPageRecipient = \xd_utilities\getConfiguration('general', 'contact_page_recipient');
+        $message = $this->getStringParam($request, 'message', true, null, '/.*/', false);
+        $subject = $this->getStringParam($request, 'title', true);
+        $targetAddresses = $this->getStringParam($request, 'target', true);
+
+        MailWrapper::sendMail([
+            'body'        => $message,
+            'subject'     => "[$title] $subject",
+            'toAddress'   => $contactPageRecipient,
+            'toName'      => 'Undisclosed Recipients',
+            'fromAddress' => $contactPageRecipient,
+            'fromName'    => $title,
+            'bcc'         => $targetAddresses
+        ]);
+
+        return $this->json(['success' => true, 'status' => 'success']);
     }
 
 }
