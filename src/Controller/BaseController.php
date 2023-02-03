@@ -498,7 +498,7 @@ class BaseController extends AbstractController
      * @param bool $mandatory (Optional) If true, an exception will be
      *                            thrown if the parameter is missing from the
      *                            request. (Defaults to false.)
-     * @param mixed $default (Optional) The value to return if the
+     * @param DateTime|mixed $default (Optional) The value to return if the
      *                            parameter was not specified and the parameter
      *                            is not mandatory. (Defaults to null.)
      * @return mixed              If available and valid, the parameter value
