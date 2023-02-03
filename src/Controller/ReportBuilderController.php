@@ -25,7 +25,7 @@ class ReportBuilderController extends BaseController
     private static $emptyBlobs = ['fa0a056630132658467089d779e0e177', '02477ed21bfccd97c1dc2b18d5f1916a'];
 
     /**
-     * @Route("/controllers/report_builder.php", methods={"POST"})
+     * @Route("/controllers/report_builder.php")
      * @param Request $request
      * @return Response
      * @throws Exception
@@ -163,7 +163,7 @@ class ReportBuilderController extends BaseController
     }
 
     /**
-     * @Route("/reports/builder/download", methods={"GET"})
+     * @Route("/reports/builder/download")
      * @param Request $request
      * @return Response
      * @throws Exception
@@ -172,8 +172,30 @@ class ReportBuilderController extends BaseController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $format = $this->getStringParam($request, 'format', true, '', ReportGenerator::REPORT_FORMATS_REGEX);
-        $reportLoc = $this->getStringParam($request, 'report_loc', true, null, ReportGenerator::REPORT_TMPDIR_REGEX);
+        $reportLoc = $request->get('report_loc');
+        if (!isset($reportLoc)) {
+            return $this->json(['success' => false, 'message' => "'report_loc' not specified."]);
+        }
+
+        $format = $request->get('format');
+        if (!isset($format)) {
+            return $this->json(['success' => false, 'message' => "'format' not specified."]);
+        }
+
+        try {
+            $format = $this->getStringParam($request, 'format', true, '', ReportGenerator::REPORT_FORMATS_REGEX);
+        } catch (Exception $e) {
+            return new Response('Invalid format specified', 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+        }
+
+        try {
+            $reportLoc = $this->getStringParam($request, 'report_loc', true, null, ReportGenerator::REPORT_TMPDIR_REGEX);
+        } catch (Exception $e) {
+            return $this->json(['success' =>false, 'message' => 'Invalid filename']);
+        }
+
+
+
 
         if (!\XDReportManager::isValidFormat($format)) {
             throw new BadRequestHttpException('Invalid format specified');
