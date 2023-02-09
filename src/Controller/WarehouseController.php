@@ -399,7 +399,7 @@ class WarehouseController extends BaseController
 
         $nodeId = $this->getIntParam($request, 'nodeid');
         $tsId = $this->getStringParam($request, 'tsid');
-        $infoId = $this->getIntParam($request, 'infoid');
+        $infoId = $this->getStringParam($request, 'infoid');
         $jobId = $this->getIntParam($request, 'jobid');
         $recordId = $this->getIntParam($request, 'recordid');
         $realm = $this->getStringParam($request, 'realm');

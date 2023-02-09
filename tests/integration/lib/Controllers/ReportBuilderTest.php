@@ -247,7 +247,7 @@ class ReportBuilderTest extends BaseTest
             'operation' => $operation
         );
 
-        $response = $this->helper->post("/controllers/report_builder.php", null, $params);
+        $response = $this->helper->post("controllers/report_builder.php", null, $params);
 
         $this->assertEquals($expected['content_type'], $response[1]['content_type']);
         $this->assertEquals($expected['http_code'], $response[1]['http_code']);
@@ -355,6 +355,7 @@ class ReportBuilderTest extends BaseTest
                 );
 
                 // render the chart image so that a temp file is created on the backend.
+                $this->log('Rendering the chart image so that a temp file is created on the backend.');
                 $this->reportImageRenderer($results);
             }
 
@@ -477,7 +478,7 @@ class ReportBuilderTest extends BaseTest
         }
 
         $response = $this->helper->post(
-            '/controllers/report_builder.php',
+            'controllers/report_builder.php',
             null,
             array('operation' => 'enum_templates')
         );
@@ -588,8 +589,8 @@ class ReportBuilderTest extends BaseTest
 
         $this->log("Processing Chart Action: $expectedAction");
 
-        $response = $this->helper->post('/chart_pool', null, $data);
-
+        $response = $this->helper->post('controllers/chart_pool.php', null, $data);
+        print_r($response);
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
 
@@ -661,7 +662,7 @@ class ReportBuilderTest extends BaseTest
             'selected_report' => $reportId
         );
 
-        $response = $this->helper->post('/controllers/report_builder.php', null, $data);
+        $response = $this->helper->post('controllers/report_builder.php', null, $data);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
@@ -693,7 +694,7 @@ class ReportBuilderTest extends BaseTest
             'operation' => 'get_new_report_name'
         );
 
-        $response = $this->helper->post('/controllers/report_builder.php', null, $data);
+        $response = $this->helper->post('controllers/report_builder.php', null, $data);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
@@ -738,7 +739,7 @@ class ReportBuilderTest extends BaseTest
         $data = array(
             'operation' => 'enum_available_charts'
         );
-        $response = $this->helper->post('/controllers/report_builder.php', null, $data);
+        $response = $this->helper->post('controllers/report_builder.php', null, $data);
 
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
@@ -762,11 +763,10 @@ class ReportBuilderTest extends BaseTest
     {
         $response = $this->helper->get('reports/builder/image', $params);
 
+        $this->log("Params: [" . json_encode($params) . "]");
         $this->log("Response Content-Type: [" . $response[1]['content_type'] . "]");
         $this->log("Response HTTP-Code   : [" . $response[1]['http_code'] . "]");
-        if ('image/png' !== $response[1]['content_type'] || 200 !== $response[1]['http_code']) {
-            print_r($response);
-        }
+
         $this->assertEquals('image/png', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
     }

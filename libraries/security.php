@@ -208,7 +208,7 @@ function getLoggedInUser()
     // This is where the
     $sessionUserId = $session->get('xdUser');
     if (!isset($sessionUserId)) {
-        throw new \SessionExpiredException("SessionUserId: $sessionUserId");
+        throw new \SessionExpiredException('Session Expired');
     }
     $user = XDUser::getUserByID($sessionUserId);
 

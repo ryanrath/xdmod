@@ -6,14 +6,18 @@ namespace Access\Controller;
 
 use DataWarehouse\Access\ReportGenerator;
 use Exception;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use XDReportManager;
 use XDUser;
+use function xd_response\buildError;
 
 /**
  * This class implements the functionality contained in the html/controllers/report_builder.php file and supports
@@ -75,8 +79,11 @@ class ReportBuilderController extends BaseController
      */
     public function getReports(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = XDUser::getUserByUserName($this->getUser()->getUserIdentifier());
+        $user = $this->getUser();
+        if (!isset($user)) {
+            return $this->json(buildError(new \SessionExpiredException()), 401);
+        }
+        $user = XDUser::getUserByUserName($user->getUserIdentifier());
         $reportManager = new \XDReportManager($user);
 
         return $this->json([
@@ -94,8 +101,12 @@ class ReportBuilderController extends BaseController
      */
     public function getAvailableCharts(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = XDUser::getUserByUserName($this->getUser()->getUserIdentifier());
+        try {
+            $user = \xd_security\detectUser([XDUser::PUBLIC_USER]);
+        } catch (Exception $e) {
+            return $this->json(buildError(new \SessionExpiredException('Session Expired')), 401);
+        }
+
         $reportManager = new \XDReportManager($user);
         return $this->json([
             'status' => 'success',
@@ -191,10 +202,8 @@ class ReportBuilderController extends BaseController
         try {
             $reportLoc = $this->getStringParam($request, 'report_loc', true, null, ReportGenerator::REPORT_TMPDIR_REGEX);
         } catch (Exception $e) {
-            return $this->json(['success' =>false, 'message' => 'Invalid filename']);
+            return $this->json(['success' => false, 'message' => 'Invalid filename']);
         }
-
-
 
 
         if (!\XDReportManager::isValidFormat($format)) {
@@ -477,45 +486,6 @@ class ReportBuilderController extends BaseController
     }
 
     /**
-     * @Route("/reports/builder/{reportId}", methods={"GET"})
-     * @param Request $request
-     * @param string $reportId
-     * @return Response
-     * @throws Exception
-     */
-    public function getReportData(Request $request, string $reportId): Response
-    {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $user = XDUser::getUserByUserName($this->getUser()->getUserIdentifier());
-        $reportManager = new \XDReportManager($user);
-
-        $flushCache = $this->getBooleanParam($request, 'flush_cache');
-        $basedOnAnother = $this->getBooleanParam($request, 'based_on_another');
-
-        if ($flushCache) {
-            $reportManager->flushReportImageCache();
-        }
-
-        $data = $reportManager->loadReportData($reportId);
-
-        if ($basedOnAnother) {
-            // The report to be retrieved is to be the basis for a new report.
-            // In this case, overwrite the report_id and report name fields so when it comes time to save this
-            // report, a new report will be created instead of the original being overwritten / updated.
-            $data['report_id'] = '';
-            $data['general']['name'] = $reportManager->generateUniqueName($data['general']['name']);
-        } else {
-            $data['report_id'] = $reportId;
-        }
-
-        return $this->json([
-            'action'  => 'fetch_report_data',
-            'success' => true,
-            'results' => $data
-        ]);
-    }
-
-    /**
      * @Route("/reports/builder/image", methods={"GET"})
      * @param Request $request
      * @return Response
@@ -609,14 +579,21 @@ class ReportBuilderController extends BaseController
             $image_data_header = substr($blob, 0, 8);
 
             if ($image_data_header != "\x89PNG\x0d\x0a\x1a\x0a") {
+
                 throw new Exception($blob);
             }
-
             // If the blob is empty, than substitute the image below to be returned to the user.
             if (in_array(md5($blob), self::$emptyBlobs)) {
                 $blob = file_get_contents(dirname(__FILE__) . '/gui/images/report_thumbnail_no_data.png');
             }
-            return new Response($blob, 200, ['Content-Type' => 'image/png']);
+
+            $response = new Response($blob, 200);
+            $response->headers->set('Content-Type', 'image/png');
+            $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, 'blob.png');
+            $response->headers->set('Content-Disposition', $disposition);
+            $response->prepare($request);
+            $this->logger->error('Testing...');
+            return $response;
         } catch (Exception $e) {
             /* There used to be some code here that generated a custom image but it didn't actually do anything with
              * that image, just threw the exception so I have elected to not include it here.
@@ -626,5 +603,44 @@ class ReportBuilderController extends BaseController
             // The message format here is from classes/UniqueException.php
             throw new HttpException(500, sprintf('[Unique ID %s] --> %s', $uniqueId, $e->getMessage()));
         }
+    }
+
+    /**
+     * @Route("/reports/builder/{reportId}", methods={"GET"})
+     * @param Request $request
+     * @param string $reportId
+     * @return Response
+     * @throws Exception
+     */
+    public function getReportData(Request $request, string $reportId): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = XDUser::getUserByUserName($this->getUser()->getUserIdentifier());
+        $reportManager = new \XDReportManager($user);
+
+        $flushCache = $this->getBooleanParam($request, 'flush_cache');
+        $basedOnAnother = $this->getBooleanParam($request, 'based_on_another');
+
+        if ($flushCache) {
+            $reportManager->flushReportImageCache();
+        }
+
+        $data = $reportManager->loadReportData($reportId);
+
+        if ($basedOnAnother) {
+            // The report to be retrieved is to be the basis for a new report.
+            // In this case, overwrite the report_id and report name fields so when it comes time to save this
+            // report, a new report will be created instead of the original being overwritten / updated.
+            $data['report_id'] = '';
+            $data['general']['name'] = $reportManager->generateUniqueName($data['general']['name']);
+        } else {
+            $data['report_id'] = $reportId;
+        }
+
+        return $this->json([
+            'action'  => 'fetch_report_data',
+            'success' => true,
+            'results' => $data
+        ]);
     }
 }
