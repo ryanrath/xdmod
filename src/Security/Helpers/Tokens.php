@@ -1,8 +1,12 @@
 <?php
 
-namespace Models\Services;
+namespace Access\Security\Helpers;
 
+use CCR\DB;
+use DateTime;
 use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use XDUser;
@@ -24,22 +28,34 @@ class Tokens
     const DELIMITER = '.';
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
      * Perform token authentication for the provided $userId & $token combo. If the authentication is successful, an
      * XDUser object will be returned for the provided $userId. If not, an exception will be thrown.
      *
      * @param int|string $userId   The id used to look up the the users hashed token.
      * @param string     $password The value to be checked against the retrieved hashed token.
      *
-     * @return XDUser for the provided $userId, if the authentication is successful else an exception will be thrown.
+     * @return XDUser|null for the provided $userId, if the authentication is successful else an exception will be thrown.
      *
      * @throws Exception                 if unable to retrieve a database connection.
      * @throws BadRequestHttpException   if no token can be found for the provided $userId
      * @throws BadRequestHttpException   if the stored token for $userId has expired.
      * @throws AccessDeniedHttpException if the provided $token doesn't match the stored hash.
      */
-    public static function authenticate($userId, $password)
+    public function authenticate($userId, string $password): ?XDUser
     {
-        $db = \CCR\DB::factory('database');
+        $this->logger->info(sprintf('Beginning Authentication for %s', $userId));
+
+        $db = DB::factory('database');
         $query = <<<SQL
         SELECT
             ut.user_id,
@@ -53,24 +69,33 @@ SQL;
         $row = $db->query($query, array(':user_id' => $userId));
 
         if (count($row) === 0) {
+            $this->logger->debug('User (%s) does not have an active token.');
             throw new BadRequestHttpException('Malformed token.');
         }
+
+        $this->logger->debug(sprintf('User (%s) does have an active token.', $userId));
 
         $expectedToken = $row[0]['token'];
         $expiresOn = $row[0]['expires_on'];
         $dbUserId = $row[0]['user_id'];
 
         // Check that expected token isn't expired.
-        $now = new \DateTime();
-        $expires = new \DateTime($expiresOn);
+        $now = new DateTime();
+        $expires = new DateTime($expiresOn);
         if ($expires < $now) {
+            $this->logger->debug(sprintf('User\'s (%s) token is expired.'));
             throw new BadRequestHttpException('The API Token has expired.');
         }
 
+        $this->logger->debug(sprintf('User\'s (%s) token is not expired.', $userId));
+
         // finally check that the provided token matches it's stored hash.
         if (!password_verify($password, $expectedToken)) {
+            $this->logger->debug(sprintf('User\'s (%s) token is invalid.', $userId));
             throw new AccessDeniedHttpException('Invalid API token.');
         }
+
+        $this->logger->info('User\'s (%s) token is valid.');
 
         // and if we've made it this far we can safely return the requested Users data.
         return XDUser::getUserByID($dbUserId);
@@ -83,11 +108,13 @@ SQL;
      * @return XDUser|null if the authentication is successful then an XDUser instance for the authenticated user will
      * be returned, if the authentication is not successful then null will be returned.
      */
-    public static function authenticateToken()
+    public function authenticateToken(Request $request): ?XDUser
     {
+        $this->logger->info('Beginning Token Authentication');
 
-        $rawToken = self::getRawToken();
+        $rawToken = self::getRawToken($request);
         if (empty($rawToken)) {
+            $this->logger->debug('No token found.');
             // we want to the token authentication to be optional so instead of throwing an exception we return null.
             // This allows us to provide token authentication to existing endpoints without impeding their normal use.
             return null;
@@ -96,6 +123,7 @@ SQL;
         // We expect the token to be in the form /^(\d+).(.*)$/ so just make sure it at least has the required delimiter.
         $delimPosition = strpos($rawToken, Tokens::DELIMITER);
         if ($delimPosition === false) {
+            $this->logger->debug('invalid token format found.');
             // Same as above, token authentication is optional so we return null instead of throwing an exception.
             return null;
         }
@@ -104,8 +132,9 @@ SQL;
         $token = substr($rawToken, $delimPosition + 1);
 
         try {
-            return Tokens::authenticate($userId, $token);
+            return self::authenticate($userId, $token);
         } catch (Exception $e) {
+            $this->logger->debug(sprintf('Authentication failed for %s', $userId));
             // and again, same as above.
             return null;
         }
@@ -119,13 +148,18 @@ SQL;
      *
      * @return null|string returns the api token if found else it returns null.
      */
-    private static function getRawToken()
+    private function getRawToken(Request $request): ?string
     {
+        $this->logger->info('Getting Raw Token');
+
+        $this->logger->debug('Searching Headers for Token');
+
         // Try to find the token in the `Authorization` header.
         $headers = getallheaders();
         if (!empty($headers['Authorization'])) {
             $authorizationHeader = $headers['Authorization'];
             if (is_string($authorizationHeader) && strpos($authorizationHeader, Tokens::HEADER_KEY) !== false) {
+                $this->logger->info('Valid token found in Header');
                 // The format for including the token in the header is slightly different then when included as a get or
                 // post parameter. Here the value will be in the form: `Bearer <token>`
                 return substr(
@@ -133,18 +167,29 @@ SQL;
                     strpos($authorizationHeader, Tokens::HEADER_KEY) + strlen(Tokens::HEADER_KEY) + 1
                 );
             }
-
+            $this->logger->debug('Token header found but is in an invalid format.');
         }
+        $this->logger->debug('Token not found in Headers');
 
-        // If it's not in the headers, try $_GET
+        $this->logger->debug('Searching parameters');
+        $token = $request->get(Tokens::HEADER_KEY);
+        if (!empty($token)) {
+            $this->logger->debug('Token found in parameters');
+            return $token;
+        }
+        /*// If it's not in the headers, try $_GET
         if (isset($_GET[Tokens::HEADER_KEY]) && is_string($_GET[Tokens::HEADER_KEY])) {
+            $this->logger->debug('Token header found in get parameters');
             return $_GET[Tokens::HEADER_KEY];
         }
 
+        $this->logger->debug('Token not found in GET parameters');
         if (isset($_POST[Tokens::HEADER_KEY]) && is_string($_POST[Tokens::HEADER_KEY])) {
+            $this->logger->debug('Token found in POST parameters');
             return $_POST[Tokens::HEADER_KEY];
-        }
+        }*/
 
+        $this->logger->debug('Unable to find token information.');
         return null;
     }
 }
