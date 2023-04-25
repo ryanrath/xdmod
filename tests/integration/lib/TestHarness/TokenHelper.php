@@ -22,6 +22,8 @@ class TokenHelper
      */
     private $testFiles;
 
+    private static $currentUserAPITokenUrl = 'users/current/api/token';
+
 
     /**
      *
@@ -58,7 +60,7 @@ class TokenHelper
     {
         return $this->makeRequest(
             'Get API Token',
-            'rest/users/current/api/token',
+            self::$currentUserAPITokenUrl,
             'get',
             null,
             null,
@@ -84,7 +86,7 @@ class TokenHelper
     {
         return $this->makeRequest(
             'Create API Token',
-            'rest/users/current/api/token',
+            self::$currentUserAPITokenUrl,
             'post',
             null,
             null,
@@ -112,7 +114,7 @@ class TokenHelper
     {
         return $this->makeRequest(
             'Revoke API Token',
-            'rest/users/current/api/token',
+            self::$currentUserAPITokenUrl,
             'delete',
             null,
             null,
