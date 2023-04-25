@@ -215,7 +215,7 @@ abstract class BaseUserAdminTest extends BaseTest
         $userType = isset($options['user_type']) ? $options['user_type'] : self::DEFAULT_USER_TYPE;
         $output = isset($options['output']) ? $options['output'] : 'test.create.user';
         $expectedSuccess = isset($options['expected_success']) ? $options['expected_success'] : true;
-
+        $expectedHttpCode = $expectedSuccess ? 200 : 400;
         // construct form params for post request to create new user.
         $data = array(
             'operation'          => 'create_user',
@@ -233,7 +233,7 @@ abstract class BaseUserAdminTest extends BaseTest
         );
         $response = $this->helper->post('controllers/user_admin.php', null, $data);
 
-        $this->validateResponse($response);
+        $this->validateResponse($response, $expectedHttpCode);
         // retrieve the expected results of submitting the 'create_user' request
         // with the supplied arguments.
         $expected = JSON::loadFile(
