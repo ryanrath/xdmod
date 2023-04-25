@@ -2,9 +2,9 @@
 
 namespace IntegrationTests\Controllers;
 
+use Access\Security\Helpers\Tokens;
 use CCR\Json;
 use Exception;
-use Models\Services\Tokens;
 use stdClass;
 use TestHarness\TokenHelper;
 use TestHarness\Utilities;
@@ -20,7 +20,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
     /**
      * @throws Exception
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->tokenHelper = new TokenHelper(new XdmodTestHelper());
@@ -87,6 +87,9 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_get->content_type,
             $expected->api_get->schemas->failure
         );
+        // These assertions are really just here to appease phpunit's need for there to be assertions.
+        $this->assertTrue(true);
+
 
         // Attempt to create an API token.
         $this->tokenHelper->createAPIToken(
@@ -94,6 +97,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_create->content_type,
             $expected->api_create->schemas->success
         );
+        $this->assertTrue(true);
 
         // Now test that we can't create a token when we already have a valid token.
         $this->tokenHelper->createAPIToken(
@@ -101,6 +105,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_create->content_type,
             $expected->api_create->schemas->failure
         );
+        $this->assertTrue(true);
 
         // Now test if we can get the newly created token, this should succeed.
         $this->tokenHelper->getAPIToken(
@@ -108,6 +113,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_get->content_type,
             $expected->api_get->schemas->success
         );
+        $this->assertTrue(true);
 
         // Now we can revoke the token we just created.
         $this->tokenHelper->revokeAPIToken(
@@ -115,6 +121,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_revoke->content_type,
             $expected->api_revoke->schemas->success
         );
+        $this->assertTrue(true);
 
         // We cannot revoke a token if we don't have one.
         $this->tokenHelper->revokeAPIToken(
@@ -122,6 +129,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_revoke->content_type,
             $expected->api_revoke->schemas->failure
         );
+        $this->assertTrue(true);
 
         // We still can't get a token if we don't have one.
         $this->tokenHelper->getAPIToken(
@@ -129,6 +137,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->api_get->content_type,
             $expected->api_get->schemas->failure
         );
+        $this->assertTrue(true);
 
         if ('pub' !== $user) {
             $this->tokenHelper->logout();
@@ -210,7 +219,8 @@ class UserControllerProviderTest extends BaseUserAdminTest
             $expected->test->failure->content_type,
             $expected->test->failure->schema
         );
-
+        // This is to appease phpunit wanting us to actually *assert* something.
+        $this->assertTrue(true);
         // Now go ahead and authenticate the test user so we can create / use their API Token.
         if ('pub' !== $user) {
             $this->tokenHelper->authenticate($user);
