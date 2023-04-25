@@ -59,7 +59,6 @@ class MetricExplorerChartsTest extends TestCase
 
         $response = $helper->post('controllers/metric_explorer.php', null, $requestData);
 
-        print_r($response);
         if ($response[1]['http_code'] != 200) {
             var_export($response);
         }
