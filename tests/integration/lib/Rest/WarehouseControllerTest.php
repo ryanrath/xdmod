@@ -3,6 +3,7 @@
 namespace IntegrationTests\Rest;
 
 use IntegrationTests\BaseTest;
+use TestHarness\Utilities;
 
 class WarehouseControllerTest extends BaseTest
 {
@@ -105,6 +106,10 @@ class WarehouseControllerTest extends BaseTest
     public function testGetAggregateData()
     {
         //TODO: Needs further integration for other realms.
+        if (!is_array(self::$XDMOD_REALMS)) {
+            self::$XDMOD_REALMS = Utilities::getRealmsToTest();
+        }
+
         if (!in_array("jobs", self::$XDMOD_REALMS)) {
             $this->markTestSkipped('Needs realm integration.');
         }
