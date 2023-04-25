@@ -2,13 +2,13 @@
 
 namespace IntegrationTests\Rest;
 
+use DMS\PHPUnitExtensions\ArraySubset\Assert;
 use CCR\DB;
 use DataWarehouse\Export\FileManager;
 use DataWarehouse\Export\QueryHandler;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_TestCase;
 use TestHarness\TestFiles;
 use TestHarness\XdmodTestHelper;
 use XDUser;
@@ -230,7 +230,7 @@ class WarehouseExportControllerTest extends TestCase
             $this->assertTrue(is_array($content['data']), 'Data is an array');
             $this->assertCount(count($realms), $content['data'], 'Data contains correct number of realms');
             foreach ($content['data'] as $i => $realm) {
-                $this->assertArraySubset($realms[$i], $realm, sprintf('Realm %d contains the expected subset', $i + 1));
+                Assert::assertArraySubset($realms[$i], $realm, sprintf('Realm %d contains the expected subset', $i + 1));
             }
         }
     }
@@ -272,13 +272,14 @@ class WarehouseExportControllerTest extends TestCase
         array $requests
     ) {
         list($content, $info, $headers) = self::$helpers[$role]->get('warehouse/export/requests');
+
         $this->assertRegExp('#\bapplication/json\b#', $headers['Content-Type'], 'Content type header');
         $this->assertEquals($httpCode, $info['http_code'], 'HTTP response code');
         $this->validateAgainstSchema($content, $schema);
 
         // Only check data for successful requests.
         if ($httpCode == 200) {
-            $this->assertArraySubset($requests, $content['data'], 'Data contains requests');
+            Assert::assertArraySubset($requests, $content['data'], 'Data contains requests');
         }
     }
 
@@ -396,14 +397,12 @@ class WarehouseExportControllerTest extends TestCase
             $datum['id'] = (int)$datum['id'];
             $ids[] = $datum['id'];
         }
-        $data = json_encode($ids);
-
         // Delete all existing requests.
-        list($content, $info, $headers) = self::$helpers[$role]->delete('warehouse/export/requests', null, $data);
+        list($content, $info, $headers) = self::$helpers[$role]->delete('warehouse/export/requests', ['ids' => $ids]);
         $this->assertRegExp('#\bapplication/json\b#', $headers['Content-Type'], 'Content type header');
         $this->assertEquals($httpCode, $info['http_code'], 'HTTP response code');
         $this->validateAgainstSchema($content, $schema);
-        $this->assertArraySubset($content['data'], $beforeContent['data'], 'Deleted IDs are in response');
+        Assert::assertArraySubset($content['data'], $beforeContent['data'], 'Deleted IDs are in response');
 
         // Get list of requests after deletion
         list($afterContent) = self::$helpers[$role]->get('warehouse/export/requests');
