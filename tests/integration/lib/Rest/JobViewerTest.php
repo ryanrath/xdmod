@@ -6,7 +6,7 @@ use IntegrationTests\BaseTest;
 
 class JobViewerTest extends BaseTest
 {
-    const ENDPOINT = '/warehouse/';
+    const ENDPOINT = 'warehouse/';
 
     public function setUp(): void
     {

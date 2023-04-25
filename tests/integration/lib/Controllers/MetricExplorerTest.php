@@ -19,7 +19,7 @@ class MetricExplorerTest extends BaseTest
     {
         $this->helper->authenticate('cd');
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, array('operation' => 'get_dw_descripter'));
+        $response = $this->helper->post('controllers/metric_explorer.php', null, array('operation' => 'get_dw_descripter'));
 
         $this->assertEquals('application/json', $response[1]['content_type']);
         $this->assertEquals(200, $response[1]['http_code']);
@@ -49,7 +49,7 @@ class MetricExplorerTest extends BaseTest
     {
         // note - not authenticated
 
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, array('operation' => 'get_dw_descripter'));
+        $response = $this->helper->post('controllers/metric_explorer.php', null, array('operation' => 'get_dw_descripter'));
 
         $this->assertEquals($response[1]['content_type'], 'application/json');
         $this->assertEquals($response[1]['http_code'], 401);
@@ -230,8 +230,7 @@ class MetricExplorerTest extends BaseTest
         }
 
         $this->helper->authenticate('cd');
-
-        $response = $this->helper->post('/controllers/metric_explorer.php', null, $params);
+        $response = $this->helper->post('controllers/metric_explorer.php', null, $params);
         $this->assertArrayHasKey('data', $response[0]);
         $this->assertCount($limit, $response[0]['data']);
 
