@@ -1,0 +1,66 @@
+{
+    "defaults": {
+        "global": {
+            "endpoints": {
+                "destination": {
+                    "type": "mysql",
+                    "name": "Database",
+                    "config": "database",
+                    "schema": "modw"
+                }
+            }
+        },
+        "date-table-generation": {
+            "namespace": "ETL\\Maintenance",
+            "options_class": "MaintenanceOptions",
+            "class": "ExecuteSql"
+        }
+    },
+    "date-table-generation": [
+        {
+            "name": "populate-days",
+            "description": "Creates / populates the modw.days table.",
+            "sql_file_list": [
+                {
+                    "sql_file": "common/populate_day_table.sql",
+                    "delimiter": ";"
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "name": "populate-months",
+            "description": "Creates / populates the modw.months table.",
+            "sql_file_list": [
+                {
+                    "sql_file": "common/populate_months_table.sql",
+                    "delimiter": ";"
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "name": "populate-quarters",
+            "description": "Creates / populates the modw.quarters table.",
+            "sql_file_list": [
+                {
+                    "sql_file": "common/populate_quarters_table.sql",
+                    "delimiter": ";"
+                }
+            ],
+            "enabled": true
+        },
+        {
+            "name": "populate-years",
+            "description": "Creates / populates the modw.years table.",
+            "sql_file_list": [
+                {
+                    "sql_file": "common/populate_years_table.sql",
+                    "delimiter": ";"
+                }
+            ],
+            "enabled": true
+        }
+
+    ]
+}

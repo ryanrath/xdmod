@@ -150,21 +150,9 @@ EOT
             'staging-bootstrap',
             'hpcdb-bootstrap',
             'acls-xdmod-management',
-            'logger-bootstrap'
+            'logger-bootstrap',
+            'date-table-generation'
         ), $logger);
-
-
-        $aggregationUnits = array(
-            'day',
-            'month',
-            'quarter',
-            'year'
-        );
-
-        foreach ($aggregationUnits as $aggUnit) {
-            $tpg = TimePeriodGenerator::getGeneratorForUnit($aggUnit);
-            $tpg->generateMainTable(DB::factory('datawarehouse'), new \DateTime('2000-01-01'), new \DateTime('2038-01-18'));
-        }
 
         passthru(BIN_DIR . '/acl-config', $aclstatus);
         if ($aclstatus !== 0) {
