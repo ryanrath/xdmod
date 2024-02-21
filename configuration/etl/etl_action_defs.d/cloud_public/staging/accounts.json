@@ -1,0 +1,24 @@
+{
+    "#": "Load Accounts ( Allocations ) from CloudBank Json File",
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/cloud_public/staging/accounts.json#/table_definition"
+        }
+    ],
+    "destination_record_map": {
+        "staging_accounts": {
+            "id": "id",
+            "public_cloud": "public_cloud",
+            "fund": "fund",
+            "cash_deposited": "cash_deposited",
+            "cash_spend": "cash_spend",
+            "cash_balance": "cash_balance",
+            "cash_balance_percent": "cash_balance_percent",
+            "credit_deposited": "credit_deposited",
+            "credit_spend": "credit_spend",
+            "credit_balance": "credit_balance",
+            "credit_balance_percent": "credit_balance_percent",
+            "status": "status"
+        }
+    }
+}

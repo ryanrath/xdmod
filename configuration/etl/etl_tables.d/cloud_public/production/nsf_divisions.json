@@ -1,0 +1,30 @@
+{
+    "table_definition": {
+        "name": "nsf_divisions",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "nsf_division_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD Assigned ID"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "nsf_division_id"
+                ]
+            }
+        ]
+    }
+}

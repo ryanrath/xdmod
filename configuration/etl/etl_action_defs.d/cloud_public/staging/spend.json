@@ -1,0 +1,19 @@
+{
+    "#": "Load Spend from CloudBank Json File",
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/cloud_public/staging/spend.json#/table_definition"
+        }
+    ],
+    "destination_record_map": {
+        "staging_spend": {
+            "date": "date",
+            "public_cloud": "publicCloud",
+            "account": "account",
+            "location": "location",
+            "service": "service",
+            "sub_service": "subService",
+            "spend": "spend"
+        }
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "#": "Load Funds from CloudBank Json File",
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/cloud_public/staging/funds.json#/table_definition"
+        }
+    ],
+    "destination_record_map": {
+        "staging_funds": {
+            "id": "id",
+            "title": "title",
+            "start_date": "start",
+            "end_date": "end",
+            "funder": "funder",
+            "cash_deposited": "cash_deposited",
+            "cash_spend": "cash_spend",
+            "cash_balance": "cash_balance",
+            "cash_balance_percent": "cash_balance_percent",
+            "credit_deposited": "credit_deposited",
+            "credit_spend": "credit_spend",
+            "credit_balance": "credit_balance",
+            "credit_balance_percent": "credit_balance_percent",
+            "pi": "pi",
+            "co_pis": "co_pis",
+            "managers": "managers",
+            "nsf_directorate": "nsf_directorate",
+            "nsf_division": "nsf_division",
+            "status": "status"
+        }
+    }
+}

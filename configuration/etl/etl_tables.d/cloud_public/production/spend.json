@@ -1,0 +1,153 @@
+{
+    "table_definition": {
+        "name": "spend",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "spend_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "public_cloud_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "account_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "service_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "sub_service_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "date",
+                "type": "datetime",
+                "nullable": false
+            },
+            {
+                "name": "spend",
+                "type": "float",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "spend_id"
+                ]
+            },
+            {
+                "name": "idx_spend_public_cloud_id",
+                "columns": [
+                    "public_cloud_id"
+                ]
+            },
+            {
+                "name": "idx_spend_account_id",
+                "columns": [
+                    "account_id"
+                ]
+            },
+            {
+                "name": "idx_spend_location_id",
+                "columns": [
+                    "location_id"
+                ]
+            },
+            {
+                "name": "idx_spend_service_id",
+                "columns": [
+                    "service_id"
+                ]
+            },
+            {
+                "name": "idx_spend_sub_service_id",
+                "columns": [
+                    "sub_service_id"
+                ]
+            },
+            {
+                "name": "idx_date",
+                "columns": [
+                    "date"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_spend_public_cloud_id",
+                "columns": [
+                    "public_cloud_id"
+                ],
+                "referenced_table": "public_clouds",
+                "referenced_columns": [
+                    "public_cloud_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_spend_account_id",
+                "columns": [
+                    "account_id"
+                ],
+                "referenced_table": "accounts",
+                "referenced_columns": [
+                    "account_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_spend_location_id",
+                "columns": [
+                    "location_id"
+                ],
+                "referenced_table": "locations",
+                "referenced_columns": [
+                    "location_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_spend_service_id",
+                "columns": [
+                    "service_id"
+                ],
+                "referenced_table": "services",
+                "referenced_columns": [
+                    "service_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_spend_sub_service_id",
+                "columns": [
+                    "sub_service_id"
+                ],
+                "referenced_table": "sub_services",
+                "referenced_columns": [
+                    "sub_service_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

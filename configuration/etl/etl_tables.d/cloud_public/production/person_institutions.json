@@ -1,0 +1,86 @@
+{
+    "table_definition": {
+        "name": "person_institutions",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "person_institution_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "person_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "External ID"
+            },
+            {
+                "name": "institution_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "created",
+                "type": "datetime",
+                "nullable": false,
+                "default": "CURRENT_TIMESTAMP"
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "person_institution_id"
+                ]
+            },
+            {
+                "name": "idx_uniq_person_institution",
+                "columns": [
+                    "person_id",
+                    "institution_id"
+                ],
+                "is_unique": true
+            },
+            {
+                "name": "idx_person_institutions_person_id",
+                "columns": [
+                    "person_id"
+                ]
+            },
+            {
+                "name": "idx_person_institutions_institution_id",
+                "columns": [
+                    "institution_id"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_person_institutions_person_id",
+                "columns": [
+                    "person_id"
+                ],
+                "referenced_table": "persons",
+                "referenced_columns": [
+                    "person_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_person_institutions_institution_id",
+                "columns": [
+                    "institution_id"
+                ],
+                "referenced_table": "institutions",
+                "referenced_columns": [
+                    "institution_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

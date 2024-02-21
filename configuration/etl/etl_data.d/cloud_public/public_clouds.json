@@ -1,0 +1,19 @@
+
+[
+    {
+        "name": "aws",
+        "display": "Amazon Web Services"
+    },
+    {
+        "name": "gcp",
+        "display": "Google Cloud Platform"
+    },
+    {
+        "name": "azure",
+        "display": "Microsoft Azure"
+    },
+    {
+        "name": "ibm",
+        "display": "IBM Cloud"
+    }
+]

@@ -1,0 +1,73 @@
+{
+    "table_definition": {
+        "name": "fund_managers",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "fund_manager_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "fund_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "internal fk to funds.id"
+            },
+            {
+                "name": "person_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "Internal fk to persons.id"
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "fund_manager_id"
+                ]
+            },
+            {
+                "name": "idx_fund_managers_fund_id",
+                "columns": [
+                    "fund_id"
+                ]
+            },
+            {
+                "name": "idx_fund_managers_person_id",
+                "columns": [
+                    "person_id"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_fund_managers_fund_id",
+                "columns": [
+                    "fund_id"
+                ],
+                "referenced_table": "funds",
+                "referenced_columns": [
+                    "fund_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_fund_managers_person_id",
+                "columns": [
+                    "person_id"
+                ],
+                "referenced_table": "persons",
+                "referenced_columns": [
+                    "person_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

@@ -1,0 +1,60 @@
+{
+    "table_definition": {
+        "name": "staging_spend",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "spend_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "date",
+                "type": "datetime",
+                "nullable": false
+            },
+            {
+                "name": "public_cloud",
+                "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "account",
+                "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "location",
+                "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "service",
+                "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "sub_service",
+                "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "spend",
+                "type": "float",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "spend_id"
+                ]
+            }
+        ]
+    }
+}

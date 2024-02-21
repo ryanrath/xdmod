@@ -1,0 +1,17 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/nsf_directorates.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "name": "DISTINCT sf.nsf_directorate"
+        },
+        "joins": [
+            {
+                "name": "staging_funds",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "sf"
+            }
+        ]
+    }
+}

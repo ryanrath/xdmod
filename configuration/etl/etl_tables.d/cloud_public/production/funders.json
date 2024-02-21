@@ -1,0 +1,30 @@
+{
+    "table_definition": {
+        "name": "funders",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "funder_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "funder_id"
+                ]
+            }
+        ]
+    }
+}

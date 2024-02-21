@@ -1,0 +1,17 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/public_clouds.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "name": "DISTINCT public_cloud"
+        },
+        "joins": [
+            {
+                "name": "staging_spend",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "af"
+            }
+        ]
+    }
+}

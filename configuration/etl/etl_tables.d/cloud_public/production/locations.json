@@ -1,0 +1,59 @@
+{
+    "table_definition": {
+        "name": "locations",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "public_cloud_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "name",
+                "type": "varchar(1024)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "location_id"
+                ]
+            },
+            {
+                "name": "idx_loc_pc_id",
+                "columns": [
+                    "public_cloud_id"
+                ]
+            },
+            {
+                "name": "idx_l_n",
+                "columns": [
+                    "name"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_loc_pc_id",
+                "columns": [
+                    "public_cloud_id"
+                ],
+                "referenced_table": "public_clouds",
+                "referenced_columns": [
+                    "public_cloud_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "#": "Load Institutions from CloudBank Json File",
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/cloud_public/staging/institutions.json#/table_definition"
+        }
+    ],
+    "destination_record_map": {
+        "staging_institutions": {
+            "id": "id",
+            "name": "name"
+        }
+    }
+}

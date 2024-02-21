@@ -1,0 +1,54 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/spend.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "public_cloud_id": "pc.public_cloud_id",
+            "account_id": "act.account_id",
+            "location_id": "l.location_id",
+            "service_id": "srv.service_id",
+            "sub_service_id": "ssrv.sub_service_id",
+            "date": "ss.date",
+            "spend": "ss.spend"
+        },
+        "joins": [
+            {
+                "name": "staging_spend",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "ss"
+            },
+            {
+                "name": "public_clouds",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "pc",
+                "on": "pc.name = ss.public_cloud"
+            },
+            {
+                "name": "accounts",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "act",
+                "on": "act.id = ss.account AND act.public_cloud_id = pc.public_cloud_id"
+            },
+            {
+                "name": "locations",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "l",
+                "on": "l.name = ss.location AND l.public_cloud_id = pc.public_cloud_id"
+            },
+            {
+                "name": "services",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "srv",
+                "on": "srv.name = ss.service AND srv.public_cloud_id = pc.public_cloud_id"
+            },
+            {
+                "name": "sub_services",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "ssrv",
+                "on": "ssrv.name = ss.sub_service AND ssrv.service_id = srv.service_id AND ssrv.location_id = l.location_id"
+            }
+
+        ]
+    }
+}

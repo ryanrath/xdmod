@@ -1,0 +1,30 @@
+{
+    "table_definition": {
+        "name": "account_statuses",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "account_status_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "account_status_id"
+                ]
+            }
+        ]
+    }
+}

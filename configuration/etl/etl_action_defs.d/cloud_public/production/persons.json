@@ -1,0 +1,20 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/persons.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "id": "sp.id",
+            "first_name": "sp.first_name",
+            "last_name": "sp.last_name",
+            "email": "sp.email"
+        },
+        "joins": [
+            {
+                "name": "staging_persons",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "sp"
+            }
+        ]
+    }
+}

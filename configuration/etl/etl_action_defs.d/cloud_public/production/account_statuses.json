@@ -1,0 +1,17 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/account_statuses.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "name": "DISTINCT sa.status"
+        },
+        "joins": [
+            {
+                "name": "staging_accounts",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "sa"
+            }
+        ]
+    }
+}

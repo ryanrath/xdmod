@@ -1,0 +1,75 @@
+{
+    "table_definition": {
+        "name": "sub_services",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "sub_service_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "service_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "name",
+                "type": "varchar(1024)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "sub_service_id"
+                ]
+            },
+            {
+                "name": "idx_sub_services_service_id",
+                "columns": [
+                    "service_id"
+                ]
+            },
+            {
+                "name": "idx_sub_services_location_id",
+                "columns": [
+                    "location_id"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_sub_services_service_id",
+                "columns": [
+                    "service_id"
+                ],
+                "referenced_table": "services",
+                "referenced_columns": [
+                    "service_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_sub_services_location_id",
+                "columns": [
+                    "location_id"
+                ],
+                "referenced_table": "locations",
+                "referenced_columns": [
+                    "location_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

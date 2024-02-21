@@ -1,0 +1,38 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/sub_services.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "name": "DISTINCT ss.sub_service",
+            "service_id": "s.service_id",
+            "public_cloud_id": "pc.public_cloud_id",
+            "location_id": "loc.location_id"
+        },
+        "joins": [
+            {
+                "name": "staging_spend",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "ss"
+            },
+            {
+                "name": "services",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "s",
+                "on": "s.name = ss.service"
+            },
+            {
+                "name": "public_clouds",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "pc",
+                "on": "pc.name = ss.public_cloud"
+            },
+            {
+                "name": "locations",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "loc",
+                "on": "loc.name = ss.location"
+            }
+        ]
+    }
+}

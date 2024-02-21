@@ -1,0 +1,351 @@
+{
+    "defaults": {
+        "global": {
+            "endpoints": {
+                "source": {
+                    "type": "mysql",
+                    "name": "Utility DB",
+                    "config": "datawarehouse",
+                    "schema": "modw_public_cloud",
+                    "create_schema_if_not_exists": true
+                },
+                "destination": {
+                    "type": "mysql",
+                    "name": "Utility DB",
+                    "config": "datawarehouse",
+                    "schema": "modw_public_cloud",
+                    "create_schema_if_not_exists": true
+                }
+            }
+        },
+
+        "public-cloud": {
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions"
+        }
+    },
+    "#": "Current Public Cloud Ingestion from CloudBank",
+
+    "public-cloud": [
+        {
+            "name": "PublicCloudTableManagement",
+            "class": "ManageTables",
+            "description": "Manage Public Cloud tables",
+            "namespace": "ETL\\Maintenance",
+            "options_class": "MaintenanceOptions",
+            "definition_file_list": [
+                "cloud_public/staging/accounts.json",
+                "cloud_public/staging/funds.json",
+                "cloud_public/staging/institutions.json",
+                "cloud_public/staging/persons.json",
+                "cloud_public/staging/spend.json",
+                "cloud_public/production/public_clouds.json",
+                "cloud_public/production/locations.json",
+                "cloud_public/production/services.json",
+                "cloud_public/production/sub_services.json",
+                "cloud_public/production/institutions.json",
+                "cloud_public/production/persons.json",
+                "cloud_public/production/person_institutions.json",
+                "cloud_public/production/person_alternate_emails.json",
+                "cloud_public/production/funders.json",
+                "cloud_public/production/fund_statuses.json",
+                "cloud_public/production/funds.json",
+                "cloud_public/production/fund_managers.json",
+                "cloud_public/production/fund_co_pis.json",
+                "cloud_public/production/account_statuses.json",
+                "cloud_public/production/nsf_directorates.json",
+                "cloud_public/production/nsf_divisions.json",
+                "cloud_public/production/accounts.json",
+                "cloud_public/production/spend.json"
+            ],
+            "enabled": true
+        },
+        {
+            "name": "ShredInstitutions",
+            "description": "Loading Institution data from Cloud Bank",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/institutions.json",
+            "truncate_destination": false,
+            "endpoints": {
+                "source": {
+                    "name": "InstitutionIngestSource",
+                    "type": "jsonfile",
+                    "path": "${PUBLIC_CLOUD_DATA_DIR}/institution.json",
+                    "field_names": [
+                        "id",
+                        "name"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "ShredPersons",
+            "description": "Loading Person Data from Cloud Bank",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/persons.json",
+            "truncate_destination": false,
+            "endpoints": {
+                "source": {
+                    "name": "PersonIngestSource",
+                    "type": "jsonfile",
+                    "path": "${PUBLIC_CLOUD_DATA_DIR}/person.json",
+                    "field_names": [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email",
+                        "alternateEmails",
+                        "institutions"
+                    ],
+                    "filters": [{
+                        "type": "external",
+                        "name": "jq",
+                        "path": "jq",
+                        "arguments": "-c '[.[] | {id: .id, firstName: .firstName, lastName: .lastName, alternateEmails: .alternateEmails, email: .email, institutions: .institutions | join(\",\")}]'"
+                    }]
+                }
+            }
+        },
+        {
+            "name": "ShredFunds",
+            "description": "Loading Fund Data from Cloud Bank",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/funds.json",
+            "truncate_destination": false,
+            "endpoints": {
+                "source": {
+                    "name": "FundIngestSource",
+                    "type": "jsonfile",
+                    "path": "${PUBLIC_CLOUD_DATA_DIR}/fund.json",
+                    "field_names": [
+                        "id",
+                        "title",
+                        "start",
+                        "end",
+                        "funder",
+                        "cash_deposited",
+                        "cash_spend",
+                        "cash_balance",
+                        "cash_balance_percent",
+                        "credit_deposited",
+                        "credit_spend",
+                        "credit_balance",
+                        "credit_balance_percent",
+                        "pi",
+                        "co_pis",
+                        "managers",
+                        "nsf_directorate",
+                        "nsf_division",
+                        "status"
+                    ],
+                    "filters": [{
+                        "type": "external",
+                        "name": "jq",
+                        "path": "jq",
+                        "arguments": "-c '[.[] | { id: .id, title: .title, start: .start, end: .end, funder: .funder, cash_deposited: (if .cashDeposited | type == \"boolean\" then \"0.0\" else .cashDeposited end), cash_spend: (if .cashSpend | type == \"boolean\" then \"0.0\" else .cashSpend end), cash_balance: (if .cashBalance | type == \"boolean\" then \"0.0\" else .cashBalance end), cash_balance_percent: (if .cashBalancePercent | type == \"boolean\" then \"0\" else .cashBalancePercent end), credit_deposited: (if .creditDeposited | type == \"boolean\" then \"0.0\" else .creditDeposited end), credit_spend: (if .creditSpend | type == \"boolean\" then \"0.0\" else .creditSpend end), credit_balance: (if .creditBalance | type == \"boolean\" then \"0.0\" else .creditBalance end), credit_balance_percent: (if .creditBalancePercent | type == \"boolean\" then \"0\" else .creditBalancePercent end), pi: .pi, co_pis: .coPis | join(\",\"), nsf_directorate: .nsfDirectorate, nsf_division: .nsfDivision, managers: .managers | join(\",\"), status: .status } ]'"
+                    }]
+                }
+            }
+        },
+        {
+            "name": "ShredAccounts",
+            "description": "Loading Account Data from Cloud Bank",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/accounts.json",
+            "truncate_destination": false,
+            "endpoints": {
+                "source": {
+                    "name": "AccountsIngestSource",
+                    "type": "jsonfile",
+                    "path": "${PUBLIC_CLOUD_DATA_DIR}/account.json",
+                    "field_names": [
+                        "id",
+                        "public_cloud",
+                        "fund",
+                        "cash_deposited",
+                        "cash_spend",
+                        "cash_balance",
+                        "cash_balance_percent",
+                        "credit_deposited",
+                        "credit_spend",
+                        "credit_balance",
+                        "credit_balance_percent",
+                        "status"
+                    ],
+                    "filters": [{
+                        "type": "external",
+                        "name": "jq",
+                        "path": "jq",
+                        "arguments": "-c '[.[] | { id: .id, public_cloud: .publicCloud, fund: .fund, cash_deposited: (if .cashDeposited | type == \"boolean\" then \"0.0\" else .cashDeposited end), cash_spend: (if .cashSpend | type == \"boolean\" then \"0.0\" else .cashSpend end), cash_balance: (if .cashBalance | type == \"boolean\" then \"0.0\" else .cashBalance end), cash_balance_percent: (if .cashBalancePercent | type == \"boolean\" then \"0\" else .cashBalancePercent end), credit_deposited: (if .creditDeposited | type == \"boolean\" then \"0.0\" else .creditDeposited end), credit_spend: (if .creditSpend | type == \"boolean\" then \"0.0\" else .creditSpend end), credit_balance: (if .creditBalance | type == \"boolean\" then \"0.0\" else .creditBalance end), credit_balance_percent: (if .creditBalancePercent | type == \"boolean\" then \"0\" else .creditBalancePercent end), status: .status }]'"
+                    }]
+                }
+            }
+        },
+        {
+            "name": "ShredSpend",
+            "description": "Loading Account Data from Cloud Bank",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/spend.json",
+            "truncate_destination": false,
+            "endpoints": {
+                "source": {
+                    "name": "SpendIngestSource",
+                    "type": "jsonfile",
+                    "path": "${PUBLIC_CLOUD_DATA_DIR}/spend.json",
+                    "field_names": [
+                        "date",
+                        "publicCloud",
+                        "account",
+                        "location",
+                        "service",
+                        "subService",
+                        "spend"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "PopulatePublicClouds",
+            "description": "Populate the public_clouds table",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/production/public_clouds.json",
+            "endpoints": {
+                "source": {
+                    "type": "jsonfile",
+                    "name": "Public Clouds as defined in CloudBank",
+                    "path": "cloud_public/public_clouds.json"
+                }
+            },
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateLocations",
+            "description": "Populate the locations table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/locations.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateServices",
+            "description": "Populate the services table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/services.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateSubServices",
+            "description": "Populate the sub_services table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/sub_services.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "IngestInstitutions",
+            "description": "Populate the institutions table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/institutions.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "IngestPersons",
+            "description": "Populate the persons table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/persons.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulatePersonInstitutions",
+            "namespace": "ETL\\Maintenance",
+            "options_class": "MaintenanceOptions",
+            "class": "ExecuteSql",
+            "sql_file_list": [
+                "cloud_public/populate_person_institutions.sql"
+            ]
+        },
+        {
+            "name": "PopulateFundStatuses",
+            "description": "Populate the fund_status table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/fund_statuses.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateFunders",
+            "description": "Populate the funders table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/funders.json",
+            "truncate_destination": false
+        },
+
+        {
+            "name": "PopulateAccountStatuses",
+            "description": "Populate the account_statuses table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/account_statuses.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateNSFDirectorates",
+            "description": "Populate the nsf_directorates table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/nsf_directorates.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateNSFDivisions",
+            "description": "Populate the nsf_divisions table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/nsf_divisions.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "IngestFunds",
+            "description": "Populate the funds table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/funds.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "IngestAccounts",
+            "description": "Populate the accounts table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/accounts.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "IngestSpend",
+            "description": "Populate the accounts table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/spend.json",
+            "truncate_destination": false
+        }
+    ]
+}

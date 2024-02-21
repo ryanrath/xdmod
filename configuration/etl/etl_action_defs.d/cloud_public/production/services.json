@@ -1,0 +1,24 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/services.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "name": "DISTINCT ss.service",
+            "public_cloud_id": "pc.public_cloud_id"
+        },
+        "joins": [
+            {
+                "name": "staging_spend",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "ss"
+            },
+            {
+                "name": "public_clouds",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "pc",
+                "on": "pc.name = ss.public_cloud"
+            }
+        ]
+    }
+}

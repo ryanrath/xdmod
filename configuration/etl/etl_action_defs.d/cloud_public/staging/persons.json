@@ -1,0 +1,18 @@
+{
+    "#": "Load Persons from CloudBank Json File",
+    "table_definition": [
+        {
+            "$ref": "${table_definition_dir}/cloud_public/staging/persons.json#/table_definition"
+        }
+    ],
+    "destination_record_map": {
+        "staging_persons": {
+            "id": "id",
+            "first_name": "firstName",
+            "last_name": "lastName",
+            "email": "email",
+            "alternate_emails": "alternateEmails",
+            "institutions": "institutions"
+        }
+    }
+}

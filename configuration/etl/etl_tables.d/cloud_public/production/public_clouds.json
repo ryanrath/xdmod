@@ -1,0 +1,34 @@
+{
+    "table_definition": {
+        "name": "public_clouds",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "public_cloud_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "name",
+                "type": "varchar(1024)",
+                "nullable": false
+            },
+            {
+                "name": "display",
+                "type": "varchar(1024)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "public_cloud_id"
+                ]
+            }
+        ]
+    }
+}

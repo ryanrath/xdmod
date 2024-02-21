@@ -1,0 +1,43 @@
+{
+    "table_definition": {
+        "name": "institutions",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "institution_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD Assigned ID"
+            },
+            {
+                "name": "id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "External ID"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)",
+                "nullable": false
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "institution_id"
+                ]
+            },
+            {
+                "name": "idx_uniq_organization_name",
+                "columns": [
+                    "name"
+                ],
+                "is_unique": true
+            }
+        ]
+    }
+}

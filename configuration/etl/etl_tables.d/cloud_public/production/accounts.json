@@ -1,0 +1,130 @@
+{
+    "table_definition": {
+        "name": "accounts",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "account_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "id",
+                "type": "varchar(1024)",
+                "nullable": false
+            },
+            {
+                "name": "fund_id",
+                "type": "int(11)",
+                "nullable": false
+
+            },
+            {
+                "name": "public_cloud_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "cash_deposited",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_spend",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_balance",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_balance_percent",
+                "type": "int(11)",
+                "nullable": false,
+                "default": 0
+            },
+            {
+                "name": "credit_deposited",
+                "type": "float",
+                "nullable": true,
+                "default": 0.0
+            },
+            {
+                "name": "credit_spend",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "credit_balance",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "credit_balance_percent",
+                "type": "float",
+                "nullable": true,
+                "default": 0.0
+            },
+            {
+                "name": "status",
+                "type": "varchar(128)",
+                "nullable": false,
+                "default": ""
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "account_id"
+                ]
+            },
+            {
+                "name": "idx_accounts_fund_id",
+                "columns": [
+                    "fund_id"
+                ]
+            },
+            {
+                "name": "idx_accounts_public_cloud_id",
+                "columns": [
+                    "public_cloud_id"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_accounts_fund_id",
+                "columns": [
+                    "fund_id"
+                ],
+                "referenced_table": "funds",
+                "referenced_columns": [
+                    "fund_id"
+                ],
+                "on_delete": "CASCADE"
+            },
+            {
+                "name": "fk_accounts_public_cloud_id",
+                "columns": [
+                    "public_cloud_id"
+                ],
+                "referenced_table": "public_clouds",
+                "referenced_columns": [
+                    "public_cloud_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

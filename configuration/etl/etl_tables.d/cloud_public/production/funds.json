@@ -1,0 +1,152 @@
+{
+    "table_definition": {
+        "name": "funds",
+        "engine": "InnoDB",
+        "charset": "utf8",
+        "collation": "utf8_unicode_ci",
+        "columns": [
+            {
+                "name": "fund_id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment",
+                "comment": "Internal XDMoD assigned id"
+            },
+            {
+                "name": "pi_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "funder_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "status_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "nsf_directorate_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "nsf_division_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "id",
+                "type": "varchar(255)",
+                "nullable": false,
+                "comment": "External ID"
+            },
+            {
+                "name": "title",
+                "type": "varchar(2048)",
+                "nullable": false
+            },
+            {
+                "name": "start_date",
+                "type": "datetime",
+                "nullable": false
+            },
+            {
+                "name": "end_date",
+                "type": "datetime",
+                "nullable": true
+            },
+            {
+                "name": "funder",
+                "type": "varchar(1024)",
+                "nullable": false
+            },
+            {
+                "name": "cash_deposited",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_spend",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_balance",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "cash_balance_percent",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "credit_deposited",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "credit_spend",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "credit_balance",
+                "type": "float",
+                "nullable": false,
+                "default": 0.0
+            },
+            {
+                "name": "credit_balance_percent",
+                "type": "int",
+                "nullable": false
+            },
+            {
+                "name": "status",
+                "type": "varchar(512)",
+                "nullable": false
+            },
+            {
+                "name": "created",
+                "type": "datetime",
+                "nullable": false,
+                "default": "CURRENT_TIMESTAMP"
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "fund_id"
+                ]
+            },
+            {
+                "name": "idx_funds_pi_id",
+                "columns": [
+                    "pi_id"
+                ]
+            }
+        ],
+        "foreign_key_constraints": [
+            {
+                "name": "fk_funder_pi_id",
+                "columns": [
+                    "pi_id"
+                ],
+                "referenced_table": "persons",
+                "referenced_columns": [
+                    "person_id"
+                ],
+                "on_delete": "CASCADE"
+            }
+        ]
+    }
+}

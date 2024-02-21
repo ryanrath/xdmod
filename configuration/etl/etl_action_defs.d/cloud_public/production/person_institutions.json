@@ -1,0 +1,30 @@
+{
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/person_institutions.json#/table_definition"
+    },
+    "source_query": {
+        "records": {
+            "person_id": "p.person_id",
+            "institution_id": "i.institution_id"
+        },
+        "joins": [
+            {
+                "name": "persons",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "p"
+            },
+            {
+                "name": "staging_persons",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "sp",
+                "on": ""
+            },
+            {
+                "name": "institutions",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "i",
+                "on": "i.name = sp.institution"
+            }
+        ]
+    }
+}
