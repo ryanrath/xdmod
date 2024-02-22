@@ -1,0 +1,193 @@
+{
+    "public_cloud": {
+        "name": "Public Cloud",
+        "order": 1,
+        "description_html": "The Public Cloud ( AWS, Azure, GCP etc. ) that the spend occurred with.",
+        "attribute_table_schema": "modw_public_cloud",
+        "alternate_group_by_columns": [
+            "public_cloud_id"
+        ],
+        "attribute_to_aggregate_table_key_map": [
+            {
+                "public_cloud_id": "public_cloud_id"
+            }
+        ],
+        "attribute_values_query": {
+            "records": {
+                "id": "id",
+                "short_name": "name",
+                "name": "name",
+                "order_id": "public_cloud_id"
+            },
+            "joins": [
+                {
+                    "name": "public_clouds"
+                }
+            ],
+            "orderby": [
+                "public_cloud_id"
+            ],
+            "query_hint": "DISTINCT"
+        },
+        "attribute_filter_map_query": {
+            "public_cloud_id": "SELECT public_cloud_id FROM modw_public_cloud.accounts WHERE name IN (__filter_values__)"
+        },
+        "attribute_description_query": "SELECT DISTINCT name AS filter_name FROM modw_public_cloud.public_clouds WHERE public_cloud_id IN (__filter_values__) ORDER BY name"
+    },
+    "service": {
+        "name": "Service",
+        "order": 2,
+        "description_html": "The Service utilized that incurred the Public Cloud Spend.",
+        "attribute_table_schema": "modw_public_cloud",
+        "alternate_group_by_columns": [
+            "service_id"
+        ],
+        "attribute_to_aggregate_table_key_map": [
+            {
+                "service_id": "service_id"
+            }
+        ],
+        "attribute_values_query": {
+            "records": {
+                "id": "service_id",
+                "short_name": "name",
+                "name": "name",
+                "order_id": "service_id"
+            },
+            "joins": [
+                {
+                    "name": "services"
+                }
+            ],
+            "orderby": [
+                "service_id"
+            ],
+            "query_hint": "DISTINCT"
+        },
+        "attribute_filter_map_query": {
+            "service_id": "SELECT service_id FROM modw_public_cloud.services WHERE name IN (__filter_values__)"
+        },
+        "attribute_description_query": "SELECT DISTINCT name AS filter_name FROM modw_public_cloud.services WHERE service_id IN (__filter_values__) ORDER BY name"
+    },
+    "sub_service": {
+        "name": "Sub-Service",
+        "order": 3,
+        "description_html": "The Sub-Service utilized that incurred the Public Cloud Spend.",
+        "attribute_table_schema": "modw_public_cloud",
+        "alternate_group_by_columns": [
+            "sub_service_id"
+        ],
+        "attribute_to_aggregate_table_key_map": [
+            {
+                "sub_service_id": "sub_service_id"
+            }
+        ],
+        "attribute_values_query": {
+            "records": {
+                "id": "sub_service_id",
+                "short_name": "name",
+                "name": "name",
+                "order_id": "sub_service_id"
+            },
+            "joins": [
+                {
+                    "name": "sub_services"
+                }
+            ],
+            "orderby": [
+                "sub_service_id"
+            ],
+            "query_hint": "DISTINCT"
+        },
+        "attribute_filter_map_query": {
+            "service_id": "SELECT sub_service_id FROM modw_public_cloud.sub_services WHERE name IN (__filter_values__)"
+        },
+        "attribute_description_query": "SELECT DISTINCT name AS filter_name FROM modw_public_cloud.sub_services WHERE sub_service_id IN (__filter_values__) ORDER BY name"
+    },
+    "account": {
+        "name": "Account",
+        "order": 4,
+        "description_html": "The account (allocation) used to track cloud spend, associated with a fund.",
+        "attribute_table_schema": "modw_public_cloud",
+        "alternate_group_by_columns": [
+            "account_id"
+        ],
+        "attribute_to_aggregate_table_key_map": [
+            {
+                "account_id": "account_id"
+            }
+        ],
+        "attribute_values_query": {
+            "records": {
+                "id": "id",
+                "short_name": "account_id",
+                "name": "account_id",
+                "order_id": "account_id"
+            },
+            "joins": [
+                {
+                    "name": "accounts"
+                }
+            ],
+            "orderby": [
+                "account_id"
+            ],
+            "query_hint": "DISTINCT"
+        },
+        "attribute_filter_map_query": {
+            "account_id": "SELECT account_id FROM modw_public_cloud.accounts WHERE id IN (__filter_values__)"
+        },
+        "attribute_description_query": "SELECT DISTINCT id AS filter_name FROM modw_public_cloud.accounts WHERE account_id IN (__filter_values__) ORDER BY display"
+    },
+    "fund": {
+        "name": "Fund",
+        "order": 5,
+        "description_html": "The fund used to track cloud spend, has associated accounts.",
+        "attribute_table_schema": "modw_public_cloud",
+        "alternate_group_by_columns": [
+            "fund_id"
+        ],
+        "attribute_to_aggregate_table_key_map": [
+            {
+                "fund_id": "fund_id"
+            }
+        ],
+        "attribute_values_query": {
+            "records": {
+                "id": "fund_id",
+                "short_name": "id",
+                "name": "title",
+                "order_id": "fund_id"
+            },
+            "joins": [
+                {
+                    "name": "funds"
+                }
+            ],
+            "orderby": [
+                "fund_id"
+            ],
+            "query_hint": "DISTINCT"
+        },
+        "attribute_filter_map_query": {
+            "fund_id": "SELECT fund_id FROM modw_public_cloud.funds WHERE title IN (__filter_values__)"
+        },
+        "attribute_description_query": "SELECT DISTINCT title AS filter_name FROM modw_public_cloud.accounts WHERE fund_id IN (__filter_values__) ORDER BY title"
+    },
+
+    "none": {
+        "$ref": "datawarehouse.d/ref/group-by-none.json"
+    },
+    "day": {
+        "$ref": "datawarehouse.d/ref/group-by-time-period.json#/day"
+    },
+    "month": {
+        "$ref": "datawarehouse.d/ref/group-by-time-period.json#/month"
+    },
+    "quarter": {
+        "$ref": "datawarehouse.d/ref/group-by-time-period.json#/quarter"
+    },
+    "year": {
+        "$ref": "datawarehouse.d/ref/group-by-time-period.json#/year"
+    }
+}

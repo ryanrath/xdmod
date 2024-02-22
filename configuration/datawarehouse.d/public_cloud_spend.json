@@ -1,0 +1,17 @@
+{
+    "PublicCloud": {
+        "name": "Public Cloud",
+        "datasource": "file",
+        "aggregate_schema": "modw_public_cloud",
+        "aggregate_table_prefix": "spendfact_by_",
+        "aggregate_table_alias": "agg",
+        "min_aggregation_unit": "quarter",
+        "order": 30,
+        "group_bys": {
+            "$ref": "datawarehouse.d/ref/PublicCloud-group-bys.json"
+        },
+        "statistics": {
+            "$ref": "datawarehouse.d/ref/PublicCloud-statistics.json"
+        }
+    }
+}

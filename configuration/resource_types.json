@@ -26,7 +26,8 @@
         "Cloud": {
             "description": "Cloud resource",
             "realms": [
-                "Cloud"
+                "Cloud",
+                "PublicCloud"
             ]
         },
         "Vis": {
@@ -38,7 +39,8 @@
         "VM": {
             "description": "Virtual Machine system",
             "realms": [
-                "Cloud"
+                "Cloud",
+                "PublicCloud"
             ]
         },
         "Tape": {

@@ -1,0 +1,9 @@
+{
+    "spend": {
+        "description_html": "The amount of money ( in USD ) charged by a Public Cloud for a given service.",
+        "formula": "COALESCE(SUM(agg.spend), 0)",
+        "name": "Total Spend",
+        "precision": 2,
+        "unit": "Dollars (USD)"
+    }
+}

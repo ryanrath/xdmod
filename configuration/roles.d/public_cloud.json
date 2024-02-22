@@ -1,0 +1,34 @@
+{
+    "roles": {
+        "default": {
+            "query_descripters": [
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "none"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "public_cloud"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "service"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "sub_service"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "account"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "fund"
+                }
+            ],
+            "summary_charts": [
+            ]
+        }
+    }
+}
