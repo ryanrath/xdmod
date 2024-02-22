@@ -1,0 +1,145 @@
+{
+    "table_definition": {
+        "name": "spendfact_by_",
+        "comment": "Public Cloud Spend aggregated by ${AGGREGATION_UNIT}.",
+        "engine": "InnoDB",
+        "table_prefix": "spendfact_by_",
+        "columns": [
+            {
+                "name": "id",
+                "type": "int(11)",
+                "nullable": false,
+                "extra": "auto_increment"
+            },
+            {
+                "name": "${AGGREGATION_UNIT}_id",
+                "type": "int(10) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The id related to modw.${AGGREGATION_UNIT}s."
+            },
+            {
+                "name": "year",
+                "type": "smallint(5) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The year of the ${AGGREGATION_UNIT}"
+            },
+            {
+                "name": "${AGGREGATION_UNIT}",
+                "type": "smallint(5) unsigned",
+                "nullable": false,
+                "comment": "DIMENSION: The ${AGGREGATION_UNIT} of the year."
+            },
+            {
+                "name": "public_cloud_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: Which public_cloud this spend occurred on."
+            },
+            {
+                "name": "account_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: Which account this spend occurred under."
+            },
+            {
+                "name": "location_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: Which location the spend occurred in."
+            },
+            {
+                "name": "service_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: Which service this spend is associated with."
+            },
+            {
+                "name": "sub_service_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": "DIMENSION: Which sub_service this spend is associated with."
+            },
+            {
+                "name": "spend",
+                "type": "float",
+                "nullable": true,
+                "comment": "FACT: the total amount spent in USD for the given service / sub_service per unit time."
+            },
+            {
+                "name": "last_modified",
+                "type": "timestamp",
+                "default": "CURRENT_TIMESTAMP",
+                "nullable": false,
+                "extra": "ON UPDATE CURRENT_TIMESTAMP"
+            }
+        ],
+        "indexes": [
+            {
+                "name": "PRIMARY",
+                "columns": [
+                    "id"
+                ]
+            },
+            {
+                "name": "index_period_value",
+                "columns": [
+                    "${AGGREGATION_UNIT}"
+                ]
+            },
+            {
+                "name": "index_period",
+                "columns": [
+                    "${AGGREGATION_UNIT}_id"
+                ]
+            },
+            {
+                "name": "idx_spend_public_cloud_id",
+                "columns": [
+                    "public_cloud_id"
+                ]
+            },
+            {
+                "name": "idx_spend_account_id",
+                "columns": [
+                    "account_id"
+                ]
+            },
+            {
+                "name": "idx_spend_location_id",
+                "columns": [
+                    "location_id"
+                ]
+            },
+            {
+                "name": "idx_spend_service_id",
+                "columns": [
+                    "service_id"
+                ]
+            },
+            {
+                "name": "idx_spend_sub_service_id",
+                "columns": [
+                    "sub_service_id"
+                ]
+            },
+            {
+                "name": "index_period_value_${AGGREGATION_UNIT}",
+                "columns": [
+                    "${AGGREGATION_UNIT}"
+                ]
+            },
+            {
+                "name": "index_period_${AGGREGATION_UNIT}",
+                "columns": [
+                    "${AGGREGATION_UNIT}_id"
+                ]
+            },
+            {
+                "name": "index_last_modified",
+                "columns": [
+                    "last_modified"
+                ]
+            }
+        ]
+    }
+}

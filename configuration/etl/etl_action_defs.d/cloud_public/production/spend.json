@@ -9,6 +9,8 @@
             "location_id": "l.location_id",
             "service_id": "srv.service_id",
             "sub_service_id": "ssrv.sub_service_id",
+            "start_day_id": "d.id",
+            "end_day_id": "d.id",
             "date": "ss.date",
             "spend": "ss.spend"
         },
@@ -47,8 +49,13 @@
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "ssrv",
                 "on": "ssrv.name = ss.sub_service AND ssrv.service_id = srv.service_id AND ssrv.location_id = l.location_id"
+            },
+            {
+                "name": "days",
+                "schema": "modw",
+                "alias": "d",
+                "on": "ss.date BETWEEN d.day_start AND d.day_end"
             }
-
         ]
     }
 }

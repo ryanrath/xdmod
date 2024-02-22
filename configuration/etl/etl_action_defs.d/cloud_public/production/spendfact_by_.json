@@ -1,0 +1,58 @@
+{
+    "#": "Aggregation of Public Cloud Spend Data from CloudBank",
+    "table_definition": {
+        "$ref": "${table_definition_dir}/cloud_public/production/spendfact_by_.json#/table_definition"
+    },
+
+    "#": "The aggregation period query determines which periods need to be aggregated based on added or modified",
+    "#": "records. The overseer_restrictions block specifies the criteria for selecting periods requiring",
+    "#": "aggregation. If this clause is not specified or no restrictions match then all records will be",
+    "#": "considered. The first table specified in source_query.joins will be used to determine periods that",
+    "#": "need aggregation.",
+    "aggregation_period_query": {
+        "overseer_restrictions": {
+            "last_modified_start_date": "last_modified >= ${VALUE}",
+            "last_modified_end_date": "last_modified <= ${VALUE}",
+            "include_only_resource_codes": "resource_id IN ${VALUE}",
+            "exclude_resource_codes": "resource_id NOT IN ${VALUE}"
+        }
+    },
+
+    "#": "The destination query block allows us to specify overseer restrictions that apply to operations on",
+    "#": "the destination table (e.g., deleting records from the table during aggregation).  If no restrictions",
+    "#": "are specified then the entire aggregation period will be deleted. Note that if there is a restriction",
+    "#": "on the source_query block it is possible to delete an aggregation period from the destination table",
+    "#": "with no restictions and replace it with aggregated data that has been restricted.",
+    "source_query": {
+        "query_hint": "SQL_NO_CACHE",
+        "records": {
+            "${AGGREGATION_UNIT}_id": "${:PERIOD_ID}",
+            "year": "${:YEAR_VALUE}",
+            "${AGGREGATION_UNIT}": "${:PERIOD_VALUE}",
+            "public_cloud_id": "s.public_cloud_id",
+            "account_id": "s.account_id",
+            "service_id": "s.service_id",
+            "sub_service_id": "s.sub_service_id",
+            "spend": "SUM(s.spend)"
+        },
+        "groupby": [
+            "${AGGREGATION_UNIT}_id",
+            "year",
+            "${AGGREGATION_UNIT}",
+            "public_cloud_id",
+            "account_id",
+            "service_id",
+            "sub_service_id"
+        ],
+        "joins": [
+            {
+                "name": "spend",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "s"
+            }
+        ],
+        "where": [
+            "s.start_day_id <= ${:PERIOD_END_DAY_ID} AND s.end_day_id >= ${:PERIOD_START_DAY_ID}"
+        ]
+    }
+}

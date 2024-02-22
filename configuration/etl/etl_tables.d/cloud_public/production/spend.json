@@ -38,6 +38,16 @@
                 "nullable": false
             },
             {
+                "name": "start_day_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
+                "name": "end_day_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
                 "name": "date",
                 "type": "datetime",
                 "nullable": false
@@ -46,6 +56,13 @@
                 "name": "spend",
                 "type": "float",
                 "nullable": false
+            },
+            {
+                "name": "last_modified",
+                "type": "timestamp",
+                "default": "CURRENT_TIMESTAMP",
+                "nullable": false,
+                "extra": "ON UPDATE CURRENT_TIMESTAMP"
             }
         ],
         "indexes": [
@@ -89,6 +106,13 @@
                 "name": "idx_date",
                 "columns": [
                     "date"
+                ]
+            },
+            {
+                "name": "aggregation_index",
+                "columns": [
+                    "start_day_id",
+                    "end_day_id"
                 ]
             }
         ],

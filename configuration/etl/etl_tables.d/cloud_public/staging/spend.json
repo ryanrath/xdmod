@@ -54,6 +54,12 @@
                 "columns": [
                     "spend_id"
                 ]
+            },
+            {
+                "name": "idx_date",
+                "columns": [
+                    "date"
+                ]
             }
         ]
     }

@@ -19,14 +19,14 @@
             }
         },
 
-        "public-cloud": {
+        "public-cloud-ingestion": {
             "namespace": "ETL\\Ingestor",
             "options_class": "IngestorOptions"
         }
     },
     "#": "Current Public Cloud Ingestion from CloudBank",
 
-    "public-cloud": [
+    "public-cloud-ingestion": [
         {
             "name": "PublicCloudTableManagement",
             "class": "ManageTables",
@@ -346,6 +346,18 @@
             "options_class": "IngestorOptions",
             "definition_file": "cloud_public/production/spend.json",
             "truncate_destination": false
+        }
+    ],
+    "public-cloud-aggregation": [
+        {
+            "name": "aggregate",
+            "namespace": "ETL\\Aggregator",
+            "options_class": "AggregatorOptions",
+            "class": "SimpleAggregator",
+            "description": "Aggregate Public Cloud Data",
+            "definition_file": "cloud_public/production/spendfact_by_.json",
+            "table_prefix": "spendfact_by_",
+            "aggregation_units": ["day","month", "quarter", "year"]
         }
     ]
 }
