@@ -29,30 +29,54 @@
             "${AGGREGATION_UNIT}_id": "${:PERIOD_ID}",
             "year": "${:YEAR_VALUE}",
             "${AGGREGATION_UNIT}": "${:PERIOD_VALUE}",
-            "public_cloud_id": "s.public_cloud_id",
+            "cloud_provider_id": "s.cloud_provider_id",
             "account_id": "s.account_id",
+            "fund_id": "f.fund_id",
+            "pi_id": "f.pi_id",
+            "funder_id": "f.funder_id",
+            "nsf_directorate_id": "f.nsf_directorate_id",
+            "nsf_division_id": "f.nsf_division_id",
+            "location_id": "s.location_id",
             "service_id": "s.service_id",
             "sub_service_id": "s.sub_service_id",
             "spend": "SUM(s.spend)"
         },
-        "groupby": [
-            "${AGGREGATION_UNIT}_id",
-            "year",
-            "${AGGREGATION_UNIT}",
-            "public_cloud_id",
-            "account_id",
-            "service_id",
-            "sub_service_id"
-        ],
         "joins": [
             {
                 "name": "spend",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "s"
+            },
+            {
+                "name": "accounts",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "a",
+                "on": "a.account_id = s.account_id AND a.cloud_provider_id = s.cloud_provider_id"
+            },
+            {
+                "name": "funds",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "f",
+                "on": "f.fund_id = a.fund_id"
             }
         ],
         "where": [
             "s.start_day_id <= ${:PERIOD_END_DAY_ID} AND s.end_day_id >= ${:PERIOD_START_DAY_ID}"
+        ],
+        "groupby": [
+            "${AGGREGATION_UNIT}_id",
+            "year",
+            "${AGGREGATION_UNIT}",
+            "cloud_provider_id",
+            "account_id",
+            "fund_id",
+            "pi_id",
+            "funder_id",
+            "nsf_directorate_id",
+            "nsf_division_id",
+            "location_id",
+            "service_id",
+            "sub_service_id"
         ]
     }
 }

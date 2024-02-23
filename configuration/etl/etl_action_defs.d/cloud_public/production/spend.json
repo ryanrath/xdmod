@@ -4,7 +4,7 @@
     },
     "source_query": {
         "records": {
-            "public_cloud_id": "pc.public_cloud_id",
+            "cloud_provider_id": "pc.cloud_provider_id",
             "account_id": "act.account_id",
             "location_id": "l.location_id",
             "service_id": "srv.service_id",
@@ -21,28 +21,28 @@
                 "alias": "ss"
             },
             {
-                "name": "public_clouds",
+                "name": "cloud_providers",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "pc",
-                "on": "pc.name = ss.public_cloud"
+                "on": "pc.name = ss.cloud_provider"
             },
             {
                 "name": "accounts",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "act",
-                "on": "act.id = ss.account AND act.public_cloud_id = pc.public_cloud_id"
+                "on": "act.id = ss.account AND act.cloud_provider_id = pc.cloud_provider_id"
             },
             {
                 "name": "locations",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "l",
-                "on": "l.name = ss.location AND l.public_cloud_id = pc.public_cloud_id"
+                "on": "l.name = ss.location AND l.cloud_provider_id = pc.cloud_provider_id"
             },
             {
                 "name": "services",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "srv",
-                "on": "srv.name = ss.service AND srv.public_cloud_id = pc.public_cloud_id"
+                "on": "srv.name = ss.service AND srv.cloud_provider_id = pc.cloud_provider_id"
             },
             {
                 "name": "sub_services",

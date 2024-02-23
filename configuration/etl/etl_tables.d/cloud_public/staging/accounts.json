@@ -23,7 +23,7 @@
 
             },
             {
-                "name": "public_cloud",
+                "name": "cloud_provider",
                 "type": "varchar(255)",
                 "charset": "utf8",
                 "collation": "utf8_unicode_ci",

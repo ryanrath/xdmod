@@ -1,0 +1,244 @@
+[
+    {
+        "name": "BIO",
+        "full_name": "Biological Sciences",
+        "divisions": [
+            {
+                "name": "DBI",
+                "full_name": "Biological Infrastructure"
+            },
+            {
+                "name": "DEB",
+                "full_name": "Environmental Biology"
+            },
+            {
+                "name": "EF",
+                "full_name": "Emerging Frontiers"
+            },
+            {
+                "name": "IOS",
+                "full_name": "Integrative Organismal Systems"
+            },
+            {
+                "name": "MCB",
+                "full_name": "Molecular and Cellular Biosciences"
+            }
+        ]
+    },
+    {
+        "name": "CISE",
+        "full_name": "Computer and Information Science and Engineering",
+        "divisions": [
+            {
+                "name": "OAC",
+                "full_name": "Office of Advanced Cyberinfrastructure"
+            },
+            {
+                "name": "CCF",
+                "full_name": "Computing and Communication Foundations"
+            },
+            {
+                "name": "CNS",
+                "full_name": "Computer and Network Systems"
+            },
+            {
+                "name": "IIS",
+                "full_name": "Information and Intelligent Systems"
+            }
+        ]
+    },
+    {
+        "name": "ENG",
+        "full_name": "Engineering",
+        "divisions": [
+            {
+                "name": "CBET",
+                "full_name": "Chemical, Bioengineering, Environmental, and Transport Systems"
+            },
+            {
+                "name": "CMMI",
+                "full_name": "Civil, Mechanical and Manufacturing Innovation"
+            },
+            {
+                "name": "ECCS",
+                "full_name": "Electrical, Communications and Cyber Systems"
+            },
+            {
+                "name": "EEC",
+                "full_name": "Engineering Education and Centers"
+            },
+            {
+                "name": "EFMA",
+                "full_name": "Emerging Frontiers and Multidisciplinary Activities"
+            }
+        ]
+    },
+    {
+        "name": "GEO",
+        "full_name": "Geosciences",
+        "divisions": [
+            {
+                "name": "AGS",
+                "full_name": "Atmospheric and Geospace Sciences"
+            },
+            {
+                "name": "EAR",
+                "full_name": "Earth Sciences"
+            },
+            {
+                "name": "OCE",
+                "full_name": "Ocean Sciences"
+            },
+            {
+                "name": "OPP",
+                "full_name": "Office of Polar Programs"
+            },
+            {
+                "name": "RISE",
+                "full_name": "Research, Innovation, Synergies and Education"
+            }
+        ]
+    },
+    {
+        "name": "MPS",
+        "full_name": "Mathematical and Physical Sciences",
+        "divisions": [
+            {
+                "name": "AST",
+                "full_name": "Astronomical Sciences"
+            },
+            {
+                "name": "CHE",
+                "full_name": "Chemistry"
+            },
+            {
+                "name": "DMR",
+                "full_name": "Materials Research"
+            },
+            {
+                "name": "DMS",
+                "full_name": "Mathematical Sciences"
+            },
+            {
+                "name": "PHY",
+                "full_name": "Physics"
+            },
+            {
+                "name": "OSI",
+                "full_name": "Office of Strategic Initiatives"
+            }
+        ]
+    },
+    {
+        "name": "SBE",
+        "full_name": "Social, Behavioral and Economic Sciences",
+        "divisions": [
+            {
+                "name": "BCS",
+                "full_name": "Behavioral and Cognitive Sciences"
+            },
+            {
+                "name": "NCSES",
+                "full_name": "National Center for Science and Engineering Statistics"
+            },
+            {
+                "name": "SES",
+                "full_name": "Social and Economic Sciences"
+            },
+            {
+                "name": "SMA",
+                "full_name": "Multidisciplinary Activities"
+            }
+        ]
+    },
+    {
+        "name": "EDU",
+        "full_name": "STEM Education",
+        "divisions": [
+            {
+                "name": "EES",
+                "full_name": "Equity for Excellence in STEM"
+            },
+            {
+                "name": "DGE",
+                "full_name": "Graduate Education"
+            },
+            {
+                "name": "DRL",
+                "full_name": "Research on Learning in Formal and Informal Settings"
+            },
+            {
+                "name": "DUE",
+                "full_name": "Undergraduate Education"
+            }
+        ]
+    },
+    {
+        "name": "TIP",
+        "full_name": "Technology, Innovation, and Partnerships",
+        "divisions": []
+    },
+    {
+        "name": "BFA",
+        "full_name": "Budget, Finance and Award Management",
+        "divisions": [
+            {
+                "name": "BD",
+                "full_name": "Budget Division"
+            },
+            {
+                "name": "DACS",
+                "full_name": "Division of Acquisition and Cooperative Support"
+            },
+            {
+                "name": "DFM",
+                "full_name": "Division of Financial Management"
+            },
+            {
+                "name": "DGA",
+                "full_name": "Division of Grants and Agreements"
+            },
+            {
+                "name": "DIAS",
+                "full_name": "Division of Institution and Award Support"
+            },
+            {
+                "name": "RIO",
+                "full_name": "Research Infrastructure Office"
+            }
+        ]
+    },
+    {
+        "name": "OCIO",
+        "full_name": "Office of the Chief Information Officer",
+        "divisions": [
+            {
+                "name": "DDAI",
+                "full_name": "Division of Data and Artificial Intelligence"
+            }
+        ]
+    },
+    {
+        "name": "OIRM",
+        "full_name": "Information and Resource Management",
+        "divisions": [
+            {
+                "name": "DAS",
+                "full_name": "Division of Administrative Services"
+            },
+            {
+                "name": "DIS",
+                "full_name": "Division of Information Systems"
+            },
+            {
+                "name": "HRM",
+                "full_name": "Division of Human Resource Management"
+            }
+        ]
+    },
+    {
+        "name": "OIG",
+        "full_name": "Office of Inspector General",
+        "divisions": []
+    }
+]

@@ -30,16 +30,46 @@
                 "comment": "DIMENSION: The ${AGGREGATION_UNIT} of the year."
             },
             {
-                "name": "public_cloud_id",
+                "name": "cloud_provider_id",
                 "type": "int(11)",
                 "nullable": false,
-                "comment": "DIMENSION: Which public_cloud this spend occurred on."
+                "comment": "DIMENSION: Which cloud_provider this spend occurred on."
             },
             {
                 "name": "account_id",
                 "type": "int(11)",
                 "nullable": false,
                 "comment": "DIMENSION: Which account this spend occurred under."
+            },
+            {
+                "name": "fund_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": ""
+            },
+            {
+                "name": "pi_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": ""
+            },
+            {
+                "name": "funder_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": ""
+            },
+            {
+                "name": "nsf_directorate_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": ""
+            },
+            {
+                "name": "nsf_division_id",
+                "type": "int(11)",
+                "nullable": false,
+                "comment": ""
             },
             {
                 "name": "location_id",
@@ -93,9 +123,9 @@
                 ]
             },
             {
-                "name": "idx_spend_public_cloud_id",
+                "name": "idx_spend_cloud_provider_id",
                 "columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ]
             },
             {

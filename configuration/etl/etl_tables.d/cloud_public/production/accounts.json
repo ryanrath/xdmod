@@ -23,7 +23,7 @@
 
             },
             {
-                "name": "public_cloud_id",
+                "name": "cloud_provider_id",
                 "type": "int(11)",
                 "nullable": false
             },
@@ -96,9 +96,9 @@
                 ]
             },
             {
-                "name": "idx_accounts_public_cloud_id",
+                "name": "idx_accounts_cloud_provider_id",
                 "columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ]
             }
         ],
@@ -115,13 +115,13 @@
                 "on_delete": "CASCADE"
             },
             {
-                "name": "fk_accounts_public_cloud_id",
+                "name": "fk_accounts_cloud_provider_id",
                 "columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ],
-                "referenced_table": "public_clouds",
+                "referenced_table": "cloud_providers",
                 "referenced_columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ],
                 "on_delete": "CASCADE"
             }

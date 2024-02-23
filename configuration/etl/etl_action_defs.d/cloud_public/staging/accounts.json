@@ -8,7 +8,7 @@
     "destination_record_map": {
         "staging_accounts": {
             "id": "id",
-            "public_cloud": "public_cloud",
+            "cloud_provider": "public_cloud",
             "fund": "fund",
             "cash_deposited": "cash_deposited",
             "cash_spend": "cash_spend",

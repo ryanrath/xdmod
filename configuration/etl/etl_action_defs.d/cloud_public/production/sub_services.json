@@ -5,8 +5,9 @@
     "source_query": {
         "records": {
             "name": "DISTINCT ss.sub_service",
+            "full_name": "CONCAT(pc.display, ' - ', s.name, ' - ', ss.sub_service)",
             "service_id": "s.service_id",
-            "public_cloud_id": "pc.public_cloud_id",
+            "cloud_provider_id": "pc.cloud_provider_id",
             "location_id": "loc.location_id"
         },
         "joins": [
@@ -22,10 +23,10 @@
                 "on": "s.name = ss.service"
             },
             {
-                "name": "public_clouds",
+                "name": "cloud_providers",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "pc",
-                "on": "pc.name = ss.public_cloud"
+                "on": "pc.name = ss.cloud_provider"
             },
             {
                 "name": "locations",

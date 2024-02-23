@@ -8,7 +8,7 @@
                 },
                 {
                     "realm": "PublicCloud",
-                    "group_by": "public_cloud"
+                    "group_by": "cloud_provider"
                 },
                 {
                     "realm": "PublicCloud",
@@ -25,6 +25,22 @@
                 {
                     "realm": "PublicCloud",
                     "group_by": "fund"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "funder"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "location"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "nsf_directorate"
+                },
+                {
+                    "realm": "PublicCloud",
+                    "group_by": "nsf_division"
                 }
             ],
             "summary_charts": [

@@ -59,11 +59,6 @@
                 "nullable": true
             },
             {
-                "name": "funder",
-                "type": "varchar(1024)",
-                "nullable": false
-            },
-            {
                 "name": "cash_deposited",
                 "type": "float",
                 "nullable": false,
@@ -107,11 +102,6 @@
             {
                 "name": "credit_balance_percent",
                 "type": "int",
-                "nullable": false
-            },
-            {
-                "name": "status",
-                "type": "varchar(512)",
                 "nullable": false
             },
             {

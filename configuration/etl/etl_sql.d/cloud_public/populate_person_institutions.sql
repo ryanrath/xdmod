@@ -18,5 +18,9 @@ SELECT p.person_id,
 FROM cte
          JOIN ${SOURCE_SCHEMA}.persons p ON p.id = cte.id
          JOIN ${SOURCE_SCHEMA}.institutions i ON i.id = cte.institution
+         LEFT JOIN ${SOURCE_SCHEMA}.person_institutions existing
+             ON existing.person_id = p.person_id AND
+                existing.institution_id = i.institution_id
 WHERE cte.lev > 1
+AND existing.person_institution_id IS NULL
 ORDER BY p.person_id, i.institution_id;

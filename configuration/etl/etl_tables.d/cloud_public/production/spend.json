@@ -13,7 +13,7 @@
                 "comment": "Internal XDMoD assigned id"
             },
             {
-                "name": "public_cloud_id",
+                "name": "cloud_provider_id",
                 "type": "int(11)",
                 "nullable": false
             },
@@ -73,9 +73,9 @@
                 ]
             },
             {
-                "name": "idx_spend_public_cloud_id",
+                "name": "idx_spend_cloud_provider_id",
                 "columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ]
             },
             {
@@ -118,13 +118,13 @@
         ],
         "foreign_key_constraints": [
             {
-                "name": "fk_spend_public_cloud_id",
+                "name": "fk_spend_cloud_provider_id",
                 "columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ],
-                "referenced_table": "public_clouds",
+                "referenced_table": "cloud_providers",
                 "referenced_columns": [
-                    "public_cloud_id"
+                    "cloud_provider_id"
                 ],
                 "on_delete": "CASCADE"
             },

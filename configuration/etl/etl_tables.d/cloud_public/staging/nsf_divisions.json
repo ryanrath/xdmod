@@ -1,17 +1,10 @@
 {
     "table_definition": {
-        "name": "nsf_directorates",
+        "name": "staging_nsf_divisions",
         "engine": "InnoDB",
         "charset": "utf8",
         "collation": "utf8_unicode_ci",
         "columns": [
-            {
-                "name": "nsf_directorate_id",
-                "type": "int(11)",
-                "nullable": false,
-                "extra": "auto_increment",
-                "comment": "Internal XDMoD Assigned ID"
-            },
             {
                 "name": "name",
                 "type": "varchar(255)",
@@ -21,19 +14,31 @@
                 "name": "full_name",
                 "type": "varchar(255)",
                 "nullable": false
+            },
+            {
+                "name": "nsf_directorate",
+                "type": "varchar(255)",
+                "nullable": false,
+                "comment": "the `name` value of this divisions nsf_directorate."
             }
         ],
         "indexes": [
             {
-                "name": "PRIMARY",
-                "columns": [
-                    "nsf_directorate_id"
-                ]
-            },
-            {
                 "name": "idx_name",
                 "columns": [
                     "name"
+                ]
+            },
+            {
+                "name": "idx_full_name",
+                "columns": [
+                    "full_name"
+                ]
+            },
+            {
+                "name": "idx_nsf_directorate",
+                "columns": [
+                    "nsf_directorate"
                 ]
             }
         ]

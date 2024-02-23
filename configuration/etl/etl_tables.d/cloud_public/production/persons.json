@@ -29,6 +29,11 @@
                 "nullable": false
             },
             {
+                "name": "full_name",
+                "type": "varchar(512)",
+                "nullable": false
+            },
+            {
                 "name": "email",
                 "type": "varchar(255)",
                 "nullable": true

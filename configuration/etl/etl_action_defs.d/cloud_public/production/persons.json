@@ -7,6 +7,7 @@
             "id": "sp.id",
             "first_name": "sp.first_name",
             "last_name": "sp.last_name",
+            "full_name": "CONCAT(sp.first_name, ' ', sp.last_name)",
             "email": "sp.email"
         },
         "joins": [

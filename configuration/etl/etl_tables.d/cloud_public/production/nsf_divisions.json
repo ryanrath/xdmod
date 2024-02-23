@@ -13,8 +13,18 @@
                 "comment": "Internal XDMoD Assigned ID"
             },
             {
+                "name": "nsf_directorate_id",
+                "type": "int(11)",
+                "nullable": false
+            },
+            {
                 "name": "name",
                 "type": "varchar(255)",
+                "nullable": false
+            },
+            {
+                "name": "full_name",
+                "type": "varchar(512)",
                 "nullable": false
             }
         ],
@@ -23,6 +33,12 @@
                 "name": "PRIMARY",
                 "columns": [
                     "nsf_division_id"
+                ]
+            },
+            {
+                "name": "idx_name",
+                "columns": [
+                    "name"
                 ]
             }
         ]

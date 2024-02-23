@@ -39,7 +39,7 @@
                 "cloud_public/staging/institutions.json",
                 "cloud_public/staging/persons.json",
                 "cloud_public/staging/spend.json",
-                "cloud_public/production/public_clouds.json",
+                "cloud_public/production/cloud_providers.json",
                 "cloud_public/production/locations.json",
                 "cloud_public/production/services.json",
                 "cloud_public/production/sub_services.json",
@@ -77,6 +77,76 @@
                     ]
                 }
             }
+        },
+        {
+            "name": "ShredNSFDirectorates",
+            "description": "Populate the nsf_directorates table",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/nsf_directorates.json",
+            "endpoints": {
+                "source": {
+                    "name": "NSFDirectoratesSource",
+                    "type": "jsonfile",
+                    "path": "cloud_public/nsf_directorates.json",
+                    "field_names": [
+                        "name",
+                        "full_name"
+                    ],
+                    "filters": [{
+                        "type": "external",
+                        "name": "jq",
+                        "path": "jq",
+                        "arguments": "-c '[.[] | {name: .name, full_name: .full_name}]'"
+                    }]
+                }
+            },
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions",
+            "truncate_destination": false
+        },
+        {
+            "name": "ShredNSFDivisions",
+            "description": "Populate the nsf_divisions table",
+            "class": "StructuredFileIngestor",
+            "definition_file": "cloud_public/staging/nsf_divisions.json",
+            "endpoints": {
+                "source": {
+                    "name": "NSFDivisions",
+                    "type": "jsonfile",
+                    "path": "cloud_public/nsf_directorates.json",
+                    "field_names": [
+                        "nsf_directorate",
+                        "name",
+                        "full_name"
+                    ],
+                    "filters": [{
+                        "type": "external",
+                        "name": "jq",
+                        "path": "jq",
+                        "arguments": "-c '[.[] | . as $parent | .divisions[] | ({nsf_directorate: $parent.name, name: .name | ascii_upcase, full_name: .full_name})]'"                    }]
+                }
+            },
+            "namespace": "ETL\\Ingestor",
+            "options_class": "IngestorOptions",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateNSFDirectorates",
+            "description": "Populate the locations table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/nsf_directorates.json",
+            "truncate_destination": false
+        },
+        {
+            "name": "PopulateNSFDivisions",
+            "description": "Populate the locations table",
+            "namespace": "ETL\\Ingestor",
+            "class": "DatabaseIngestor",
+            "options_class": "IngestorOptions",
+            "definition_file": "cloud_public/production/nsf_divisions.json",
+            "truncate_destination": false
         },
         {
             "name": "ShredPersons",
@@ -205,15 +275,15 @@
             }
         },
         {
-            "name": "PopulatePublicClouds",
-            "description": "Populate the public_clouds table",
+            "name": "PopulateCloudProviders",
+            "description": "Populate the cloud_providers table",
             "class": "StructuredFileIngestor",
-            "definition_file": "cloud_public/production/public_clouds.json",
+            "definition_file": "cloud_public/production/cloud_providers.json",
             "endpoints": {
                 "source": {
                     "type": "jsonfile",
                     "name": "Public Clouds as defined in CloudBank",
-                    "path": "cloud_public/public_clouds.json"
+                    "path": "cloud_public/cloud_providers.json"
                 }
             },
             "namespace": "ETL\\Ingestor",
@@ -302,24 +372,7 @@
             "definition_file": "cloud_public/production/account_statuses.json",
             "truncate_destination": false
         },
-        {
-            "name": "PopulateNSFDirectorates",
-            "description": "Populate the nsf_directorates table",
-            "namespace": "ETL\\Ingestor",
-            "class": "DatabaseIngestor",
-            "options_class": "IngestorOptions",
-            "definition_file": "cloud_public/production/nsf_directorates.json",
-            "truncate_destination": false
-        },
-        {
-            "name": "PopulateNSFDivisions",
-            "description": "Populate the nsf_divisions table",
-            "namespace": "ETL\\Ingestor",
-            "class": "DatabaseIngestor",
-            "options_class": "IngestorOptions",
-            "definition_file": "cloud_public/production/nsf_divisions.json",
-            "truncate_destination": false
-        },
+
         {
             "name": "IngestFunds",
             "description": "Populate the funds table",

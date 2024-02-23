@@ -6,7 +6,7 @@
         "records": {
             "id": "sa.id",
             "fund_id": "f.fund_id",
-            "public_cloud_id": "pc.public_cloud_id",
+            "cloud_provider_id": "pc.cloud_provider_id",
             "account_status_id": "acts.account_status_id",
             "cash_deposited": "sa.cash_deposited",
             "cash_spend": "sa.cash_spend",
@@ -24,10 +24,10 @@
                 "alias": "sa"
             },
             {
-                "name": "public_clouds",
+                "name": "cloud_providers",
                 "schema": "${SOURCE_SCHEMA}",
                 "alias": "pc",
-                "on": "pc.display = sa.public_cloud"
+                "on": "pc.display = sa.cloud_provider"
             },
             {
                 "name": "account_statuses",

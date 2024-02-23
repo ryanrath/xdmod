@@ -36,7 +36,8 @@
             {
                 "name": "funder",
                 "type": "varchar(1024)",
-                "nullable": false
+                "nullable": false,
+                "default": "INVALID_FUNDER"
             },
             {
                 "name": "cash_deposited",
@@ -112,7 +113,8 @@
             {
                 "name": "status",
                 "type": "varchar(512)",
-                "nullable": false
+                "nullable": false,
+                "default": "INVALID_STATUS"
             },
             {
                 "name": "created",

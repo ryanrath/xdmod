@@ -4,13 +4,21 @@
     },
     "source_query": {
         "records": {
-            "name": "DISTINCT sf.nsf_division"
+            "nsf_directorate_id": "nd.nsf_directorate_id",
+            "name": "snv.name",
+            "full_name": "snv.full_name"
         },
         "joins": [
             {
-                "name": "staging_funds",
+                "name": "staging_nsf_divisions",
                 "schema": "${SOURCE_SCHEMA}",
-                "alias": "sf"
+                "alias": "snv"
+            },
+            {
+                "name": "nsf_directorates",
+                "schema": "${SOURCE_SCHEMA}",
+                "alias": "nd",
+                "on": "snv.nsf_directorate = nd.name"
             }
         ]
     }

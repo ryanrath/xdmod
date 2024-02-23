@@ -1,25 +1,24 @@
 {
     "table_definition": {
-        "name": "nsf_directorates",
+        "name": "cloud_providers",
         "engine": "InnoDB",
         "charset": "utf8",
         "collation": "utf8_unicode_ci",
         "columns": [
             {
-                "name": "nsf_directorate_id",
+                "name": "cloud_provider_id",
                 "type": "int(11)",
                 "nullable": false,
-                "extra": "auto_increment",
-                "comment": "Internal XDMoD Assigned ID"
+                "extra": "auto_increment"
             },
             {
                 "name": "name",
-                "type": "varchar(255)",
+                "type": "varchar(1024)",
                 "nullable": false
             },
             {
-                "name": "full_name",
-                "type": "varchar(255)",
+                "name": "display",
+                "type": "varchar(1024)",
                 "nullable": false
             }
         ],
@@ -27,13 +26,7 @@
             {
                 "name": "PRIMARY",
                 "columns": [
-                    "nsf_directorate_id"
-                ]
-            },
-            {
-                "name": "idx_name",
-                "columns": [
-                    "name"
+                    "cloud_provider_id"
                 ]
             }
         ]

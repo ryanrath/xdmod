@@ -8,7 +8,7 @@
     "destination_record_map": {
         "staging_spend": {
             "date": "date",
-            "public_cloud": "publicCloud",
+            "cloud_provider": "publicCloud",
             "account": "account",
             "location": "location",
             "service": "service",

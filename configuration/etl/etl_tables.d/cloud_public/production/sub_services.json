@@ -25,6 +25,11 @@
                 "name": "name",
                 "type": "varchar(1024)",
                 "nullable": false
+            },
+            {
+                "name": "full_name",
+                "type": "varchar(2048)",
+                "nullable": false
             }
         ],
         "indexes": [
