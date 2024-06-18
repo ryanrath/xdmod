@@ -18,16 +18,13 @@ use ETL\EtlOverseerOptions;
 
 class EtlOverseerTest extends \PHPUnit\Framework\TestCase
 {
-    private static $etlConfig = null;
-    private static $testArtifactInputPath = null;
-    private static $overseerOptions = null;
+    private static $etlConfig;
+    private static $testArtifactInputPath;
+    private static $overseerOptions;
 
     /**
      * Set up machinery that we will need for these tests.
-     *
-     * @return Nothing
      */
-
     public static function setupBeforeClass(): void
     {
         self::$testArtifactInputPath = realpath(BASE_DIR . '/tests/artifacts/xdmod/etlv2/configuration/input/');

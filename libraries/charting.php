@@ -65,10 +65,8 @@ function exportChart(
     switch($format){
         case 'png':
             return convertSvg($svg, 'png', $effectiveWidth, $effectiveHeight, $fileMetadata);
-            break;
         case 'pdf':
             return convertSvg($svg, 'pdf', round($width / 90.0 * 72.0), round($height / 90.0 * 72.0), $fileMetadata);
-            break;
         default:
             return $svg;
     }

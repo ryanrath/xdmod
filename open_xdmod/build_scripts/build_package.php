@@ -112,8 +112,6 @@ function main()
                 break;
             default:
                 throw new Exception("Unexpected option '$key'");
-                exit(1);
-                break;
         }
     }
 
@@ -175,7 +173,7 @@ function getLogger()
     global $logger;
 
     if (!isset($logger)) {
-        $logger = Log::singleton('console', '', 'xdmod-packager');
+        $logger = Log::singleton('console', '');
     }
 
     return $logger;

@@ -19,7 +19,7 @@ abstract class aUrlTransformer extends Loggable
      * The results of the url parsed by parse_url()
      */
 
-    protected $parsedUrl = null;
+    protected $parsedUrl;
 
     /** -----------------------------------------------------------------------------------------
      * @see iConfigFileKeyTransformer::__construct()

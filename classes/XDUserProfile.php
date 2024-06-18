@@ -216,7 +216,7 @@
             $this->_pdo->execute('ROLLBACK');
             $this->_pdo->execute('UNLOCK TABLES');
 
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
 
          }
 

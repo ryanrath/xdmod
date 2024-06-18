@@ -17,13 +17,13 @@ abstract class aRdbmsEndpoint extends aDataEndpoint
     /**
      * @ var string The database schema for this endpoint
      */
-    protected $schema = null;
+    protected $schema;
 
     /**
      * @var string The name of the section in the configuration file that contains database
      * connection details.
      */
-    protected $config = null;
+    protected $config;
 
     /**
      * @var string The character used to escape database system identifiers
@@ -33,17 +33,17 @@ abstract class aRdbmsEndpoint extends aDataEndpoint
     /**
      * @var string The database hostname
      */
-    protected $hostname = null;
+    protected $hostname;
 
     /**
      * @var int The database port
      */
-    protected $port = null;
+    protected $port;
 
     /**
      * @var string The user used to authenticate to the database
      */
-    protected $username = null;
+    protected $username;
 
     /**
      * @var bool Set to TRUE if the database schema should be created if it does not already exist.

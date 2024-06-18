@@ -58,7 +58,7 @@ try {
         }
     }
 
-    if (count($clauses)) {
+    if ($clauses !== []) {
         $sql .= ' WHERE ' . implode(' AND ', $clauses);
     }
 
@@ -79,7 +79,7 @@ try {
 
     $sql = 'SELECT COUNT(*) AS count FROM log_table';
 
-    if (count($clauses)) {
+    if ($clauses !== []) {
         $sql .= ' WHERE ' . implode(' AND ', $clauses);
     }
 

@@ -90,7 +90,7 @@ abstract class ConfigFilesMigration extends Migration
      */
     protected function writeModulePortalSettingsFiles(array $changes = array())
     {
-        foreach ($this->modulePortalSettingsPaths as $moduleName => $file) {
+        foreach (array_keys($this->modulePortalSettingsPaths) as $moduleName) {
             $moduleChanges
                 = isset($changes[$moduleName])
                 ? $changes[$moduleName]

@@ -311,6 +311,7 @@ class DashboardControllerProvider extends BaseControllerProvider
                 'data' => $data
             ));
         }
+        return null;
     }
     /*
     * Get stored value for if a user should view the help tour or not
@@ -365,6 +366,7 @@ class DashboardControllerProvider extends BaseControllerProvider
                 'data' => $data
             ));
         }
+        return null;
     }
 
     /*
@@ -404,7 +406,7 @@ class DashboardControllerProvider extends BaseControllerProvider
         } catch (PDOException $e) {
             if ($e->getCode() === '42S02' && strpos($e->getMessage(), 'modw_aggregates.jobfact_by_') !== false) {
                 $msg = 'Aggregate table not found, have you ingested your data?';
-                throw new Exception($msg);
+                throw new Exception($msg, $e->getCode(), $e);
             } else {
                 throw $e;
             }

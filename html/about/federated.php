@@ -92,10 +92,7 @@ elseif ($role === 'hub'){
         unset($extra['contact']);
         unset($extra['url']);
         $instances[$prefix]['extra'] = $extra;
-        array_push(
-            $lastCloudQuery,
-            '(SELECT \'' . $prefix . '\' AS prefix, FROM_UNIXTIME(event_time_ts) as event_ts FROM `' . $prefix . '-modw_cloud`.`event` ORDER BY 2 DESC LIMIT 1) `A' . $derived . '`'
-        );
+        $lastCloudQuery[] = '(SELECT \'' . $prefix . '\' AS prefix, FROM_UNIXTIME(event_time_ts) as event_ts FROM `' . $prefix . '-modw_cloud`.`event` ORDER BY 2 DESC LIMIT 1) `A' . $derived . '`';
         $derived++;
     }
     $lastCloudResults = $db->query('SELECT * FROM ' . implode($lastCloudQuery, ' UNION ALL SELECT * FROM '));

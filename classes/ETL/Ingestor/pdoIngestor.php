@@ -103,7 +103,7 @@ class pdoIngestor extends aIngestor
      * ------------------------------------------------------------------------------------------
      */
 
-    private $sourceQueryString = null;
+    private $sourceQueryString;
 
     /** -----------------------------------------------------------------------------------------
      * A Query object representing the source query for this action
@@ -112,7 +112,7 @@ class pdoIngestor extends aIngestor
      * ------------------------------------------------------------------------------------------
      */
 
-    protected $etlSourceQuery = null;
+    protected $etlSourceQuery;
 
     /** -----------------------------------------------------------------------------------------
      * An array containing the field names available from the source record (query,
@@ -122,7 +122,7 @@ class pdoIngestor extends aIngestor
      * ------------------------------------------------------------------------------------------
      */
 
-    protected $sourceRecordFields = null;
+    protected $sourceRecordFields;
 
     /** -----------------------------------------------------------------------------------------
      * Line separator for MySQL LOAD DATA INFILE LINES TERMINATED BY.
@@ -168,7 +168,7 @@ class pdoIngestor extends aIngestor
      * ------------------------------------------------------------------------------------------
      */
 
-    private $_dest_helper = null;
+    private $_dest_helper;
 
     /** -----------------------------------------------------------------------------------------
      * General setup.
@@ -205,7 +205,7 @@ class pdoIngestor extends aIngestor
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -269,7 +269,7 @@ class pdoIngestor extends aIngestor
         $this->sourceQueryString = $this->getSourceQueryString();
 
         if ( null !== $this->sourceQueryString &&
-             ! (is_string($this->sourceQueryString) || empty($this->sourceQueryString)) )
+             (!is_string($this->sourceQueryString) && !empty($this->sourceQueryString)) )
         {
             $this->logAndThrowException("Source query must be null or a non-empty string");
         }
@@ -293,11 +293,11 @@ class pdoIngestor extends aIngestor
 
         $this->parseDestinationFieldMap($this->sourceRecordFields);
 
-        if ( isset($this->options->db_insert_chunk_size) ) {
+        if ( $this->options->db_insert_chunk_size !== null ) {
             $this->dbInsertChunkSize = $this->options->db_insert_chunk_size;
         }
 
-        if ( isset($this->options->net_write_timeout_per_db_chunk) ) {
+        if ( $this->options->net_write_timeout_per_db_chunk !== null ) {
             $this->netWriteTimeoutSecondsPerFileChunk = $this->options->net_write_timeout_per_db_chunk;
         }
 
@@ -324,12 +324,10 @@ class pdoIngestor extends aIngestor
             );
         }
 
-        $sql = $this->variableStore->substitute(
+        return $this->variableStore->substitute(
             $this->etlSourceQuery->getSql(),
             "Undefined macros found in source query"
         );
-
-        return $sql;
 
     }  // getSourceQueryString()
 
@@ -663,7 +661,7 @@ class pdoIngestor extends aIngestor
         if ( $this->getEtlOverseerOptions()->isDryrun() ) {
             $this->logger->debug("Source query " . $this->sourceEndpoint . ":\n" . $this->sourceQueryString);
             // If this is DRYRUN mode clean up the files that tempnam() created
-            foreach ( $infileList as $etlTableKey => $infileName ) {
+            foreach ( $infileList as $infileName ) {
                 @unlink($infileName);
             }
             return 0;
@@ -979,7 +977,7 @@ class pdoIngestor extends aIngestor
 
     protected function transform(array $srcRecord, &$orderId)
     {
-        foreach ( $srcRecord as $key => &$value ) {
+        foreach ( $srcRecord as &$value ) {
             if ( null === $value ) {
                 // Transform NULL values for MySQL LOAD FILE
                 $value = '\N';

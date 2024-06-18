@@ -13,6 +13,7 @@ use IntegrationTests\TestHarness\TestFiles;
  */
 class CsvFileWriterTest extends TestCase
 {
+    public $testFiles;
     /**
      * Test artifacts path.
      * @var string
@@ -37,7 +38,7 @@ class CsvFileWriterTest extends TestCase
      */
     public function getTestFiles()
     {
-        if (!isset($this->testFiles)) {
+        if (!property_exists($this, 'testFiles') || $this->testFiles === null) {
             $this->testFiles = new TestFiles(__DIR__ . '/../../../..');
         }
         return $this->testFiles;

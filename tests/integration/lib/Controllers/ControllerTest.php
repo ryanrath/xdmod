@@ -288,14 +288,14 @@ class ControllerTest extends BaseTest
         $actualUsers = $data['users'];
 
         $notFound = array();
-        foreach($expectedUsers as $key => $expectedUser) {
+        foreach($expectedUsers as $expectedUser) {
             $found = array_filter(
                 $actualUsers,
                 function ($value) use ($expectedUser) {
                     return $expectedUser['person_name'] === $value['person_name'];
                 }
             );
-            if (empty($found)) {
+            if ($found === []) {
                 $notFound []= $expectedUser;
             }
         }
@@ -461,7 +461,6 @@ class ControllerTest extends BaseTest
     /**
      * @dataProvider provideEnumTargetAddresses
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testEnumTargetAddresses(array $options)
@@ -553,7 +552,7 @@ class ControllerTest extends BaseTest
         $this->assertArrayHasKey('response', $data, "Expected the returned data structure to contain a 'response' property.");
 
         $this->assertTrue(is_array($data['response']), "Expected that the 'response' value would be an array.");
-        $this->assertTrue(count($data['response']) > 0, "Expected that there would be one or more items in 'response'");
+        $this->assertTrue($data['response'] !== [], "Expected that there would be one or more items in 'response'");
 
         return $data['response'];
     }

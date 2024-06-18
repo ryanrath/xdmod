@@ -81,14 +81,14 @@ class pdoAggregator extends aAggregator
     protected $verifiedResourceSpecs = false;
 
     // A Query object containing the source query for this ingestor
-    protected $etlSourceQuery = null;
+    protected $etlSourceQuery;
 
     // This action does not (yet) support multiple destination tables. If multiple destination
     // tables are present, store the first here and use it.
-    protected $etlDestinationTable = null;
+    protected $etlDestinationTable;
 
     // If the query was modified for aggregation period batching, store the original FROM table here
-    protected $etlSourceQueryOrigFromTable = null;
+    protected $etlSourceQueryOrigFromTable;
 
     // Flag indicating whether or not the source Query object was modified by this action
     protected $etlSourceQueryModified = false;
@@ -97,9 +97,9 @@ class pdoAggregator extends aAggregator
     const BATCH_TMP_TABLE_NAME = "agg_tmp";
 
     // The INSERT, SELECT, and INSERT INTO ... SELECT statements for the aggregation query.
-    protected $insertSql = null;
-    protected $selectSql = null;
-    protected $optimizedInsertSql = null;
+    protected $insertSql;
+    protected $selectSql;
+    protected $optimizedInsertSql;
 
     /* ------------------------------------------------------------------------------------------
      * Set up data endpoints and other options.
@@ -128,7 +128,7 @@ class pdoAggregator extends aAggregator
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -264,7 +264,7 @@ class pdoAggregator extends aAggregator
         );
         $this->etlDestinationTable->schema = $this->destinationEndpoint->getSchema();
 
-        if ( isset($this->options->table_prefix) &&
+        if ( $this->options->table_prefix !== null &&
              $this->options->table_prefix != $this->etlDestinationTable->table_prefix )
         {
             $msg =
@@ -341,14 +341,14 @@ class pdoAggregator extends aAggregator
 
         $sqlList = array();
 
-        foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+        foreach ( $this->etlDestinationTableList as $etlTable ) {
 
             $qualifiedDestTableName = $etlTable->getFullName();
             $substitutedEtlAggregationTable = $etlTable->copyAndApplyVariables($this->variableStore);
 
             $this->manageTable($substitutedEtlAggregationTable, $this->destinationEndpoint);
 
-            if ( $this->options->disable_keys && "myisam" == strtolower($etlTable->engine) ) {
+            if ( $this->options->disable_keys && "myisam" === strtolower($etlTable->engine) ) {
                 $this->logger->info("Disable keys on $qualifiedDestTableName");
                 $sqlList[] = "ALTER TABLE $qualifiedDestTableName DISABLE KEYS";
             }
@@ -370,14 +370,14 @@ class pdoAggregator extends aAggregator
     {
         $sqlList = array();
 
-        foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+        foreach ( $this->etlDestinationTableList as $etlTable ) {
             $qualifiedDestTableName = $etlTable->getFullName();
 
             if ( $numAggregationPeriodsProcessed > 0 && $this->options->analyze_table ) {
                 $sqlList[] = "OPTIMIZE TABLE $qualifiedDestTableName";
             }
 
-            if ( $this->options->disable_keys && "myisam" == strtolower($etlTable->engine) ) {
+            if ( $this->options->disable_keys && "myisam" === strtolower($etlTable->engine) ) {
                 $sqlList[] = "ALTER TABLE $qualifiedDestTableName ENABLE KEYS";
             }
         }
@@ -645,8 +645,7 @@ class pdoAggregator extends aAggregator
             if ( isset($aggregationPeriodQueryOptions->overseer_restrictions) ) {
                 $query->overseer_restrictions = $aggregationPeriodQueryOptions->overseer_restrictions;
             } else {
-                $msg = "No restrictions on selection of periods to aggregate. "
-                    . "Re-aggregating all records in " . $sourceSchema . "." . $tableName;
+                $msg = 'No restrictions on selection of periods to aggregate. Re-aggregating all records in ' . $sourceSchema . "." . $tableName;
                 $this->logger->notice($msg);
             }
 
@@ -886,10 +885,10 @@ class pdoAggregator extends aAggregator
             $this->processAggregationPeriods(
                 $aggregationUnit,
                 $aggregationPeriodList,
-                $selectStmt,
                 $insertStmt,
                 $discoveredBindParams,
-                $numAggregationPeriods
+                $numAggregationPeriods,
+                $selectStmt
             );
 
         } else {
@@ -1023,10 +1022,10 @@ class pdoAggregator extends aAggregator
                 $this->processAggregationPeriods(
                     $aggregationUnit,
                     $aggregationPeriodSlice,
-                    $selectStmt,
                     $insertStmt,
                     $discoveredBindParams,
                     $numAggregationPeriods,
+                    $selectStmt,
                     $aggregationPeriodListOffset
                 );
 
@@ -1097,10 +1096,10 @@ class pdoAggregator extends aAggregator
     protected function processAggregationPeriods(
         $aggregationUnit,
         array $aggregationPeriodList,
-        PDOStatement $selectStmt = null,
         PDOStatement $insertStmt,
         array $discoveredBindParams,
         $totalNumAggregationPeriods,
+        PDOStatement $selectStmt = null,
         $aggregationPeriodOffset = 0
     ) {
         if ( $this->getEtlOverseerOptions()->isDryrun() ) {
@@ -1257,7 +1256,7 @@ class pdoAggregator extends aAggregator
     {
         $totalRowsDeleted = 0;
 
-        foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+        foreach ( $this->etlDestinationTableList as $etlTable ) {
             $qualifiedDestTableName = $etlTable->getFullName();
             $deleteSql = sprintf(
                 "DELETE FROM %s WHERE %s_id = %s",
@@ -1266,7 +1265,7 @@ class pdoAggregator extends aAggregator
                 $aggregationPeriodId
             );
 
-            if ( count($sqlRestrictions) > 0 ) {
+            if ( $sqlRestrictions !== [] ) {
                 $deleteSql .= " AND " . implode(" AND ", $sqlRestrictions);
             }
 

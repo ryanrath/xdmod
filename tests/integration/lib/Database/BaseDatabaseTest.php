@@ -71,7 +71,7 @@ abstract class BaseDatabaseTest extends BaseTest
                 foreach($resourceTypes['resource_types'] as $id => $items) {
                     foreach($items['realms'] as $rlm) {
                         if ($rlm == ucfirst($realm)) {
-                            array_push($usedTypes, $id);
+                            $usedTypes[] = $id;
                         }
                     }
                 }
@@ -80,7 +80,7 @@ abstract class BaseDatabaseTest extends BaseTest
                 foreach($usedTypes as $type) {
                     foreach($resourceConversions as $resource) {
                         if ($resource['abbrev'] == $type) {
-                            array_push($usedCodes, $resource['code']);
+                            $usedCodes[] = $resource['code'];
                         }
                     }
                 }
@@ -88,8 +88,8 @@ abstract class BaseDatabaseTest extends BaseTest
                 $newFile = array();
                 foreach($usedCodes as $code) {
                     foreach($actual as $item) {
-                        if ($code == $item['code']){
-                            array_push($newFile, $item);
+                        if ($code == $item['code']) {
+                            $newFile[] = $item;
                         }
                     }
                 }

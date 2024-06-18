@@ -39,8 +39,6 @@ class IncludeTransformer extends aUrlTransformer implements iConfigFileKeyTransf
                 array('log_level' => $exceptionLogLevel)
             );
         }
-
-        $parsedUrl = null;
         $contents = $this->getContentsFromUrl($value, $config, $exceptionLogLevel);
         $key = null;
         $value = $contents;

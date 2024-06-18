@@ -32,7 +32,7 @@ class JobListAggregator extends pdoAggregator implements iAction
     {
         parent::__construct($options, $etlConfig, $logger);
 
-        $this->joblistAppendTableName = (!is_null($options->joblist_append_table_name)) ? $options->joblist_append_table_name : '_joblist';
+        $this->joblistAppendTableName = (is_null($options->joblist_append_table_name)) ? '_joblist' : $options->joblist_append_table_name;
     }
 
     /* ------------------------------------------------------------------------------------------
@@ -42,13 +42,13 @@ class JobListAggregator extends pdoAggregator implements iAction
     {
         $totalRowsDeleted = 0;
 
-        foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+        foreach ( $this->etlDestinationTableList as $etlTable ) {
             $qualifiedDestTableName = $etlTable->getFullName();
 
             $joblisttable = $etlTable->getSchema() . '.`' . $etlTable->getName(false) . $this->joblistAppendTableName . '`';
             $deleteSql = "DELETE $qualifiedDestTableName, $joblisttable FROM $qualifiedDestTableName LEFT JOIN $joblisttable ON $qualifiedDestTableName.id = $joblisttable.agg_id WHERE {$aggregationUnit}_id = $aggregationPeriodId";
 
-            if ( count($sqlRestrictions) > 0 ) {
+            if ( $sqlRestrictions !== [] ) {
                 $deleteSql .= " AND " . implode(" AND ", $sqlRestrictions);
             }
 

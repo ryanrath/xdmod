@@ -24,6 +24,8 @@ use DataWarehouse\Data\TimeseriesDataset;
 */
 class TimeseriesChart extends AggregateChart
 {
+    public $show_filters;
+    public $_hasLegend;
     // ---------------------------------------------------------
     // __construct()
     //
@@ -108,7 +110,7 @@ class TimeseriesChart extends AggregateChart
         {
             // set multiCategory true or false
             $category = DataWarehouse::getCategoryForRealm($data_description->realm);
-            if(isset($this->_prevCategory) && $category != $this->_prevCategory)
+            if($this->_prevCategory !== null && $category != $this->_prevCategory)
             {
                 $multiCategory = true;
             } else {
@@ -128,16 +130,13 @@ class TimeseriesChart extends AggregateChart
             $yUnitNames[$stat->getName()] = 1;
 
             // determine axisId
-            if($this->_shareYAxis)
-            {
+            if ($this->_shareYAxis) {
                 $axisId = 'sharedAxis';
+            } elseif ($this->_hasLegend && $dataSeriesCount > 1) {
+                $axisId = $stat->getUnit().'_'.$data_description->log_scale.'_'.($data_description->combine_type == 'percent');
             } else {
-                if($this->_hasLegend && $dataSeriesCount > 1) {
-                    $axisId = $stat->getUnit().'_'.$data_description->log_scale.'_'.($data_description->combine_type == 'percent');
-                } else {
-                    $axisId = $data_description->realm.'_'.$data_description->metric.'_'.
-                                $data_description->log_scale.'_'.($data_description->combine_type == 'percent');
-                }
+                $axisId = $data_description->realm.'_'.$data_description->metric.'_'.
+                            $data_description->log_scale.'_'.($data_description->combine_type == 'percent');
             }
 
             if(!isset($yAxisArray[$axisId]))
@@ -679,7 +678,7 @@ class TimeseriesChart extends AggregateChart
                         if ($this->_swapXY && $data_description->display_type!='pie') {
                             if ($trace['type'] == 'bar') {
                                 $trace = array_merge($trace, array('orientation' => 'h'));
-                                $trace['hovertemplate'] = '%{hovertext}' . '<br>'. "<span style=\"color:$color\";> ●</span> "
+                                $trace['hovertemplate'] = '%{hovertext}<br>'. "<span style=\"color:$color\";> ●</span> "
                                                          . $lookupDataSeriesName . ": <b>%{x:,.{$decimals}f}</b> <extra></extra>";
                                 $trace['textangle'] = 0;
                             }
@@ -694,7 +693,7 @@ class TimeseriesChart extends AggregateChart
                                 $xAxis['autorange'] = 'reversed';
                                 $xAxis['tickangle'] = 0;
                                 $yAxis['side'] = ($yAxisIndex % 2 != 0) ? 'top' : 'bottom';
-                                if ($yAxis['side'] == 'top') {
+                                if ($yAxis['side'] === 'top') {
                                     $yAxis['title']['standoff'] = 0;
                                 }
                                 $yAxis['anchor'] = 'free';
@@ -702,15 +701,15 @@ class TimeseriesChart extends AggregateChart
                                     $yAxis['overlaying'] = 'x';
                                 }
                                 $xAxisStep = 0.115;
-                                $xAxisBottomBoundStart = 0 + ($xAxisStep * ceil($yAxisCount/2));
+                                $xAxisBottomBoundStart = $xAxisStep * ceil($yAxisCount/2);
                                 $xAxisTopBoundStart = 1 - ($xAxisStep * floor($yAxisCount/2));
                                 $topShift = floor($yAxisCount/2) - floor($yAxisIndex/2);
                                 $bottomShift = ceil($yAxisCount/2) - ceil($yAxisIndex/2);
 
-                                $yAxis['position'] = $yAxis['side'] == 'top' ? min(1 - ($xAxisStep * $topShift), 1) : max(0 + ($xAxisStep * $bottomShift), 0);
+                                $yAxis['position'] = $yAxis['side'] === 'top' ? min(1 - ($xAxisStep * $topShift), 1) : max($xAxisStep * $bottomShift, 0);
                                 $yAxis['domain'] = array(0,1);
                                 $yAxis['title']['standoff'] = 0;
-                                $yAxis['showgrid'] = $yAxisCount > 1 ? false : true;
+                                $yAxis['showgrid'] = $yAxisCount <= 1;
                                 $xAxis['domain'] = array($xAxisBottomBoundStart, $xAxisTopBoundStart);
 
                                 $xAxis['tickmode'] = $this->_chart['layout']['xaxis']['tickmode'];
@@ -765,19 +764,13 @@ class TimeseriesChart extends AggregateChart
                                 $trace['marker']['line']['width'] = 0;
                             }
 
-                            if ($data_description->combine_type=='side' && $trace['type']=='area'){
-                                if ($this->_swapXY) {
-                                    $trace['fill'] = 'tozerox';
-                                } else {
-                                    $trace['fill'] = 'tozeroy';
-                                }
-                            }
-                            elseif($data_description->combine_type=='stack')
+                            if ($data_description->combine_type=='side' && $trace['type']=='area') {
+                                $trace['fill'] = $this->_swapXY ? 'tozerox' : 'tozeroy';
+                            } elseif($data_description->combine_type=='stack')
                             {
                                 $trace['stackgroup'] = 'one';
                                 $this->_chart['layout']['barmode'] = 'stack';
-                            }
-                            elseif($data_description->combine_type=='percent' && !$data_description->log_scale )
+                            } elseif($data_description->combine_type=='percent' && !$data_description->log_scale )
                             {
                                 $trace['stackgroup'] = 'one';
                                 $trace['groupnorm'] = 'percent';

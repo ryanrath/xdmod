@@ -9,8 +9,6 @@ class CsvFileWriter extends aFileWriter
 {
     /**
      * Write record to file formatted as CSV.
-     *
-     * @param array $record
      */
     public function writeRecord(array $record)
     {

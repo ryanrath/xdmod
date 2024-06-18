@@ -17,29 +17,30 @@ use Psr\Log\LoggerInterface;
 
 class EtlOverseerOptions extends \CCR\Loggable
 {
+    public $resourceCodeToIdMapSql;
     // Start of the ETL period
-    private $startDate = null;
+    private $startDate;
 
     // End of the ETL period.
-    private $endDate = null;
+    private $endDate;
 
     // The number of days to ingest from the source
-    private $numberOfDays = null;
+    private $numberOfDays;
 
     // Start of the last modified period.  This may be used by some actions such as ingestion to
     // operate on the most recently added data.
-    private $lastModifiedStartDate = null;
+    private $lastModifiedStartDate;
 
     // End of the last modified period.  This may be used by some actions such as ingestion to
     // operate on the most recently added data.
-    private $lastModifiedEndDate = null;
+    private $lastModifiedEndDate;
 
     // If breaking the ETL period up into chunks, the number of days for each chunk otherwise NULL.
-    private $etlIntervalChunkSizeDays = null;
+    private $etlIntervalChunkSizeDays;
 
     // An array of (chunk start date, chunk end date) tuples. This is the (start date, end date)
     // broken into $etlIntervalChunkSizeDays chunks.
-    private $etlPeriodChunkList = null;
+    private $etlPeriodChunkList;
 
     // TRUE if we will be forcing a re-propcessing of the an action's data
     private $forceOperation = false;
@@ -55,19 +56,19 @@ class EtlOverseerOptions extends \CCR\Loggable
     private $excludeResourceCodes = array();
 
     // Directory where lock files are stored
-    private $lockDir = null;
+    private $lockDir;
 
     // Optional prefix for lock files
-    private $lockFilePrefix = null;
+    private $lockFilePrefix;
 
     // Default module name if not specified in a configuration file
-    private $defaultModuleName = null;
+    private $defaultModuleName;
 
     // A mapping of resource codes to resource ids.
     private $resourceCodeToIdMap = array();
 
     // SQL query used to populate the resource code to resource id map
-    private $resourcecodeToIdMapSql = null;
+    private $resourcecodeToIdMapSql;
 
     // A list of all requested section names
     private $sectionNames = array();
@@ -528,7 +529,7 @@ class EtlOverseerOptions extends \CCR\Loggable
 
     public function setChunkSizeDays($days)
     {
-        if ( ! (null === $days || is_numeric($days) ) ) {
+        if ( null !== $days && !is_numeric($days) ) {
             $msg = get_class($this) . ": Chunk size must be NULL or numeric";
             throw new Exception($msg);
         }
@@ -824,7 +825,7 @@ class EtlOverseerOptions extends \CCR\Loggable
         if ( null === $codes ) {
             $this->includeOnlyResourceCodes = array();
         } else {
-            $this->includeOnlyResourceCodes = ( ! is_array($codes) ? array($codes) : $codes );
+            $this->includeOnlyResourceCodes = ( is_array($codes) ? $codes : array($codes) );
         }
         return $this;
     }  // setIncludeOnlyResourceCodes()
@@ -854,7 +855,7 @@ class EtlOverseerOptions extends \CCR\Loggable
         if ( null === $codes ) {
             $this->excludeResourceCodes = array();
         } else {
-            $this->excludeResourceCodes = ( ! is_array($codes) ? array($codes) : $codes );
+            $this->excludeResourceCodes = ( is_array($codes) ? $codes : array($codes) );
         }
         return $this;
     }  // setExcludeResourceCodes()
@@ -880,7 +881,7 @@ class EtlOverseerOptions extends \CCR\Loggable
 
     public function setActionNames($names)
     {
-        $this->actionNames = ( ! is_array($names) ? array($names) : $names );
+        $this->actionNames = ( is_array($names) ? $names : array($names) );
         return $this;
     }  // setActionNames()
 
@@ -905,7 +906,7 @@ class EtlOverseerOptions extends \CCR\Loggable
 
     public function setSectionNames($names)
     {
-        $this->sectionNames = ( ! is_array($names) ? array($names) : $names );
+        $this->sectionNames = ( is_array($names) ? $names : array($names) );
         return $this;
     }  // setSectionNames()
 

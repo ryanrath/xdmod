@@ -28,7 +28,7 @@ class ForeignKeyConstraintTest extends TestCase
 
     private function getTestFiles()
     {
-        if (!isset($this->testFiles)) {
+        if ($this->testFiles === null) {
             $this->testFiles = new TestFiles(__DIR__ . '/../../../..');
         }
         return $this->testFiles;
@@ -243,17 +243,6 @@ class ForeignKeyConstraintTest extends TestCase
         foreach ($table->foreign_key_constraints as $constraint) {
             $this->assertEquals($schemaName, $constraint->schema);
         }
-    }
-
-    /**
-     * Convert associative arrays to stdClass recursively.
-     *
-     * @param array $obj
-     * @param stdClass
-     */
-    private function arrayToStdClass(array $obj)
-    {
-        return json_decode(json_encode($obj));
     }
 
     /**

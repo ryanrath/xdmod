@@ -22,12 +22,12 @@ class Rest extends aDataEndpoint implements iDataEndpoint
     /**
      * @var stromg The base url for this endpoint
      */
-    protected $baseUrl = null;
+    protected $baseUrl;
 
     /**
      * @var integer The number of microseconds to sleep between REST requests.
      */
-    protected $sleepMicroseconds = null;
+    protected $sleepMicroseconds;
 
     /**
      * @see iDataEndpoint::__construct()

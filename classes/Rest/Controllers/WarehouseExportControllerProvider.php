@@ -55,9 +55,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
 
     /**
      * Set up data warehouse export routes.
-     *
-     * @param Application $app
-     * @param ControllerCollection $controller
      */
     public function setupRoutes(
         Application $app,
@@ -84,8 +81,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
     /**
      * Get all the realms available for exporting for the current user.
      *
-     * @param Request $request
-     * @param Application $app
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
@@ -132,8 +127,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
     /**
      * Get all the existing export requests for the current user.
      *
-     * @param Request $request
-     * @param Application $app
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
@@ -153,8 +146,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
     /**
      * Create a new export request for the current user.
      *
-     * @param Request $request
-     * @param Application $app
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      * @throws BadRequestHttpException
@@ -225,8 +216,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
     /**
      * Get the requested data.
      *
-     * @param Request $request
-     * @param Application $app
      * @param int $id
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
@@ -245,7 +234,7 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
             }
         );
 
-        if (count($requests) === 0) {
+        if ($requests === []) {
             throw new NotFoundHttpException('Export request not found');
         }
 
@@ -296,8 +285,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
     /**
      * Delete a single request.
      *
-     * @param Request $request
-     * @param Application $app
      * @param int $id
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
@@ -333,8 +320,6 @@ class WarehouseExportControllerProvider extends BaseControllerProvider
      *
      * The request body content must be a JSON encoded array of request IDs.
      *
-     * @param Request $request
-     * @param Application $app
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      * @throws NotFoundHttpException

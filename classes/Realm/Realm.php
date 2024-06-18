@@ -20,32 +20,32 @@ class Realm extends \CCR\Loggable implements iRealm
      * @var string The short identifier.
      */
 
-    protected $id = null;
+    protected $id;
 
     /**
      * @var string The display name.
      */
 
-    protected $name = null;
+    protected $name;
 
     /**
      * @var string The name of the data source to be displayed in the chart credits.
      */
 
-    protected $datasource = null;
+    protected $datasource;
 
     /**
      * @var string Schema for the aggregates table used to display data for this realm.
      */
 
-    protected $aggregateTableSchema = null;
+    protected $aggregateTableSchema;
 
     /**
      * @var string Prefix for the realm aggregate table. The aggregation period is appended to
      *   define the table (e.g., "jobfact_by_" with aggregation period "day" creates "jobfact_by_day")
      */
 
-    protected $aggregateTablePrefix = null;
+    protected $aggregateTablePrefix;
 
     /**
      * @var string Alias to be used for the aggregate alias. GroupBy and Statistic definitions
@@ -72,7 +72,7 @@ class Realm extends \CCR\Loggable implements iRealm
      *   aggregation unit (i.e., day, month, quarter, year).
      */
 
-    protected $minAggregationUnit = null;
+    protected $minAggregationUnit;
 
     /**
      * @var boolean Set to true if this realm should not be utilized.
@@ -94,7 +94,7 @@ class Realm extends \CCR\Loggable implements iRealm
      *   used instead effectively placing each realm is in its own categoty.
      */
 
-    protected $category = null;
+    protected $category;
 
     /**
      * @var stdClass|null An associative array of group by configuration objects where the key is
@@ -102,7 +102,7 @@ class Realm extends \CCR\Loggable implements iRealm
      *   used to create GroupBy objects on demand.
      */
 
-    protected $groupByConfigs = null;
+    protected $groupByConfigs;
 
     /**
      * @var stdClass|null An associative array of statistic configuration objects where the key is
@@ -113,7 +113,7 @@ class Realm extends \CCR\Loggable implements iRealm
      *   names are guaranteed unique and can be used as identifiers in database queries and the UI.
      */
 
-    protected $statisticConfigs = null;
+    protected $statisticConfigs;
 
     /**
      * @var array An associative array of one or more GroupBy objects where the key is the short
@@ -133,14 +133,14 @@ class Realm extends \CCR\Loggable implements iRealm
      * @var Configuration Parsed Configuration object for datawarehouse.json
      */
 
-    protected static $dataWarehouseConfig = null;
+    protected static $dataWarehouseConfig;
 
     /**
      * @var VariableStore Collection of variable names and values available for substitution in
      *   various properties.
      */
 
-    protected $variableStore = null;
+    protected $variableStore;
 
     /**
      * @see iRealm::initialize()
@@ -237,7 +237,7 @@ class Realm extends \CCR\Loggable implements iRealm
 
         if ( false === $configObj ) {
             $msg = sprintf("Request for unknown Realm: %s", $shortName);
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->err($msg);
             }
             throw new \Exception($msg);
@@ -378,7 +378,7 @@ class Realm extends \CCR\Loggable implements iRealm
             if ( 'Realm' != $className && isset($configObj->class) ) {
                 if ( ! class_exists($configObj->class) ) {
                     $msg = sprintf("Attempt to instantiate undefined %s class %s", $className, $configObj->class);
-                    if ( null !== $logger ) {
+                    if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                         $logger->error($msg);
                     }
                     throw new \Exception($msg);
@@ -422,7 +422,7 @@ class Realm extends \CCR\Loggable implements iRealm
             $this->logAndThrowException(
                 sprintf('Statistic short name must be a string, %s provided: %s', $shortName, gettype($shortName))
             );
-        } elseif ( null === $specification ) {
+        } elseif ( !$specification instanceof \stdClass ) {
             $this->logAndThrowException('No Realm specificaiton provided');
         }
 

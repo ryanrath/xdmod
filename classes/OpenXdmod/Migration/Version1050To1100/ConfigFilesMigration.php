@@ -92,7 +92,7 @@ EOT;
         // Sort the resource_specs.json file by resource and start date. This order helps when trying to get start and end dates for records that may be missing them.
         array_multisort(array_column($resource_specs_config, 'resource'), SORT_ASC, array_column($resource_specs_config, 'start_date'), SORT_ASC, $resource_specs_config);
 
-        $start_date_sql = self::getStartDateSql($resource_realms);
+        $start_date_sql = $this->getStartDateSql($resource_realms);
 
         if (!empty($start_date_sql)) {
             $resource_specs_start_dates_stmt = $dbh->query($start_date_sql, array(), true);
@@ -135,7 +135,7 @@ EOT;
      *
      * @param @resource_realms Realms to get resource start dates for
      */
-    private static function getStartDateSql($resource_realms)
+    private function getStartDateSql($resource_realms)
     {
         $realm_sql_statements = array();
 
@@ -171,6 +171,6 @@ EOT;
 
         $sql_array = array_intersect_key($realm_sql_statements, $resource_realms);
 
-        return (!empty($sql_array)) ? implode(' UNION ', $sql_array) : '';
+        return ($sql_array === []) ? '' : implode(' UNION ', $sql_array);
     }
 }

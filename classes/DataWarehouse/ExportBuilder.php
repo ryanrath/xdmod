@@ -20,7 +20,7 @@ class ExportBuilder
      *
      * @var ExportBuilder
      */
-    private static $_self = NULL;
+    private static $_self;
 
     /**
      * Factory method.
@@ -252,7 +252,7 @@ class ExportBuilder
                 && (
                     count($formats_subset) == 0
                     ||
-                    (count($formats_subset) > 0 && array_search($f, $formats_subset) !== false)
+                    ($formats_subset !== [] && in_array($f, $formats_subset))
                 )
             ) {
                 $format = $f;
@@ -296,7 +296,7 @@ class ExportBuilder
      *
      * @return array(headers => array of http headers, results => the encoded data to send)
      */
-    private static function exportCsv(
+    private function exportCsv(
         array $exportedDatas = array(),
         $inline = true,
         $filename = 'data'
@@ -325,7 +325,7 @@ class ExportBuilder
             if (count($parameters) > 0) {
                 fputcsv($fp, array_keys($parameters));
 
-                foreach ($parameters as $parameters_label => $params) {
+                foreach ($parameters as $params) {
                     fputcsv($fp, $params);
                 }
             }
@@ -368,7 +368,7 @@ class ExportBuilder
      *
      * @return array(headers => array of http headers, results => the encoded data to send)
      */
-    private static function exportXls(
+    private function exportXls(
         array $exportedDatas = array(),
         $inline = true,
         $filename = 'data'
@@ -393,7 +393,7 @@ class ExportBuilder
             if (count($parameters) > 0) {
                 fputcsv($fp, array_keys($parameters));
 
-                foreach ($parameters as $parameters_label => $params) {
+                foreach ($parameters as $params) {
                     fputcsv($fp, $params);
                 }
             }
@@ -434,7 +434,7 @@ class ExportBuilder
      *
      * @return array(headers => array of http headers, results => the encoded data to send)
      */
-    private static function exportXml(
+    private function exportXml(
         array $exportedDatas = array(),
         $inline = true,
         $filename = 'data'
@@ -459,13 +459,13 @@ class ExportBuilder
             $xml->startElement('header');
 
             foreach ($title as $title_label => $title_element) {
-                $xml->startElement(static::formatElement($title_label));
+                $xml->startElement($this->formatElement($title_label));
                 $xml->text($title_element);
                 $xml->endElement();
             }
 
             foreach ($parameters as $parameters_label => $params) {
-                $xml->startElement(static::formatElement($parameters_label));
+                $xml->startElement($this->formatElement($parameters_label));
 
                 foreach ($params as $parameter) {
                     $xml->startElement('parameter');
@@ -488,13 +488,13 @@ class ExportBuilder
             }
 
             if ($restrictedByRoles) {
-                $xml->startElement(static::formatElement('restriction'));
+                $xml->startElement($this->formatElement('restriction'));
                 $xml->text($exportedData['roleRestrictionsMessage']);
                 $xml->endElement();
             }
 
             foreach ($duration as $duration_label => $duration_element) {
-                $xml->startElement(static::formatElement($duration_label));
+                $xml->startElement($this->formatElement($duration_label));
                 $xml->text($duration_element);
                 $xml->endElement();
             }
@@ -565,7 +565,7 @@ class ExportBuilder
      *
      * @return array(headers => array of http headers, results => the encoded data to send)
      */
-    private static function exportJson(
+    private function exportJson(
         array $exportedDatas = array(),
         $inline = true,
         $filename = 'data'
@@ -611,13 +611,12 @@ class ExportBuilder
      *
      * @return string The formatted element name.
      */
-    private static function formatElement($name)
+    private function formatElement($name)
     {
         $name = str_replace(' ', '_', $name);
         $name = str_replace(',', '', $name);
         $name = str_replace(':', '', $name);
-        $name = str_replace('.', '', $name);
 
-        return $name;
+        return str_replace('.', '', $name);
     }
 }

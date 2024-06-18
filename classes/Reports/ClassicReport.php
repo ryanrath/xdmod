@@ -4,9 +4,10 @@ namespace Reports;
 
 class ClassicReport
 {
+    public $settings;
     private $styles = array();
     private $fonts = array();
-    private $phpWord = null;
+    private $phpWord;
 
     public function __construct($settings)
     {

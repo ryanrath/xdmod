@@ -19,7 +19,7 @@ class SqlParserTest extends \PHPUnit\Framework\TestCase
     const TEST_ARTIFACT_OUTPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/output";
 
     const TMPDIR = '/tmp/xdmod-etl-sqlparser-test';
-    private static $defaultModuleName = null;
+    private static $defaultModuleName;
 
     public static function setupBeforeClass(): void
     {

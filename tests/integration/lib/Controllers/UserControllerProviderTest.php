@@ -189,7 +189,7 @@ class UserControllerProviderTest extends BaseUserAdminTest
                 'post',
                 parent::validateSuccessResponse(function ($body) {
                     $this->assertMatchesRegularExpression(
-                        '/^[0-9]+\\.[0-9a-f]{64}$/',
+                        '/^\d+\.[0-9a-f]{64}$/',
                         $body['data']['token']
                     );
                     parent::validateDate($body['data']['expiration_date']);

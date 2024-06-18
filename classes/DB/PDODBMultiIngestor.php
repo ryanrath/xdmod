@@ -11,16 +11,16 @@ class PDODBMultiIngestor implements Ingestor
 {
     const MAX_QUERY_ATTEMPTS = 3;
 
-    protected $_destination_db = null;
-    protected $_source_db = null;
-    protected $_source_query = null;
-    protected $_insert_table = null;
-    protected $_insert_fields = null;
+    protected $_destination_db;
+    protected $_source_db;
+    protected $_source_query;
+    protected $_insert_table;
+    protected $_insert_fields;
     protected $_pre_ingest_update_statements;
     protected $_post_ingest_update_statements;
-    protected $_delete_statement = null;
-    protected $_count_statement = null;
-    protected $_logger = null;
+    protected $_delete_statement;
+    protected $_count_statement;
+    protected $_logger;
     protected $_trackchanges = false;
 
     /**
@@ -29,14 +29,14 @@ class PDODBMultiIngestor implements Ingestor
      * If set to null then the mysql defaults will be used.
      * This is only used in LOAD INFILE mode.
      */
-    protected $_character_set = null;
+    protected $_character_set;
 
     /**
      * Helper instance for destination database.
      *
      * @var MySQLHelper
      */
-    protected $_dest_helper = null;
+    protected $_dest_helper;
 
     function __construct(
         $dest_db,
@@ -77,7 +77,6 @@ class PDODBMultiIngestor implements Ingestor
         );
         $time_start = microtime(true);
         $sourceRows = 0;
-        $countRowsAffected = 0;
 
         foreach ($this->_pre_ingest_update_statements as $updateStatement) {
             try {
@@ -198,8 +197,6 @@ class PDODBMultiIngestor implements Ingestor
 
         $this->_logger->debug("Using temporary file '$infile_name'");
 
-        $exec_output = array();
-
         while (
             $srcRow = $srcStatement->fetch(
                 PDO::FETCH_ASSOC,
@@ -213,12 +210,10 @@ class PDODBMultiIngestor implements Ingestor
                     = $insert_field == 'order_id'
                     ? $sourceRows
                     : (
-                        !isset($srcRow[$insert_field])
-                        ? '\N'
+                        isset($srcRow[$insert_field])
+                        ? ('' === $srcRow[$insert_field] ? $string_enc . '' . $string_enc : str_replace('\\', '\\\\', $srcRow[$insert_field]))
                         : (
-                            '' === $srcRow[$insert_field]
-                            ? $string_enc . '' . $string_enc
-                            : str_replace('\\', '\\\\', $srcRow[$insert_field])
+                            '\N'
                         )
                     );
             }
@@ -226,7 +221,7 @@ class PDODBMultiIngestor implements Ingestor
             fwrite($f, implode($field_sep, $tmp_values) . $line_sep);
             $sourceRows++;
 
-            if ($sourceRows !== 0  && $sourceRows % 100000 == 0) {
+            if ($sourceRows % 100000 == 0) {
                 $message = sprintf(
                     '%s: Rows Written to File: %d of %d',
                     get_class($this),
@@ -392,7 +387,7 @@ class PDODBMultiIngestor implements Ingestor
         }
 
         $primarykey = $primarykeys[0]['COLUMN_NAME'];
-        $statement = "SELECT b.* FROM {$this->_insert_table}_backup b LEFT OUTER JOIN {$this->_insert_table} c ON (" . join("AND", $constraints) . ") WHERE c.{$primarykey} IS NULL";
+        $statement = "SELECT b.* FROM {$this->_insert_table}_backup b LEFT OUTER JOIN {$this->_insert_table} c ON (" . implode("AND", $constraints) . ") WHERE c.{$primarykey} IS NULL";
 
         $stmt = $this->_destination_db->handle()->prepare($statement);
         $stmt->execute();

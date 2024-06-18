@@ -45,7 +45,7 @@ if ($argc != 1 && $argc != 3) {
 }
 
 if ($argc == 3) {
-    if ($argv[1] == '-m') {
+    if ($argv[1] === '-m') {
         $maint_mode = true;
         $maint_user = $argv[2];
     } else {
@@ -59,7 +59,7 @@ $conf = array(
     'emailSubject' => 'Report Scheduler',
 );
 
-$conf['emailSubject'] .= APPLICATION_ENV == 'dev' ? ' [Dev]' : '';
+$conf['emailSubject'] .= APPLICATION_ENV === 'dev' ? ' [Dev]' : '';
 
 $logger = Log::factory('ReportScheduler', $conf);
 

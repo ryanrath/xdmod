@@ -40,7 +40,7 @@ class TimeseriesDataset
     /**
      * @var The number of series in the dataset.
      */
-    protected $series_count = null;
+    protected $series_count;
 
     /**
      * @param TimeseriesQuery $query The timeseries query instance that is used to generate the dataset.
@@ -157,7 +157,7 @@ class TimeseriesDataset
             $dimension = $row[$spaceGroup->getId() . '_name'];
 
             $dataSet = $dataSets[$seriesId];
-            if ($dataSet === null) {
+            if (!$dataSet instanceof \DataWarehouse\Data\SimpleTimeseriesData) {
                 $dataSet = $dataSets[$seriesId] = new SimpleTimeseriesData($dimension);
 
                 $dataSet->setUnit($statObj->getName()); // <- check this is correct
@@ -296,7 +296,7 @@ class TimeseriesDataset
                 $columnTypes[$column_name]['precision']
             );
             if ($type === 'avg') {
-                $value = $value / $normalizeBy;
+                $value /= $normalizeBy;
             }
             $dataObject->addDatum($start_ts, $value, null);
         }
@@ -366,7 +366,7 @@ class TimeseriesDataset
 
         $stat_unit = $stat->getUnit();
         $data_unit = '';
-        if (substr($stat_unit, -1) == '%') {
+        if (substr($stat_unit, -1) === '%') {
             $data_unit = '%';
         }
 
@@ -419,7 +419,7 @@ class TimeseriesDataset
 
         $message = '';
 
-        if (empty($records)) {
+        if ($records === []) {
             $message = 'Dataset is empty';
             $fields = array(array("name" => 'Message', "type" => 'string'));
             $records = array(array('Message' => $message));
@@ -513,7 +513,7 @@ class TimeseriesDataset
         }
 
         // Build header
-        if (!empty($dimensionNames)) {
+        if ($dimensionNames !== []) {
             foreach ($dimensions as $dimension) {
                 $exportData['headers'][] = "[{$dimensionNames[$dimension]}] $seriesName";
             }
@@ -527,11 +527,7 @@ class TimeseriesDataset
             $values = array($timeName);
 
             foreach ($dimensions as $dimension) {
-                if (isset($timeData[$timeTs][$dimension])) {
-                    $values[] = $timeData[$timeTs][$dimension];
-                } else {
-                    $values[] = 0;
-                }
+                $values[] = isset($timeData[$timeTs][$dimension]) ? $timeData[$timeTs][$dimension] : 0;
             }
             $exportData['rows'][] = $values;
         }

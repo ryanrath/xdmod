@@ -145,8 +145,6 @@ $options = array(
     'v:'  => 'verbosity:',
     'x:'  => 'exclude-resource-codes:',
     'y:'  => 'last-modified-end-date:',
-    ''    => 'lock-dir',
-    ''    => 'lock-file-prefix',
     ''    => 'log-to-database:'
     );
 
@@ -374,7 +372,7 @@ foreach ($args as $arg => $value) {
 // etl_overseer.php -c /etc/etl/etl.json -n 2 -p osg month --dryrun
 
 $parsedArgs = array_keys($args);
-foreach ( $argv as $index => $arg ) {
+foreach ( $argv as $arg ) {
     $opt = null;
 
     if ( 0 === strpos($arg, "--") ) {
@@ -471,7 +469,7 @@ $utilitySchema = $utilityEndpoint->getSchema();
 $listOptions = array_filter(
     array_keys($scriptOptions),
     function ($key) {
-        return "list-" == substr($key, 0, 5);
+        return "list-" === substr($key, 0, 5);
     }
 );
 
@@ -527,7 +525,7 @@ if ( $showList ) {
 
             case 'list-endpoint-types':
                 \ETL\DataEndpoint::discover(false, $logger);
-                $endpointInfo = \ETL\DataEndpoint::getDataEndpointInfo(false, $logger);
+                $endpointInfo = \ETL\DataEndpoint::getDataEndpointInfo();
                 $headings = array("Name", "Class");
                 print implode(LIST_SEPARATOR, $headings) . "\n";
                 ksort($endpointInfo);
@@ -551,8 +549,9 @@ if ( $showList ) {
 
                 $headings = array("Type","Name","Key","Description");
                 print implode(LIST_SEPARATOR, $headings) . "\n";
+                $counter = count($endpointSummary[0]);
 
-                for ($i=0; $i < count($endpointSummary[0]); $i++) {
+                for ($i=0; $i < $counter; $i++) {
                     $a = array(
                         $endpointSummary[0][$i],
                         $endpointSummary[1][$i],
@@ -605,12 +604,6 @@ if ( count($scriptOptions['process-sections']) == 0 &&
 // Create the overseer and perform the requested operations for each date interval
 
 $overseer = new EtlOverseer($overseerOptions, $logger);
-if ( ! ($overseer instanceof iEtlOverseer ) )
-{
-    log_error_and_exit(
-        sprintf("EtlOverseer (%s) is not an instance of iEtlOverseer", get_class($overseer))
-    );
-}
 
 try {
     $overseer->execute($etlConfig);
@@ -652,8 +645,6 @@ function usage_and_exit($msg = null)
     if ($msg !== null) {
         fwrite(STDERR, "\n$msg\n\n");
     }
-
-    $chunkDefault     = $scriptOptions['chunk-size-days'];
     $verbosityDefault = Log::NOTICE;
 
     fwrite(

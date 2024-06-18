@@ -13,8 +13,6 @@ class UserAdminTest extends BaseUserAdminTest
      * Tests all of the situations in which user creation can fail ( i.e. throw an exception ).
      *
      * @dataProvider provideCreateUserFails
-     * @param array $params
-     * @param array $expected
      * @throws \Exception
      */
     public function testCreateUserFails(array $params, array $expected)
@@ -152,7 +150,6 @@ class UserAdminTest extends BaseUserAdminTest
      *
      * @dataProvider provideCreateUsersSuccess
      * @group UserAdminTest.createUsers
-     * @param array $user
      * @throws \Exception
      */
     public function testCreateUsersSuccess(array $user)
@@ -180,7 +177,6 @@ class UserAdminTest extends BaseUserAdminTest
 
     /**
      * @dataProvider provideThatExistingUsersCanBeRetrieved
-     * @param array $user
      */
     public function testThatExistingUsersCanBeRetrieved(array $user)
     {
@@ -212,8 +208,6 @@ class UserAdminTest extends BaseUserAdminTest
      * @dataProvider provideTestUsersQuickFilters
      * @depends      testCreateUsersSuccess
      * @group UserAdminTest.createUsers
-     *
-     * @param array $user
      */
     public function testUsersQuickFilters(array $user)
     {
@@ -283,7 +277,6 @@ class UserAdminTest extends BaseUserAdminTest
      * @depends      testCreateUsersSuccess
      * @dataProvider provideGetMenus
      * @group UserAdminTest.createUsers
-     * @param array $user
      * @throws \Exception
      */
     public function testGetMenus(array $user)
@@ -321,10 +314,8 @@ class UserAdminTest extends BaseUserAdminTest
             if(!is_file($expectedOutputFile)) {
                 $newFile = array();
                 foreach ($actual as $arr) {
-                    if (isset($arr['realm'])) {
-                        if (strtolower($arr['realm']) == $realm) {
-                            array_push($newFile, $arr);
-                        }
+                    if (isset($arr['realm']) && strtolower($arr['realm']) == $realm) {
+                        $newFile[] = $arr;
                     }
                 }
                 $separator = array(
@@ -335,7 +326,7 @@ class UserAdminTest extends BaseUserAdminTest
                     "leaf" => true,
                     "disabled" => true
                 );
-                array_push($newFile, $separator);
+                $newFile[] = $separator;
                 $filePath = dirname($expectedOutputFile);
                 if (!is_dir($filePath)){
                     mkdir($filePath);
@@ -346,7 +337,7 @@ class UserAdminTest extends BaseUserAdminTest
 
             $resource = JSON::loadFile($expectedOutputFile);
             foreach($resource as $item) {
-                array_push($expected, $item);
+                $expected[] = $item;
             }
         }
         $this->assertEquals($expected, $actual, "[$username] Get Menus - Expected:\n\n" . json_encode($expected) . "\n\nReceived:\n\n" . json_encode($actual));
@@ -371,7 +362,6 @@ class UserAdminTest extends BaseUserAdminTest
      * @depends      testCreateUsersSuccess
      * @dataProvider provideGetTabs
      * @group UserAdminTest.createUsers
-     * @param array $user
      * @throws \Exception
      */
     public function testGetTabs(array $user)
@@ -499,7 +489,6 @@ class UserAdminTest extends BaseUserAdminTest
 
     /**
      * @dataProvider provideGetUserVisits
-     * @param array $options
      * @throws \Exception
      */
     public function testGetUserVisits(array $options)
@@ -551,7 +540,7 @@ class UserAdminTest extends BaseUserAdminTest
                     function ($key, $value) use ($expectedStat, $expectedDifferences, $actualDifferences) {
                         $diff = array_diff_assoc($expectedStat, $value);
                         $missingDiff = array_diff(array_keys($diff), $expectedDifferences);
-                        if (count($missingDiff) === 0) {
+                        if ($missingDiff === []) {
                             return true;
                         }
                         $actualDifferences[] = $missingDiff;
@@ -560,7 +549,7 @@ class UserAdminTest extends BaseUserAdminTest
                 );
             }
             $this->assertTrue(
-                empty($actualDifferences),
+                $actualDifferences === [],
                 sprintf(
                     "There were other differences besides the expected.\nExpected: %s\nActual: %s",
                     json_encode($expectedDifferences),
@@ -586,7 +575,6 @@ class UserAdminTest extends BaseUserAdminTest
      *
      * @dataProvider provideGetUserVisits
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testGetUserVisitsExport(array $options)
@@ -619,7 +607,8 @@ class UserAdminTest extends BaseUserAdminTest
              * apples.
              */
             $actualLines = explode("\n", $response[0]);
-            for($i = 0; $i < count($actualLines); $i++) {
+            $counter = count($actualLines);
+            for($i = 0; $i < $counter; $i++) {
                 // skip the first line as it's a header
                 if ($i === 0) {
                     continue;
@@ -628,7 +617,7 @@ class UserAdminTest extends BaseUserAdminTest
                 $row = str_getcsv($actualLines[$i]);
 
                 // Make sure to skip empty lines
-                if (!empty($row) && $row[0] !== null) {
+                if ($row[0] !== null) {
                     $actual[] = $row;
                 }
             }
@@ -660,14 +649,12 @@ class UserAdminTest extends BaseUserAdminTest
             if (($handle = fopen($expectedFileName, 'r')) !== false) {
                 while (($data = fgetcsv($handle))) {
                     if ($rows === 0) {
-                        foreach($ignoredColumns as $key => $value) {
+                        foreach(array_keys($ignoredColumns) as $key) {
                             $index = array_search($key, $data);
                             $ignoredColumns[$key] = $index;
                         }
-                    } else {
-                        if (!empty($data) && $data[0] !== null) {
-                            $expected[] = $data;
-                        }
+                    } elseif ($data !== [] && $data[0] !== null) {
+                        $expected[] = $data;
                     }
                     $num = count($data);
                     if ($num > $length) {
@@ -711,11 +698,9 @@ class UserAdminTest extends BaseUserAdminTest
                     function ($key, $expectedRow) use ($actualRow, $ignoredColumns) {
                         $found = true;
                         foreach($actualRow as $actualKey => $actualValue) {
-                            if (!in_array($actualKey, array_values($ignoredColumns))) {
-                                if ($expectedRow[$actualKey] !== $actualValue) {
-                                    $found = false;
-                                    break;
-                                }
+                            if (!in_array($actualKey, $ignoredColumns) && $expectedRow[$actualKey] !== $actualValue) {
+                                $found = false;
+                                break;
                             }
                         }
                         return $found;
@@ -765,7 +750,6 @@ class UserAdminTest extends BaseUserAdminTest
      * @depends testGetUserVisitsExport
      * @dataProvider provideGetUserVisitsIncrements
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testGetUserVisitsIncrements(array $options)
@@ -817,7 +801,6 @@ class UserAdminTest extends BaseUserAdminTest
      * 'internal_dashboard/controllers/controller.php?operation=enum_user_visits'
      * endpoint. Validates the response and returned data structure.
      *
-     * @param array $options
      * @return null|int returns null if user is not found else it returns the
      *                  users visit_frequency.
      * @throws \Exception if there is a problem authenticating with the

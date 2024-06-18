@@ -36,7 +36,7 @@ if (isset($_POST['acls'])) {
     $featureAcls = Acls::getAclsByTypeName('feature');
     $tabAcls = Acls::getAclsByTypeName('tab');
     $uiOnlyAcls = array_merge($featureAcls, $tabAcls);
-    if (count($uiOnlyAcls) > 0) {
+    if ($uiOnlyAcls !== []) {
         $aclNames = array_reduce(
             $uiOnlyAcls,
             function ($carry, Acl $item) {
@@ -47,7 +47,7 @@ if (isset($_POST['acls'])) {
         );
     }
     $diff = array_diff(array_keys($acls), $aclNames);
-    $found = !empty($diff);
+    $found = $diff !== [];
     if (!$found) {
         \xd_response\presentError('Please include a non-feature acl ( i.e. User, PI etc. )');
     }
@@ -56,7 +56,7 @@ else {
     \xd_response\presentError("Acl information is required");
 }
 
-$sticky = isset($_POST['sticky']) ? filter_var($_POST['sticky'], FILTER_VALIDATE_BOOLEAN) : false;
+$sticky = isset($_POST['sticky']) && filter_var($_POST['sticky'], FILTER_VALIDATE_BOOLEAN);
 
 try {
     $password_chars = 'abcdefghijklmnopqrstuvwxyz!@#$%-_=+ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';

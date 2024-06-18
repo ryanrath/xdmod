@@ -110,7 +110,7 @@ class QueryHandler extends Loggable
                         && $format == $request['export_file_format'];
                 }
             );
-            if (count($duplicates) > 0) {
+            if ($duplicates !== []) {
                 throw new Exception('Cannot create duplicate request');
             }
 

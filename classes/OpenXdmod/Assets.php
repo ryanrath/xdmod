@@ -15,7 +15,7 @@ class Assets
      *
      * @var array
      */
-    private static $assetsConfig = null;
+    private static $assetsConfig;
 
     /**
      * Generate JS and CSS HTML tags.
@@ -53,7 +53,7 @@ class Assets
 
         $files = array();
 
-        foreach ($config as $module => $sections) {
+        foreach ($config as $sections) {
 
             if (isset($sections[$section])) {
                 $sectionData = $sections[$section];

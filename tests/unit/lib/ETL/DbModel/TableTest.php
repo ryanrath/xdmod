@@ -105,7 +105,6 @@ class TableTest extends TestCase
         ];
         $table = new Table($config, '`', self::$logger);
         $table->schema = $schemaName;
-        $table->schema = $schemaName;
         $this->assertTrue($table->verify(), 'Table is verified');
         $this->assertEquals($schemaName, $table->schema, 'Schema name');
 
@@ -120,7 +119,6 @@ class TableTest extends TestCase
             ]
         ];
         $table = new Table($config, '`', self::$logger);
-        $table->schema = $schemaName;
         $table->schema = $schemaName;
         $this->assertTrue($table->verify(), 'Table is verified');
         $this->assertEquals($schemaName, $table->schema, 'Schema name');

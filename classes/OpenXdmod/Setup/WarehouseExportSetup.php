@@ -168,18 +168,16 @@ MSG
                 'yes',
                 ['yes', 'no']
             );
-            if ($response != 'no') {
-                if (!chmod($dir, $desiredPerms)) {
-                    throw new Exception(sprintf(
-                        'Failed to change permissions of "%s"',
-                        $dir
-                    ));
-                }
+            if ($response != 'no' && !chmod($dir, $desiredPerms)) {
+                throw new Exception(sprintf(
+                    'Failed to change permissions of "%s"',
+                    $dir
+                ));
             }
         }
 
         $user = posix_getpwuid(fileowner($dir))['name'];
-        if ($user != $desiredUser) {
+        if ($user !== $desiredUser) {
             $this->console->displayMessage(sprintf(
                 'Directory owner is "%s", expected "%s".',
                 $user,
@@ -190,18 +188,16 @@ MSG
                 'yes',
                 ['yes', 'no']
             );
-            if ($response != 'no') {
-                if (!chown($dir, $desiredUser)) {
-                    throw new Exception(sprintf(
-                        'Failed to change owner of "%s"',
-                        $dir
-                    ));
-                }
+            if ($response != 'no' && !chown($dir, $desiredUser)) {
+                throw new Exception(sprintf(
+                    'Failed to change owner of "%s"',
+                    $dir
+                ));
             }
         }
 
         $group = posix_getgrgid(filegroup($dir))['name'];
-        if ($group != $desiredGroup) {
+        if ($group !== $desiredGroup) {
             $this->console->displayMessage(sprintf(
                 'Directory group is "%s", expected "%s".',
                 $group,
@@ -212,13 +208,11 @@ MSG
                 'yes',
                 ['yes', 'no']
             );
-            if ($response != 'no') {
-                if (!chgrp($dir, $desiredGroup)) {
-                    throw new Exception(sprintf(
-                        'Failed to change group of "%s"',
-                        $dir
-                    ));
-                }
+            if ($response != 'no' && !chgrp($dir, $desiredGroup)) {
+                throw new Exception(sprintf(
+                    'Failed to change group of "%s"',
+                    $dir
+                ));
             }
         }
     }

@@ -20,9 +20,9 @@ class ColorGenerator
     const COLOR_MAP_THRESHOLD = 64;
 
     private $colors = array();
-    private $color_idx = NULL;
-    private $limit_color = NULL;
-    private $mode = NULL;
+    private $color_idx;
+    private $limit_color;
+    private $mode;
 
     // ---------------------------------------------------------
     // @param configColor, hexdec color value from the colors array.
@@ -36,8 +36,6 @@ class ColorGenerator
                                 $useShortNames=null,
                                 $configColor=null ) 
     {
-        $this->colors = array();
-        $this->color_idx = NULL;
         $this->limit_color = $this::COLOR_MAP_THRESHOLD;
 
         $this->build_roundrobinmapping();
@@ -45,7 +43,7 @@ class ColorGenerator
         // if configColor is null, color idx is 0
         $this->setConfigColor( $configColor );
     }
-    
+
     // ---------------------------------------------------------
     // getConfigColor() 
     // 
@@ -57,8 +55,7 @@ class ColorGenerator
     public function getConfigColor( $configColor ) 
     {
         $this->setConfigColor( $configColor );
-        $colorVal = $this->getColorByIdx( $this->color_idx );
-        return $colorVal;
+        return $this->getColorByIdx( $this->color_idx );
     }
 
     // ---------------------------------------------------------
@@ -92,25 +89,19 @@ class ColorGenerator
     // ---------------------------------------------------------
     private function getColorByIdx( $idx )
     {
-        if($this->mode == "ROUND_ROBIN")
-        {
+        if ($this->mode == "ROUND_ROBIN") {
             $color = $this->colors[ $idx % count($this->colors) ];
             $this->color_idx = ++$idx;
             return $color;
-        }
-        else // fixed mapping
+        } elseif (isset($this->colors[$idx])) {
+            // fixed mapping
+            return $this->colors[$idx];
+        } else 
         {
-            if(isset($this->colors[$idx]) )
-            {
-                return $this->colors[$idx];
-            } 
-            else 
-            {
-                return $this->limit_color;
-            }
+            return $this->limit_color;
         }
     }
-        
+
     // ---------------------------------------------------------
     // build_roundrobinmapping()
     //
@@ -123,50 +114,6 @@ class ColorGenerator
     }
 
     // ---------------------------------------------------------
-    // build_fixedmapping()
-    //
-    // For fixed number of values in dataset. Not presently in use.
-    // ---------------------------------------------------------
-    private function build_fixedmapping(&$datanamevalues, $limit, $useShortNames )
-    {
-        $this->mode = "FIXED_MAP";
-
-        $data_series_count = count($datanamevalues);
-
-        $color_count = $data_series_count;
-        if( $data_series_count - $limit > 1 )
-        {
-            // One extra color for the 'limit' dataset
-            $color_count += 1;
-        }
-
-        $colors = \DataWarehouse\Visualization::getColors($color_count, 0, false);
-
-        $datalabels = array();
-        $dataoveralls = array();
-
-
-        foreach($datanamevalues as $key => $row)
-        {
-            $datalabels[$key] = $row['name'];
-            $dataoveralls[$key] = $row['value'];
-        }
-        array_multisort( $datalabels, SORT_DESC, $dataoveralls, SORT_DESC, $datanamevalues);
-
-        $mapval = $useShortNames ? 'short_name' : 'name';
-
-        foreach($datanamevalues as $key => $datalabel_to_overall)
-        {
-            $this->colors[$datalabel_to_overall[$mapval]] = $colors[$key];
-        }
-
-        if($color_count > 0 ) 
-        {
-            $this->limit_color = $colors[ $color_count - 1 ];
-        }
-    }
-
-    // ---------------------------------------------------------
     // getColor()
     //
     // Fetch and return current color; increment color index.
@@ -176,22 +123,15 @@ class ColorGenerator
     // ---------------------------------------------------------
     public function getColor( $dataseriesname = NULL )
     {
-        if($this->mode == "ROUND_ROBIN" || is_null($dataseriesname) )
-        {
+        if ($this->mode == "ROUND_ROBIN" || is_null($dataseriesname)) {
             $color = $this->colors[ $this->color_idx % count($this->colors) ];
             $this->color_idx += 1;
             return $color;
-        }
-        else
+        } elseif (isset($this->colors[$dataseriesname])) {
+            return $this->colors[$dataseriesname];
+        } else 
         {
-            if(isset($this->colors[$dataseriesname]) )
-            {
-                return $this->colors[$dataseriesname];
-            } 
-            else 
-            {
-                return $this->limit_color;
-            }
+            return $this->limit_color;
         }
     }
 } // class ColorGenerator

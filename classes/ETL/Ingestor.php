@@ -66,7 +66,7 @@ class Ingestor
             $ingestor = new $className($options, $etlConfig, $logger);
         } else {
             $msg = __CLASS__ . ": Error creating ingestor '{$options->name}', class '$className' not found";
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->err($msg);
             }
             throw new Exception($msg);
@@ -74,7 +74,7 @@ class Ingestor
 
         if ( ! $ingestor instanceof iAction ) {
             $msg = __CLASS__ . ": $className does not implenment interface iAction";
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->err($msg);
             }
             throw new Exception($msg);

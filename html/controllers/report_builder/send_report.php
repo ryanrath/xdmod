@@ -55,7 +55,7 @@ $filters = array(
       
       try {
             
-         $build_response = $rm->buildReport($report_id, $export_format, $start_date, $end_date);
+         $build_response = $rm->buildReport($report_id, $export_format);
          
          $working_dir = $build_response['template_path'];
          $report_filename = $build_response['report_file'];

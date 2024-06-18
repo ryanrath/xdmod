@@ -31,18 +31,16 @@ class FileWriterFactory extends Loggable
         switch (strtolower($format)) {
             case 'csv':
                 return new CsvFileWriter($file, $this->logger);
-                break;
             case 'json':
                 return new JsonFileWriter($file, $this->logger);
-                break;
             case 'null':
                 return new NullFileWriter($file, $this->logger);
-                break;
             default:
                 $this->logAndThrowException(
                     sprintf('Unsupported format "%s"', $format)
                 );
                 break;
         }
+        return null;
     }
 }

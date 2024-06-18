@@ -31,7 +31,7 @@ class DbModelTest extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface|null
      */
-    private static $logger = null;
+    private static $logger;
 
     public static function setupBeforeClass(): void
     {

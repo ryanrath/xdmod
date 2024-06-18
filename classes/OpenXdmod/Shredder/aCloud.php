@@ -60,6 +60,7 @@ abstract class aCloud extends Shredder
               'variable-overrides' => ['CLOUD_EVENT_LOG_DIRECTORY' => $directory]
             )
         );
+        return null;
     }
 
     /**

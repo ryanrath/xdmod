@@ -37,7 +37,7 @@ function detectUser($failover_methods = array())
     } catch (\Exception $e) {
         if (count($failover_methods) == 0) {
             // Previously: Exception with 'Session Expired', No Logged In User code
-            throw new \SessionExpiredException(); 
+            throw new \SessionExpiredException($e->getMessage(), $e->getCode(), $e); 
         }
 
         switch ($failover_methods[0]) {
@@ -49,9 +49,8 @@ function detectUser($failover_methods = array())
                     return \XDUser::getPublicUser();
                 } else {
                     // Previously: Exception with 'Session Expired', No Public User code
-                    throw new \SessionExpiredException();
+                    throw new \SessionExpiredException($e->getMessage(), $e->getCode(), $e);
                 }
-                break;
             case \XDUser::INTERNAL_USER:
                 try {
                     return getInternalUser();
@@ -67,18 +66,17 @@ function detectUser($failover_methods = array())
                             return \XDUser::getPublicUser();
                         } else {
                             // Previously: Exception with 'Session Expired', No Public User code
-                            throw new \SessionExpiredException();
+                            throw new \SessionExpiredException($e->getMessage(), $e->getCode(), $e);
                         }
                     } else {
                         // Previously: Exception with 'Session Expired', No Internal User code
-                        throw new \SessionExpiredException();
+                        throw new \SessionExpiredException($e->getMessage(), $e->getCode(), $e);
                     }
                 }
                 break;
             default:
                 // Previously: Exception with 'Session Expired', No Logged In User code
-                throw new \SessionExpiredException();
-                break;
+                throw new \SessionExpiredException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -213,39 +211,32 @@ function enforceUserRequirements($requirements, $session_variable = 'xdUser')
             \xd_utilities\remove_element_by_value($requirements, SAB_MEMBER);
         }
 
-        if (in_array(SAB_MEMBER, $requirements)) {
-
-            // This user must be a member of the Science Advisory Board
-            if (!$user->hasAcl('sab')) {
-                $returnData['status']     = 'not_sab_member';
-                $returnData['success']    = false;
-                $returnData['totalCount'] = 0;
-                $returnData['message']    = 'not_sab_member';
-                $returnData['data']       = array();
-                \xd_controller\returnJSON($returnData);
-            }
+        // This user must be a member of the Science Advisory Board
+        if (in_array(SAB_MEMBER, $requirements) && !$user->hasAcl('sab')) {
+            $returnData['status']     = 'not_sab_member';
+            $returnData['success']    = false;
+            $returnData['totalCount'] = 0;
+            $returnData['message']    = 'not_sab_member';
+            $returnData['data']       = array();
+            \xd_controller\returnJSON($returnData);
         }
 
-        if (in_array(STATUS_MANAGER_ROLE, $requirements)) {
-            if (!($user->isManager())) {
-                $returnData['status']     = 'not_a_manager';
-                $returnData['success']    = false;
-                $returnData['totalCount'] = 0;
-                $returnData['message']    = 'not_a_manager';
-                $returnData['data']       = array();
-                \xd_controller\returnJSON($returnData);
-            }
+        if (in_array(STATUS_MANAGER_ROLE, $requirements) && !($user->isManager())) {
+            $returnData['status']     = 'not_a_manager';
+            $returnData['success']    = false;
+            $returnData['totalCount'] = 0;
+            $returnData['message']    = 'not_a_manager';
+            $returnData['data']       = array();
+            \xd_controller\returnJSON($returnData);
         }
 
-        if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements)) {
-            if (!$user->hasAcl(ROLE_ID_CENTER_DIRECTOR)) {
-                $returnData['status']     = 'not_a_center_director';
-                $returnData['success']    = false;
-                $returnData['totalCount'] = 0;
-                $returnData['message']    = 'not_a_center_director';
-                $returnData['data']       = array();
-                \xd_controller\returnJSON($returnData);
-            }
+        if (in_array(STATUS_CENTER_DIRECTOR_ROLE, $requirements) && !$user->hasAcl(ROLE_ID_CENTER_DIRECTOR)) {
+            $returnData['status']     = 'not_a_center_director';
+            $returnData['success']    = false;
+            $returnData['totalCount'] = 0;
+            $returnData['message']    = 'not_a_center_director';
+            $returnData['data']       = array();
+            \xd_controller\returnJSON($returnData);
         }
     }
 }

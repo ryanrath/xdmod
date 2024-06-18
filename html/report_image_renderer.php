@@ -125,7 +125,6 @@ try {
 
         default:
             throw new Exception("Invalid thumbnail type value supplied: " . $request['type']);
-            break;
 
     } // switch($request['type'])
 
@@ -141,7 +140,7 @@ try {
 
     $image_data_header = substr($blob, 0, 8);
 
-    if ($image_data_header != "\x89PNG\x0d\x0a\x1a\x0a") {
+    if ($image_data_header !== "\x89PNG\x0d\x0a\x1a\x0a") {
         throw new Exception($blob);
     }
 
@@ -160,5 +159,5 @@ try {
     imagepng($im);
 
     // RE-throwing this exception will allow exceptions.log to record the exception message
-    throw new UniqueException($unique_id, $e);
+    throw new UniqueException($unique_id, $e, $e);
 }

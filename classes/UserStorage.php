@@ -2,6 +2,8 @@
 
 class UserStorage
 {
+    public $_user;
+    public $_container;
     const MAX_RECORDS = 2000;
 
     public function __construct($user, $container)
@@ -115,9 +117,9 @@ class UserStorage
         }
         unset($storage['data']["$id"]);
         $count = count($storage['data']);
-        if( $count == 0 ) {
+        if ($count == 0) {
             $storage['maxid'] = -1;
-        } else if ( $id == $storage['maxid'] ) {
+        } elseif ($id == $storage['maxid']) {
             $storage['maxid'] = max( array_keys( $storage['data'] ) );
         }
 

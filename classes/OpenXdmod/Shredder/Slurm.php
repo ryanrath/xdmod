@@ -242,13 +242,13 @@ class Slurm extends Shredder
         }
 
         // Skip jobs that haven't ended.
-        if ($job['end_time'] == 'Unknown') {
+        if ($job['end_time'] === 'Unknown') {
             $this->logger->debug('Skipping job with unknown end time');
             return;
         }
 
         // Skip jobs that have no nodes assigned.
-        if ($job['node_list'] == 'None assigned') {
+        if ($job['node_list'] === 'None assigned') {
             $this->logger->debug('Skipping job with no nodes assigned');
             return;
         }
@@ -273,8 +273,7 @@ class Slurm extends Shredder
             if (!in_array($jobState, self::$unknownJobStates)) {
                 $this->logger->warning(
                     sprintf(
-                        'Found job with unknown state "%s", '
-                        . 'all jobs with this state will be ignored',
+                        'Found job with unknown state "%s", all jobs with this state will be ignored',
                         $jobState
                     )
                 );
@@ -347,7 +346,7 @@ class Slurm extends Shredder
             } catch (Exception $e) {
                 $this->logger->debug($e->getMessage());
                 $msg = "Failed to parse job id '{$job['job_id']}'";
-                throw new Exception($msg);
+                throw new Exception($msg, $e->getCode(), $e);
             }
 
             $job['job_id'] = $jobId;

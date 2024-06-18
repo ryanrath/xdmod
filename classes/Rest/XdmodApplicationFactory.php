@@ -41,7 +41,7 @@ class XdmodApplicationFactory
      *
      * @param \Silex\Application
      */
-    private static $instance = null;
+    private static $instance;
 
     private static $loggingBlacklist = array('password');
 

@@ -43,7 +43,6 @@ class XDUser extends CCR\Loggable implements JsonSerializable
     private $_user_type = 0;
 
     private $_update_token = false;
-    private $_token;
 
     /**
      * An array that is assumed to be stored in the following manner:
@@ -256,7 +255,6 @@ SQL;
         $this->_personID = $person_id == 0 ? NULL : $person_id;    //This user MUST have a person_id mapping
 
         $this->_update_token = true;
-        $this->_token = NULL;
 
         $this->sticky = $sticky;
 
@@ -305,7 +303,7 @@ SQL;
     public function getProfile()
     {
 
-        if (!isset($this->_id)) {
+        if ($this->_id === null) {
             throw new Exception('This user must be saved first.');
         }
 
@@ -773,10 +771,8 @@ SQL;
         // Fallback case for older MD5 passwords
         if (md5($pass) == $userCheck[0]['password']) {
             $new_hash = password_hash($pass, PASSWORD_DEFAULT);
-            if ($new_hash !== false) {
-                $updatestmt = $pdo->prepare("UPDATE Users SET password = :password_hash WHERE id = :id");
-                $updatestmt->execute(array('password_hash' => $new_hash, 'id' => $userCheck[0]['id']));
-            }
+            $updatestmt = $pdo->prepare("UPDATE Users SET password = :password_hash WHERE id = :id");
+            $updatestmt->execute(array('password_hash' => $new_hash, 'id' => $userCheck[0]['id']));
             return self::getUserByID($userCheck[0]['id']);
         }
 
@@ -833,9 +829,9 @@ SQL;
         $result = 'UPDATE moddb.Users SET username = :username,  email_address = :email_address, first_name = :first_name, middle_name = :middle_name, last_name = :last_name, account_is_active = :account_is_active, person_id = :person_id, organization_id = :organization_id, field_of_science = :field_of_science, user_type = :user_type, sticky = :sticky WHERE id = :id';
         if ($updateToken && $includePassword) {
             $result = 'UPDATE moddb.Users SET username = :username, password = :password, email_address = :email_address, first_name = :first_name, middle_name = :middle_name, last_name = :last_name, account_is_active = :account_is_active, person_id = :person_id, organization_id = :organization_id, field_of_science = :field_of_science, token = :token, user_type = :user_type, password_last_updated = :password_last_updated, sticky = :sticky WHERE id = :id';
-        } else if (!$updateToken && $includePassword) {
+        } elseif (!$updateToken && $includePassword) {
             $result = 'UPDATE moddb.Users SET username = :username, password = :password, email_address = :email_address, first_name = :first_name, middle_name = :middle_name, last_name = :last_name, account_is_active = :account_is_active, person_id = :person_id, organization_id = :organization_id, field_of_science = :field_of_science, user_type = :user_type, password_last_updated = :password_last_updated, sticky = :sticky WHERE id = :id';
-        } else if ($updateToken && !$includePassword) {
+        } elseif ($updateToken && !$includePassword) {
             $result = 'UPDATE moddb.Users SET username = :usernam, email_address = :email_address, first_name = :first_name, middle_name = :middle_name, last_name = :last_name, account_is_active = :account_is_active, person_id = :person_id, organization_id = :organization_id, field_of_science = :field_of_science, token = :token, user_type = :user_type, sticky = :sticky WHERE id = :id';
         }
         return $result;
@@ -858,9 +854,9 @@ SQL;
         $result = 'INSERT INTO moddb.Users (username, email_address, first_name, middle_name, last_name, account_is_active, person_id, organization_id, field_of_science, user_type, sticky) VALUES (:username, :email_address, :first_name, :middle_name, :last_name, :account_is_active, :person_id, :organization_id, :field_of_science, :user_type, :sticky)';
         if ($updateToken && $includePassword) {
             $result = 'INSERT INTO moddb.Users (username, password, password_last_updated, email_address, first_name, middle_name, last_name, account_is_active, person_id, organization_id, field_of_science, token, user_type, sticky) VALUES (:username, :password, :password_last_updated, :email_address, :first_name, :middle_name, :last_name, :account_is_active, :person_id, :organization_id, :field_of_science, :token, :user_type, :sticky)';
-        } else if (!$updateToken && $includePassword) {
+        } elseif (!$updateToken && $includePassword) {
             $result = 'INSERT INTO moddb.Users (username, password, password_last_updated,  email_address, first_name, middle_name, last_name, account_is_active, person_id, organization_id, field_of_science, user_type, sticky) VALUES (:username, :password, :password_last_updated, :email_address, :first_name, :middle_name, :last_name, :account_is_active, :person_id, :organization_id, :field_of_science, :user_type, :sticky)';
-        } else if ($updateToken && !$includePassword) {
+        } elseif ($updateToken && !$includePassword) {
             $result = 'INSERT INTO moddb.Users (username, email_address, first_name, middle_name, last_name, account_is_active, person_id, organization_id, field_of_science, token, user_type, sticky) VALUES (:username, :email_address, :first_name, :middle_name, :last_name, :account_is_active, :person_id, :organization_id, :field_of_science, :token, :user_type, :sticky)';
         }
         return $result;
@@ -879,8 +875,7 @@ SQL;
         $result = 'Keys [ ';
         $result .= implode(', ', array_keys($array)) . ']';
         $result .= 'Values [ ';
-        $result .= implode(', ', array_values($array)) . ']';
-        return $result;
+        return $result . (implode(', ', array_values($array)) . ']');
     }
 
     // ---------------------------
@@ -925,29 +920,24 @@ SQL;
         // The second condition is in place to account for the case where a new Single Sign On user is being created (and is not currently in the XDMoD DB)
         if (($id_of_user_holding_email_address != INVALID) && ($this->getUserType() != SSO_USER_TYPE)) {
 
-            if (!isset($this->_id)) {
+            if ($this->_id === null) {
                 // This user has no record in the database (never saved).  If $id_of_user_holding_email_address
                 // holds a valid id, then an already saved user has the e-mail address.
-
                 throw new Exception("An XDMoD user with e-mail address {$this->_email} exists");
-            } else {
-
+            } elseif ($id_of_user_holding_email_address != $this->_id) {
                 // This user has been saved, so we make sure the $id_of_user_holding_email_address is in fact this user's
                 // id... otherwise throw the exception
-
-                if ($id_of_user_holding_email_address != $this->_id) {
-                    throw new Exception("An XDMoD user with e-mail address {$this->_email} exists");
-                }
+                throw new Exception("An XDMoD user with e-mail address {$this->_email} exists");
             }
         }//if ($id_of_user_holding_email_address != INVALID)
 
         /* END: VALIDATION  */
 
-        $handle = $this->_pdo->handle();
+        $this->_pdo->handle();
         $update_data = array();
 
         // Determine whether or not we're inserting or updating.
-        $forUpdate = isset($this->_id);
+        $forUpdate = $this->_id !== null;
 
         /* BEGIN: Query Data Population */
         if ($forUpdate) {
@@ -979,7 +969,6 @@ SQL;
         $update_data['field_of_science'] = ($this->_field_of_science);
         if ($this->_update_token) {
             $update_data['token'] = ($this->_generateToken());
-            $this->_token = $update_data['token'];
         }
         $update_data['user_type'] = $this->_user_type;
         $update_data['sticky'] = $this->sticky ? 1 : 0;
@@ -1307,8 +1296,7 @@ SQL;
         if ($includeMiddleName) {
             $formalName .= ' ' . $this->_middleName;
         }
-        $formalName .= ' ' . $this->_lastName;
-        return $formalName;
+        return $formalName . (' ' . $this->_lastName);
     }
 
     // ---------------------------
@@ -1532,8 +1520,6 @@ SQL;
         if (empty($this->_id)) {
             throw new Exception("This user must be saved prior to calling setInstitution()");
         }
-
-        $primary_flag = $is_primary ? 1 : 0;
 
         $aclName = 'cd';
 
@@ -1785,11 +1771,10 @@ SQL;
     {
 
         if ($flag == 'informal') {
-            $roles = array_reduce($this->_acls, function ($carry, Acl $item) {
+            return array_reduce($this->_acls, function ($carry, Acl $item) {
                 $carry[] = $item->getName();
                 return $carry;
             }, array());
-            return $roles;
         }
 
         if ($flag == 'formal') {
@@ -1817,6 +1802,7 @@ SQL;
 
             return $roles;
         }
+        return null;
 
     }//getRoles
 
@@ -1855,7 +1841,7 @@ SQL;
 
     public function getMostPrivilegedRole()
     {
-        if (!isset($this->_mostPrivilegedAcl)) {
+        if ($this->_mostPrivilegedAcl === null) {
             $this->_mostPrivilegedAcl = Acls::getMostPrivilegedAcl($this);
         }
 
@@ -1914,14 +1900,10 @@ SQL;
     {
 
         // NOTE: RESTful services do not operate on the concept of a session, so we need to check for $_SESSION[..] entities using isset
+        // The user object pertains to the user logged in..
+        if (isset($_SESSION['xdUser']) && ($_SESSION['xdUser'] == $this->_id) && $default == FALSE && isset($_SESSION['assumed_person_id'])) {
 
-        if (isset($_SESSION['xdUser']) && ($_SESSION['xdUser'] == $this->_id) && ($default == FALSE)) {
-
-            // The user object pertains to the user logged in..
-
-            if (isset($_SESSION['assumed_person_id'])) {
-                return $_SESSION['assumed_person_id'];
-            }
+            return $_SESSION['assumed_person_id'];
 
         }
 
@@ -2060,10 +2042,11 @@ SQL;
             ':token' => $string,
         ));
 
-        if (count($results) == 0)
+        if (count($results) == 0) {
             return $string;
-        else
+        } else {
             return $this->_generateToken();
+        }
 
     }//_generateToken
 
@@ -2116,14 +2099,12 @@ SQL;
     {
         $this->_acls = $acls;
     } // setAcls
-
     /**
      * Add the provided acl to this users set of acls if they do not already
      * have it. If the overwrite parameter is provided as true then it will be
      * added ( or overwrite the existing acl ) regardless of whether or not the
      * user currently has it.
      *
-     * @param Acl $acl
      * @param bool $overwrite
      */
     public function addAcl(Acl $acl, $overwrite = false)
@@ -2134,11 +2115,8 @@ SQL;
             $this->_acls[$acl->getName()] = $acl;
         }
     } // addAcl
-
     /**
      * Remove the provided acl from this users set of acls.
-     *
-     * @param Acl $acl
      */
     public function removeAcl(Acl $acl)
     {
@@ -2481,11 +2459,11 @@ SQL;
             // if the user is currently assigned an acl that interacts with XDMoD's centers ( i.e.
             // center director, center staff etc. ) then we need to remove these acls and notify
             // the admins that additional setup may be required for this user.
-            if (count(array_intersect($originalAcls, self::$CENTER_ACLS)) > 0) {
+            if (array_intersect($originalAcls, self::$CENTER_ACLS) !== []) {
                 $otherAcls = array_values(array_diff($originalAcls, self::$CENTER_ACLS));
 
                 // Make sure that they at least have 'usr'
-                if (empty($otherAcls)) {
+                if ($otherAcls === []) {
                     $otherAcls = array('usr');
                 }
 

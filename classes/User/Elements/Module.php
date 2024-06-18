@@ -12,6 +12,8 @@ namespace User\Elements;
 class Module extends \Common\Identity
 {
 
+    public $_position;
+    public $_permitted_modules;
     /**
      * Is this a default module?
      *
@@ -25,13 +27,6 @@ class Module extends \Common\Identity
      * @var string
      */
     private $_title;
-
-    /**
-     * The module's relative position.
-     *
-     * @var int
-     */
-    private $_positon;
 
     /**
      * The module's Javascript 'class'.

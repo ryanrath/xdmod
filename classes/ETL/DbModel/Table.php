@@ -251,7 +251,7 @@ class Table extends SchemaEntity implements iEntity, iDiscoverableEntity, iAlter
 
         $schemaName = null;
         $qualifiedTableName = null;
-        $systemQuoteChar = $endpoint->getSystemQuoteChar();
+        $endpoint->getSystemQuoteChar();
 
         // If a schema was specified in the table name use it, otherwise use the default schema
 
@@ -461,7 +461,7 @@ ORDER BY trigger_name ASC";
 
     public function addColumn($config, $overwriteDuplicates = false)
     {
-        $item = ( is_object($config) && $config instanceof Column
+        $item = ( $config instanceof Column
                   ? $config
                   : new Column($config, $this->systemQuoteChar, $this->logger) );
 
@@ -520,7 +520,7 @@ ORDER BY trigger_name ASC";
 
     public function addIndex($config, $overwriteDuplicates = false)
     {
-        $item = ( is_object($config) && $config instanceof Index
+        $item = ( $config instanceof Index
                   ? $config
                   : new Index($config, $this->systemQuoteChar, $this->logger) );
 
@@ -578,7 +578,7 @@ ORDER BY trigger_name ASC";
 
     public function addForeignKeyConstraint($config, $overwriteDuplicates = false)
     {
-        $item = ( is_object($config) && $config instanceof ForeignKeyConstraint
+        $item = ( $config instanceof ForeignKeyConstraint
                   ? $config
                   : new ForeignKeyConstraint($config, $this->systemQuoteChar, $this->logger) );
 
@@ -637,7 +637,7 @@ ORDER BY trigger_name ASC";
     public function addTrigger($config, $overwriteDuplicates = false)
     {
 
-        $item = ( is_object($config) && $config instanceof Trigger
+        $item = ( $config instanceof Trigger
                   ? $config
                   : new Trigger($config, $this->systemQuoteChar, $this->logger) );
 
@@ -1102,7 +1102,7 @@ ORDER BY trigger_name ASC";
                 // Clear the array no matter what, that way NULL is handled properly.
                 if ( null !== $value ) {
                     foreach ( $value as $item ) {
-                        $column = ( is_object($item) && $item instanceof Column
+                        $column = ( $item instanceof Column
                                     ? $item
                                     : new Column($item, $this->systemQuoteChar, $this->logger) );
                         $this->properties[$property][$column->name] = $column;
@@ -1115,7 +1115,7 @@ ORDER BY trigger_name ASC";
                 // Clear the array no matter what, that way NULL is handled properly.
                 if ( null !== $value ) {
                     foreach ( $value as $item ) {
-                        $index = ( is_object($item) && $item instanceof Index
+                        $index = ( $item instanceof Index
                                    ? $item
                                    : new Index($item, $this->systemQuoteChar, $this->logger) );
                         $this->properties[$property][$index->name] = $index;
@@ -1128,14 +1128,12 @@ ORDER BY trigger_name ASC";
                 // Clear the array no matter what, that way NULL is handled properly.
                 if ( null !== $value ) {
                     foreach ( $value as $item ) {
-                        if ( is_object($item) && $item instanceof ForeignKeyConstraint ) {
+                        if ( $item instanceof ForeignKeyConstraint ) {
                             $this->properties[$property][$item->name] = $item;
                         } else {
-                            if ( $item instanceof stdClass ) {
-                                // Default to the schema of the parent table.
-                                if ( ! isset($item->schema) ) {
-                                    $item->schema = $this->schema;
-                                }
+                            // Default to the schema of the parent table.
+                            if ( $item instanceof stdClass && ! isset($item->schema) ) {
+                                $item->schema = $this->schema;
                             }
                             $constraint = new ForeignKeyConstraint($item, $this->systemQuoteChar, $this->logger);
                             $this->properties[$property][$constraint->name] = $constraint;
@@ -1149,7 +1147,7 @@ ORDER BY trigger_name ASC";
                 // Clear the array no matter what, that way NULL is handled properly.
                 if ( null !== $value ) {
                     foreach ( $value as $item ) {
-                        if ( is_object($item) && $item instanceof Trigger ) {
+                        if ( $item instanceof Trigger ) {
                             $this->properties[$property][$item->name] = $item;
                         } else {
                             if ( $item instanceof stdClass ) {

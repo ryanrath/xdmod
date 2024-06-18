@@ -108,7 +108,7 @@ class MetricExplorer extends Common
         $data_series = array();
 
         // Discard disabled datasets.
-        foreach ($all_data_series as $data_description_index => $data_description) {
+        foreach ($all_data_series as $data_description) {
             if ($data_description->display_type == 'radar') {
                 $data_description->display_type = 'line';
             }
@@ -243,7 +243,7 @@ class MetricExplorer extends Common
                 $min_aggregation_unit
             );
 
-            foreach ($data_series as $data_description_index => $data_description) {
+            foreach ($data_series as $data_description) {
                 $query_classname = sprintf(
                     '\\DataWarehouse\\Query\\%sQuery',
                     ( $timeseries ? 'Timeseries' : 'Aggregate' )
@@ -337,13 +337,10 @@ class MetricExplorer extends Common
                     $exportedDatas[] = json_encode($exportedData);
                 }
 
-
-                $result = array(
+                return array(
                     "headers" => \DataWarehouse\ExportBuilder::getHeader($format),
                     "results" => $exportedDatas,
                 );
-
-                return $result;
             } // elseif($format === 'jsonstore')
 
         } //  elseif ($format === 'jsonstore' || $format === 'csv' || $format === 'xml')
@@ -472,10 +469,8 @@ class MetricExplorer extends Common
     private function getShowContextMenu()
     {
         return
-            isset($this->request['showContextMenu'])
-            ? $this->request['showContextMenu'] == 'true'
-            || $this->request['showContextMenu'] === 'y'
-            : false;
+            isset($this->request['showContextMenu']) && ($this->request['showContextMenu'] == 'true'
+            || $this->request['showContextMenu'] === 'y');
     } // function getShowContextMenu()
 
     private function getXAxis()
@@ -488,12 +483,7 @@ class MetricExplorer extends Common
             $ret = new stdClass;
 
             foreach ($this->request['x_axis'] as $k => $x) {
-                if (is_array($x)) {
-                    $ret->{$k} = (object)$x;
-                }
-                else {
-                    $ret->{$k} = $x;
-                }
+                $ret->{$k} = is_array($x) ? (object)$x : $x;
             }
 
             return  $ret;
@@ -512,12 +502,7 @@ class MetricExplorer extends Common
             $ret = new stdClass;
 
             foreach ($this->request['y_axis'] as $k => $x) {
-                if (is_array($x)) {
-                    $ret->{$k} = (object)$x;
-                }
-                else {
-                    $ret->{$k} = $x;
-                }
+                $ret->{$k} = is_array($x) ? (object)$x : $x;
             }
 
             return $ret;
@@ -536,12 +521,7 @@ class MetricExplorer extends Common
             $ret = new stdClass;
 
             foreach($this->request['legend'] as $k => $x) {
-                if (is_array($x)) {
-                    $ret->{$k} = (object)$x;
-                }
-                else {
-                    $ret->{$k} = $x;
-                }
+                $ret->{$k} = is_array($x) ? (object)$x : $x;
             }
 
             return  $ret;
@@ -602,7 +582,7 @@ class MetricExplorer extends Common
             }
         }
 
-        if (empty($authorizedRoles)) {
+        if ($authorizedRoles === []) {
             throw new AccessDeniedException();
         }
 
@@ -621,7 +601,7 @@ class MetricExplorer extends Common
     public static function convertActiveRoleToGlobalFilters(XDUser $user, $activeRoleId, $globalFilters) {
         // Load the active role's filter parameters.
         // (Regex for artificial service provider roles from now-deleted code.)
-        if (preg_match('/rp_(?P<rp_id>[0-9]+)/', $activeRoleId, $resourceProviderRoleIdMatches)) {
+        if (preg_match('/rp_(?P<rp_id>\d+)/', $activeRoleId, $resourceProviderRoleIdMatches)) {
             $activeRoleParameters = array(
                 'provider' => $resourceProviderRoleIdMatches['rp_id'],
             );
@@ -719,7 +699,7 @@ class MetricExplorer extends Common
         $showAllDimensionValues = false
     ) {
         // Check if the realms were specified, and if not, use all realms.
-        $realmsSpecified = !empty($realms);
+        $realmsSpecified = $realms !== null && $realms !== [];
         if (!$realmsSpecified) {
             $realms = Realms::getRealmIdsForUser($user);
         }

@@ -24,7 +24,6 @@ class MySQLHelper
     /**
      * Factory method.
      *
-     * @param MySQLDB $db
      *
      * @return MySQLHelper
      */
@@ -35,8 +34,6 @@ class MySQLHelper
 
     /**
      * Constructor.
-     *
-     * @param MySQLDB $db
      */
     protected function __construct(MySQLDB $db)
     {
@@ -46,8 +43,6 @@ class MySQLHelper
 
     /**
      * Set the logger.
-     *
-     * @param LoggerInterface $logger
      */
     public function setLogger(LoggerInterface $logger)
     {
@@ -423,8 +418,7 @@ class MySQLHelper
          *  The privileges are listed out instead of ALL so that the user
          *  created cannot administrate users or database tasks.
          */
-        $stmt = "GRANT TRIGGER, DROP, INDEX, CREATE, INSERT,"
-            . " SELECT, DELETE, UPDATE, CREATE VIEW, SHOW VIEW,"
+        $stmt = 'GRANT TRIGGER, DROP, INDEX, CREATE, INSERT, SELECT, DELETE, UPDATE, CREATE VIEW, SHOW VIEW,'
             . " ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES,"
             . " CREATE ROUTINE, ALTER ROUTINE, EVENT, RELOAD, FILE,"
             . " CREATE TABLESPACE, PROCESS, REFERENCES,"
@@ -516,8 +510,8 @@ class MySQLHelper
         if ($dbName !== null) {
             $args[] = $dbName;
         }
-
-        array_push($args, '-e', $stmt);
+        $args[] = '-e';
+        $args[] = $stmt;
 
         $output = static::staticExecuteCommand($args);
 

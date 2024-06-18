@@ -42,7 +42,7 @@ class VerifyDatabase extends aAction implements iAction
     );
 
     // SQL to execute to perform the verification
-    protected $sqlQueryString = null;
+    protected $sqlQueryString;
 
     /* ------------------------------------------------------------------------------------------
      * @see aAction::__construct()
@@ -74,7 +74,7 @@ class VerifyDatabase extends aAction implements iAction
     {
         if ( $this->isInitialized() ) {
             $this->logger->debug("ALREADY INITIALIZED!");
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -210,8 +210,7 @@ class VerifyDatabase extends aAction implements iAction
             $missing = array_diff($matches[0], $this->queryColumnNames);
             if ( 0 != count($missing) ) {
                 $this->logAndThrowException(
-                    "The following column names were referenced in the line template but are "
-                    . "not present in the query: " . implode(", ", $missing)
+                    'The following column names were referenced in the line template but are not present in the query: ' . implode(", ", $missing)
                 );
             }
         }
@@ -279,7 +278,7 @@ class VerifyDatabase extends aAction implements iAction
 
         // How do we substitute variables in the header and footer?
 
-        if ( count($lines) > 0 && null !== $this->emailConfiguration['destination_email'] ) {
+        if ( $lines !== [] && null !== $this->emailConfiguration['destination_email'] ) {
             $this->logger->notice("Sending notification email to " . $this->emailConfiguration['destination_email']);
             $body = ( null !== $this->emailConfiguration['header'] ? $this->emailConfiguration['header'] . "\n\n" : "" )
                 . implode("\n", $lines)

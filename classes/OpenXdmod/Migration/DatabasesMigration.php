@@ -31,7 +31,7 @@ abstract class DatabasesMigration extends Migration
      *
      * @var array|null
      */
-    protected static $mysqlAdminCredentials = null;
+    protected static $mysqlAdminCredentials;
 
     /**
      * @inheritdoc

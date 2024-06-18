@@ -7,6 +7,7 @@ use Models\Services\Realms;
 
 abstract class BaseTest extends \PHPUnit\Framework\TestCase
 {
+    public $testFiles;
     private static $TEST_ARTIFACT_OUTPUT_PATH;
 
     protected static $XDMOD_REALMS;
@@ -61,18 +62,14 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
         $xdmod_realms = array();
         $rawRealms = Realms::getRealms();
         foreach($rawRealms as $item) {
-            array_push($xdmod_realms, strtolower($item->name));
+            $xdmod_realms[] = strtolower($item->name);
         }
         self::$XDMOD_REALMS = $xdmod_realms;
     }
     private static function setupEnvironment()
     {
         $testEnvironment = getenv('TEST_ENV');
-        if ($testEnvironment !== false) {
-            self::$ENV = $testEnvironment;
-        } else {
-            self::$ENV = self::DEFAULT_TEST_ENVIRONMENT;
-        }
+        self::$ENV = $testEnvironment !== false ? $testEnvironment : self::DEFAULT_TEST_ENVIRONMENT;
     }
 
     private static function setupPaths()
@@ -86,7 +83,7 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
      */
     public function getTestFiles()
     {
-        if (!isset($this->testFiles)) {
+        if (!property_exists($this, 'testFiles') || $this->testFiles === null) {
             $this->testFiles = new TestFiles(__DIR__ . '/../../');
         }
         return $this->testFiles;

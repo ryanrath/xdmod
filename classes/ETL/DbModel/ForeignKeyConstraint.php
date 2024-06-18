@@ -77,6 +77,7 @@ class ForeignKeyConstraint extends SchemaEntity implements iEntity
 
         switch ($property) {
             case 'columns':
+            case 'referenced_columns':
                 if (!is_array($value)) {
                     $this->logAndThrowException(
                         sprintf(
@@ -85,7 +86,7 @@ class ForeignKeyConstraint extends SchemaEntity implements iEntity
                             gettype($value)
                         )
                     );
-                } elseif (0 === count($value)) {
+                } elseif ([] === $value) {
                     $this->logAndThrowException(
                         sprintf('"%s" must be a non-empty array', $property)
                     );
@@ -100,21 +101,6 @@ class ForeignKeyConstraint extends SchemaEntity implements iEntity
                             $property,
                             gettype($value)
                         )
-                    );
-                }
-                break;
-            case 'referenced_columns':
-                if (!is_array($value)) {
-                    $this->logAndThrowException(
-                        sprintf(
-                            '"%s" must be an array, "%s" given',
-                            $property,
-                            gettype($value)
-                        )
-                    );
-                } elseif (0 === count($value)) {
-                    $this->logAndThrowException(
-                        sprintf('"%s" must be a non-empty array', $property)
                     );
                 }
                 break;
@@ -224,7 +210,9 @@ class ForeignKeyConstraint extends SchemaEntity implements iEntity
             'FOREIGN KEY',
         );
         $parts[] = '('
-            . implode(', ', array_map(array($this, 'quote'), $this->columns))
+            . implode(', ', array_map(function ($identifier) {
+                return $this->quote($identifier);
+            }, $this->columns))
             . ')';
         $parts[] = 'REFERENCES';
         if ($this->referenced_schema !== null) {
@@ -236,7 +224,9 @@ class ForeignKeyConstraint extends SchemaEntity implements iEntity
         $parts[] = '('
             . implode(
                 ', ',
-                array_map(array($this, 'quote'), $this->referenced_columns)
+                array_map(function ($identifier) {
+                    return $this->quote($identifier);
+                }, $this->referenced_columns)
             )
             . ')';
 

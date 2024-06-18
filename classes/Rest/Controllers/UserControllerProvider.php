@@ -128,8 +128,6 @@ class UserControllerProvider extends BaseControllerProvider
      *   - They just have authenticated to XDMoD via one of the supported methods.
      *   - THey must have an active API Token.
      *
-     * @param Request $request
-     * @param Application $app
      * @return mixed
      * @throws \Exception
      */
@@ -156,8 +154,6 @@ class UserControllerProvider extends BaseControllerProvider
      *   - They just have authenticated to XDMoD via one of the supported methods.
      *   - They must not have an existing API Token.
      *
-     * @param Request $request
-     * @param Application $app
      * @return Response
      * @throws \Exception if there is a problem retrieving a database connection.
      */
@@ -182,8 +178,6 @@ class UserControllerProvider extends BaseControllerProvider
      *   - They must have authenticated to XDMoD via one of the supported methods.
      *   - They must have an active API Token
      *
-     * @param Request $request
-     * @param Application $app
      * @return Response
      * @throws \Exception
      */
@@ -224,7 +218,7 @@ class UserControllerProvider extends BaseControllerProvider
         }
         $mostPrivileged = $user->getMostPrivilegedRole();
         $mostPrivilegedFormalName = $mostPrivileged->getDisplay();
-        if (count(array_intersect(XDUser::$CENTER_ACLS, $user->getAcls(true))) > 0) {
+        if (array_intersect(XDUser::$CENTER_ACLS, $user->getAcls(true)) !== []) {
             $organization = Organizations::getAbbrevById($user->getOrganizationID());
             $mostPrivilegedFormalName = "$mostPrivilegedFormalName - $organization";
         }
@@ -286,7 +280,7 @@ class UserControllerProvider extends BaseControllerProvider
         // For each property that can be set, check if it is included in the
         // given set of properties. If so, invoke that property's setter on the
         // given user with the given property value.
-        $userType = $user->getUserType();
+        $user->getUserType();
         foreach ($updatedProperties as $propertyName => $propertyValue) {
             if (!array_key_exists($propertyName, self::$propertySettingOptions)) {
                 continue;
@@ -305,7 +299,6 @@ class UserControllerProvider extends BaseControllerProvider
      * This function will determine whether or not the provided $user should be allowed to create a new API token. A
      * user will only be allowed to create a new API token if they do not currently have an active API token.
      *
-     * @param XDUser $user
      * @return bool true if the user does not already have a valid API token.
      * @throws \Exception if there is a problem retrieving a database connection.
      */
@@ -362,7 +355,6 @@ SQL;
      * Creates a new API token for the provided $user. Note, the results of a successful creation is the only time that
      * the token will be visible to the user. No other function will return this value.
      *
-     * @param XDUser $user
      *
      * @return array in the format ('token' => newToken, 'expiration_date' => tokenExpirationDate)
      *

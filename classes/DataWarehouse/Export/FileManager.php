@@ -154,7 +154,6 @@ class FileManager extends Loggable
     /**
      * Write a data set to a temporary file.
      *
-     * @param \DataWarehouse\Data\BatchDataset $dataSet
      * @param string $format
      * @return string Path to file that was written to.
      * @throws \Exception If writing the data fails.

@@ -37,7 +37,7 @@ class DirectoryScanner extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface
      */
-    private $logger = null;
+    private $logger;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -165,12 +165,6 @@ class DirectoryScanner extends \PHPUnit\Framework\TestCase
         $scanner->verify();
         $scanner->connect();
 
-        // The directory is scanned when connect() is called but each file isn't processed
-        // until we iterate over it.
-
-        foreach ( $scanner as $key => $val ) {
-        }
-
         $this->assertEquals(3, $scanner->getNumFilesScanned());
         $this->assertEquals(6, $scanner->getNumRecordsParsed());
 
@@ -208,12 +202,6 @@ class DirectoryScanner extends \PHPUnit\Framework\TestCase
         $scanner = DataEndpoint::factory($options, $this->logger);
         $scanner->verify();
         $scanner->connect();
-
-        // The directory is scanned when connect() is called but each file isn't processed
-        // until we iterate over it.
-
-        foreach ( $scanner as $key => $val ) {
-        }
 
         @unlink($newFile);
         $this->assertEquals(1, $scanner->getNumFilesScanned());
@@ -301,12 +289,6 @@ class DirectoryScanner extends \PHPUnit\Framework\TestCase
         $scanner->verify();
         $scanner->connect();
 
-        // The directory is scanned when connect() is called but each file isn't processed
-        // until we iterate over it.
-
-        foreach ( $scanner as $key => $val ) {
-        }
-
         // Cleanup
 
         foreach ( $fileList as $file ) {
@@ -354,12 +336,6 @@ class DirectoryScanner extends \PHPUnit\Framework\TestCase
         $scanner = DataEndpoint::factory($options, $this->logger);
         $scanner->verify();
         $scanner->connect();
-
-        // The directory is scanned when connect() is called but each file isn't processed
-        // until we iterate over it.
-
-        foreach ( $scanner as $key => $val ) {
-        }
 
         // Cleanup
 

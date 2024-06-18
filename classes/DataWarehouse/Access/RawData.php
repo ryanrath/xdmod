@@ -14,7 +14,6 @@ class RawData
     /**
      * Get all the realms for a user.
      *
-     * @param \XDUser $user
      * @return array[] Raw data realm configurations enabled for user.
      */
     public static function getRawDataRealms(XDUser $user)
@@ -37,7 +36,6 @@ class RawData
     /**
      * Check if a realm exists for a user.
      *
-     * @param \XDUser $user
      * @param string $realm
      * @return boolean
      */

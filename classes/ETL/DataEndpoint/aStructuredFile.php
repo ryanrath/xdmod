@@ -24,7 +24,7 @@ abstract class aStructuredFile extends File
      * @var array|null Optional path to a schema describing each record the structured file.  This
      * is null if no schema was provided.
      */
-    protected $recordSchemaPath = null;
+    protected $recordSchemaPath;
 
     /**
      * @var array|null The list of filters that have been attached to the file handle
@@ -34,7 +34,7 @@ abstract class aStructuredFile extends File
     /**
      * @var array|null The list of filters definition objects used to create filters.
      */
-    protected $filterDefinitions = null;
+    protected $filterDefinitions;
 
     /**
      * @var array The list of records read from the input file
@@ -44,12 +44,12 @@ abstract class aStructuredFile extends File
     /**
      * @var string Character used to separate records in the input file, defaults to NULL.
      */
-    protected $recordSeparator = null;
+    protected $recordSeparator;
 
     /**
      * @var string Character used to separate fields in the record, defaults to NULL.
      */
-    protected $fieldSeparator = null;
+    protected $fieldSeparator;
 
     /**
      * @var boolean TRUE if the file is expected to have a header record, FALSE otherwise.
@@ -102,7 +102,7 @@ abstract class aStructuredFile extends File
             $this->logAndThrowException("Error verifying options: " . implode(", ", $messages));
         }
 
-        if ( isset($options->record_schema_path) ) {
+        if ( $options->record_schema_path !== null ) {
             $this->recordSchemaPath = $options->record_schema_path;
 
             if ( isset($options->paths->schema_dir) ) {
@@ -119,23 +119,23 @@ abstract class aStructuredFile extends File
             }
         }
 
-        if ( isset($options->record_separator) ) {
+        if ( $options->record_separator !== null ) {
             $this->recordSeparator = $options->record_separator;
         }
 
-        if ( isset($options->filters) ) {
+        if ( $options->filters !== null ) {
             $this->filterDefinitions = $options->filters;
         }
 
-        if ( isset($options->header_record) ) {
+        if ( $options->header_record !== null ) {
             $this->hasHeaderRecord = $options->header_record;
         }
 
-        if ( isset($options->field_names) ) {
+        if ( $options->field_names !== null ) {
             $this->requestedRecordFieldNames = $options->field_names;
         }
 
-        if ( isset($options->record_passthrough) ) {
+        if ( $options->record_passthrough !== null ) {
             $this->recordPassthrough = $options->record_passthrough;
         }
 
@@ -170,6 +170,7 @@ abstract class aStructuredFile extends File
             }
         }
         $this->key = md5(implode($this->keySeparator, $keySource));
+        return null;
     }
 
     /**
@@ -180,7 +181,7 @@ abstract class aStructuredFile extends File
     {
         $this->logger->debug("Parsing " . $this->path);
         $this->attachFilters();
-        $numBytesRead = $this->parseFile($this->path);
+        $this->parseFile($this->path);
         $this->verifyData();
 
         // Determine the record field names. This is specific to the type of structured
@@ -327,7 +328,7 @@ abstract class aStructuredFile extends File
                 // #2 The data begins with a record separator. Decode any data already in
                 // the buffer as strtok() will not explicitly identify this case.
 
-                if ( $this->recordSeparator == $data[0] && '' != $buffer ) {
+                if ( $this->recordSeparator == $data[0] && '' !== $buffer ) {
                     $this->decodeRecord($buffer);
                     $buffer = '';
                 }
@@ -343,7 +344,7 @@ abstract class aStructuredFile extends File
                     // Don't flush the buffer if we had a partial record from a previous
                     // fread() operation.
 
-                    if ( '' != $buffer && ! $newDataChunk ) {
+                    if ( '' !== $buffer && ! $newDataChunk ) {
                         $this->decodeRecord($buffer);
                         $buffer = '';
                     }
@@ -358,7 +359,7 @@ abstract class aStructuredFile extends File
                 // we find a separator or hit EOF). Note that the buffer could be empty if
                 // the data contained only record separators.
 
-                if ( $this->recordSeparator == $data[$numBytesRead - 1] && '' != $buffer ) {
+                if ( $this->recordSeparator == $data[$numBytesRead - 1] && '' !== $buffer ) {
                     $this->decodeRecord($buffer);
                     $buffer = '';
                 }

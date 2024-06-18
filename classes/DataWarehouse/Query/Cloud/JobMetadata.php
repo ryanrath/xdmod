@@ -67,9 +67,8 @@ class JobMetadata implements \DataWarehouse\Query\iJobMetadata
         }
 
         $ct = new \DataWarehouse\Query\Cloud\JobTimeseries(array());
-        $timeseries =  $ct->get($jobid);
 
-        return $timeseries;
+        return $ct->get($jobid);
     }
 
     /**

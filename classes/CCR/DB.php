@@ -35,14 +35,6 @@ class DB
     }
 
     // ================================================================================
-    // Cleanup
-    // ================================================================================
-
-    public function __destruct()
-    {
-    }
-
-    // ================================================================================
     // Create an instance of the database singleton.  A single argument is
     // required, which is configuration file section identifier (e.g. [datawarehouse]).
     // The database connection parameters in that section will be used to create the
@@ -70,24 +62,24 @@ class DB
             $iniSection = xd_utilities\getConfigurationSection($sectionName, 'db_engine');
         } catch (Exception $e) {
             $msg = "Unable to get database configuration options: " . $e->getMessage();
-            throw new Exception($msg);
+            throw new Exception($msg, $e->getCode(), $e);
         }
 
         // Not all engines are required to specify all configuration options (e.g., Oracle) so
         // allow NULL (empty) options. Specific engines may enforce additional requirements.
 
-        $engine   = ( array_key_exists('db_engine', $iniSection) ? $iniSection['db_engine'] : null);
-        $database = ( array_key_exists('database', $iniSection) ? $iniSection['database'] : null);
-        $user     = ( array_key_exists('user', $iniSection) ? $iniSection['user'] : null );
+        $engine   = ( $iniSection['db_engine'] ?? null);
+        $database = ( $iniSection['database'] ?? null);
+        $user     = ( $iniSection['user'] ?? null );
 
         if ( null === $engine || null === $database || null === $user ) {
             $msg = "Configuration section '$sectionName' missing required options (db_engine, database, user)";
             throw new Exception($msg);
         }
 
-        $password = ( array_key_exists('pass', $iniSection) ? $iniSection['pass'] : null );
-        $host     = ( array_key_exists('host', $iniSection) ? $iniSection['host'] : null );
-        $port     = ( array_key_exists('port', $iniSection) ? $iniSection['port'] : null );
+        $password = ( $iniSection['pass'] ?? null );
+        $host     = ( $iniSection['host'] ?? null );
+        $port     = ( $iniSection['port'] ?? null );
 
         $engine = "CCR\\DB\\$engine";
 

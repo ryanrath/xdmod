@@ -118,10 +118,9 @@ abstract class BaseUserAdminTest extends BaseTest
         // Begin determining if the response was as expected.
         if (strpos($actualMessage, 'user_does_not_exist') === false) {
             // If the user does exist...
-
             // then we expect the 'success' property to be true. If not,
             // throw an exception.
-            if ($actualSuccess !== true) {
+            if (!$actualSuccess) {
                 throw new Exception(
                     sprintf(
                         "Remove User ['success'] Expected: true, Received: %s | %s",
@@ -130,7 +129,6 @@ abstract class BaseUserAdminTest extends BaseTest
                     )
                 );
             }
-
             // then we expect that the users name will be in the returned
             // message. If it's not then throw an exception.
             if (strpos($actualMessage, $username) === false) {
@@ -142,20 +140,17 @@ abstract class BaseUserAdminTest extends BaseTest
                     )
                 );
             }
-        } else {
+        } elseif ($actualSuccess) {
             // If the user is not found
-
             // And the 'success' property is not false ( as expected ) then throw
             // an exception.
-            if ($actualSuccess !== false) {
-                throw new Exception(
-                    sprintf(
-                        "Remove User ['success'] Expected: false, Received: %s | %s",
-                        $actualSuccessMessage,
-                        $actualMessage
-                    )
-                );
-            }
+            throw new Exception(
+                sprintf(
+                    "Remove User ['success'] Expected: false, Received: %s | %s",
+                    $actualSuccessMessage,
+                    $actualMessage
+                )
+            );
         }
 
         $helper->logoutDashboard();
@@ -395,7 +390,7 @@ abstract class BaseUserAdminTest extends BaseTest
 
         $userId = null;
         $users = $listUsersResponse[0]['users'];
-        foreach ($users as $idx => $user) {
+        foreach ($users as $user) {
             if (isset($user['username']) && $user['username'] === $userName) {
                 $userId = $user['id'];
                 break;

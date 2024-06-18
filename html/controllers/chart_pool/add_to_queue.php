@@ -18,7 +18,7 @@
 		
       $chart_pool = new XDChartPool($user);
 
-      $chart_title = (!empty($_POST['chart_title'])) ? $_POST['chart_title'] : 'Untitled Chart';
+      $chart_title = (empty($_POST['chart_title'])) ? 'Untitled Chart' : $_POST['chart_title'];
    
       //$_POST['chart_id'] = 'controller_module='.$_POST['module'].'&'.$_POST['chart_id'];
    

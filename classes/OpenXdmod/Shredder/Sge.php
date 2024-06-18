@@ -286,7 +286,7 @@ class Sge extends Shredder
         $this->logger->debug("Shredding line '$line'");
 
         // Ignore comments.
-        if (substr($line, 0, 1) == '#') {
+        if (substr($line, 0, 1) === '#') {
             return;
         }
 
@@ -329,9 +329,7 @@ class Sge extends Shredder
             // the current code expects a value for each entry.  Use
             // null to indicate the absence of a field.
             $job[$name]
-                = array_key_exists($index, $entries)
-                ? $entries[$index]
-                : null;
+                = $entries[$index] ?? null;
         }
 
         foreach (self::$mixedTypeFields as $fieldName) {
@@ -366,9 +364,7 @@ class Sge extends Shredder
     /**
      * Returns an array of resource attributes and values.
      *
-     * @param array $job
      * @param string $category
-     *
      * @return array
      */
     protected function getResourceLists(array $job, $category)
@@ -390,9 +386,9 @@ class Sge extends Shredder
 
             $resources = null;
 
-            if ($flag == '-l') {
+            if ($flag === '-l') {
                 $resources = $this->parseResourceListOptions($value);
-            } elseif ($flag == '-pe') {
+            } elseif ($flag === '-pe') {
                 $resources = $this->parseParallelEnvironmentOptions($value);
             }
 
@@ -532,7 +528,6 @@ class Sge extends Shredder
                 break;
             default:
                 throw new Exception("Unknown memory unit: '$unit'");
-                break;
         }
 
         return (int)floor($bytes / 1024);
@@ -545,11 +540,9 @@ class Sge extends Shredder
     {
         $sql = parent::getIngestorQuery($ingestAll);
 
-        $sql .= '
+        return $sql . '
             AND start_time != 0
             GROUP BY job_number, task_number
         ';
-
-        return $sql;
     }
 }

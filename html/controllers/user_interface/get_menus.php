@@ -75,7 +75,7 @@ try {
         if (isset($_REQUEST['category'])) {
             $requestedCategories = explode(',', $_REQUEST['category']);
             $missingCategories = array_diff($requestedCategories, array_keys($categories));
-            if (!empty($missingCategories)) {
+            if ($missingCategories !== []) {
                 throw new Exception("Invalid categories: " . implode(', ', $missingCategories));
             }
             $categories = array_map(function ($categoryName) use ($categories) {
@@ -93,7 +93,7 @@ try {
                     $user,
                     $realm_name
                 );
-                foreach($query_descripter_groups as $groupBy => $queryDescriptorData) {
+                foreach($query_descripter_groups as $queryDescriptorData) {
                     $queryDescriptor = $queryDescriptorData['all'];
 
                     if ($queryDescriptor->getShowMenu() !== true) {
@@ -160,7 +160,7 @@ try {
         }
     } elseif (
         isset($_REQUEST['node'])
-        && substr($_REQUEST['node'], 0, 9) == 'group_by_'
+        && substr($_REQUEST['node'], 0, 9) === 'group_by_'
     ) {
         if (isset($_REQUEST['category'])) {
             $categoryName = $_REQUEST['category'];
@@ -230,7 +230,7 @@ try {
                     }
                 }
 
-                if (empty($returnData)) {
+                if ($returnData === []) {
                     throw new Exception("Category not found.");
                 }
 

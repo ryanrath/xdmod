@@ -63,7 +63,7 @@ class EtlConfiguration extends Configuration
      * If this is a local configuration file we have the option of using global defaults from the parent.
      * @var stdclass
      */
-    private $parentDefaults = null;
+    private $parentDefaults;
 
     /**
      * An array of data endpoints defined in the global defaults section. The keys are the endpoint
@@ -91,19 +91,19 @@ class EtlConfiguration extends Configuration
      * options. These will be applied to all actions, if present.
      * @var array
      */
-    private $optionOverrides = null;
+    private $optionOverrides;
 
     /**
      * The default name to use for a module if not provided in the configuration file.
      * @var string
      */
-    private $defaultModuleName = null;
+    private $defaultModuleName;
 
     /**
      * A class containing path information for various configuration files and directories.
      * @var stdclass
      */
-    private $paths = null;
+    private $paths;
 
     /** -----------------------------------------------------------------------------------------
      * Constructor. Read and parse the configuration file.
@@ -141,7 +141,7 @@ class EtlConfiguration extends Configuration
                 case 'option_overrides':
                     if ( ! is_array($value) ) {
                         $this->logAndThrowException(sprintf("%s must be an array, %s provided", $option, gettype($value)));
-                    } elseif ( 0 !== count($value) ) {
+                    } elseif ( [] !== $value ) {
                         $this->optionOverrides = $value;
                     }
                     break;
@@ -474,29 +474,20 @@ class EtlConfiguration extends Configuration
 
             foreach ( $localSectionActionOptions as $localActionName => $localActionOptions ) {
 
-                if ( $this->actionExists($localActionName, $localSectionName) ) {
-
-                    $msg = sprintf(
-                        "Duplicate action '%s' found in '%s' secti/localon '%s'",
-                        $localActionName,
-                        $this->filename,
-                        $localSectionName
-                    );
-
-                    // Since an individual action cannot be merged with a duplicate, if
-                    // the action name already exists and we are not overwriting then skip
-                    // it.
-
-                    if ( $overwrite ) {
-                        $msg .= ", replacing existing action.";
-                        $this->logger->info($msg);
-                    } else {
-                        $msg .= ", ignoring.";
-                        $this->logger->warning($msg);
-                        continue;
-                    }
+                $msg = sprintf(
+                    "Duplicate action '%s' found in '%s' secti/localon '%s'",
+                    $localActionName,
+                    $this->filename,
+                    $localSectionName
+                );
+                if ( $overwrite ) {
+                    $msg .= ", replacing existing action.";
+                    $this->logger->info($msg);
+                } else {
+                    $msg .= ", ignoring.";
+                    $this->logger->warning($msg);
+                    continue;
                 }
-
                 $this->addAction($localSectionName, $localActionOptions);
 
             }  // foreach ( $sectionActionOptions as $actionName => $options )
@@ -565,7 +556,7 @@ class EtlConfiguration extends Configuration
             return;
         }
 
-        foreach ( $this->parsedConfig->paths as $key => &$value ) {
+        foreach ( $this->parsedConfig->paths as &$value ) {
             $value = \xd_utilities\qualify_path($value, $this->baseDir);
             $value = \xd_utilities\resolve_path($value);
         }
@@ -711,7 +702,7 @@ class EtlConfiguration extends Configuration
         // Now apply default paths to the endpoints.
 
         if ( isset($defaults->global->paths) && isset($actionConfig->endpoints) ) {
-            foreach ( $actionConfig->endpoints as $endpointName => &$endpointConfig ) {
+            foreach ( $actionConfig->endpoints as &$endpointConfig ) {
                 if ( ! isset($endpointConfig->paths) ) {
                     $endpointConfig->paths = $defaults->global->paths;
                 }
@@ -766,12 +757,10 @@ class EtlConfiguration extends Configuration
 
         $optionsClassName = $config->options_class;
 
-        if ( false === strstr($optionsClassName, '\\') ) {
-            if ( isset($config->namespace) ) {
-                $optionsClassName = $config->namespace .
-                    ( strpos($config->namespace, '\\') != strlen($config->namespace) - 1 ? "\\" : "" ) .
-                    $optionsClassName;
-            }
+        if ( false === strstr($optionsClassName, '\\') && isset($config->namespace) ) {
+            $optionsClassName = $config->namespace .
+                ( strpos($config->namespace, '\\') != strlen($config->namespace) - 1 ? "\\" : "" ) .
+                $optionsClassName;
         }
 
         if ( ! class_exists($optionsClassName) ) {
@@ -903,8 +892,8 @@ class EtlConfiguration extends Configuration
         return array_reduce(
             $this->actionOptions[$sectionName],
             function ($carry, aOptions $item) {
-                if ( $item->enabled ) {
-                    array_push($carry, $item->name);
+                if ($item->enabled) {
+                    $carry[] = $item->name;
                 }
                 return $carry;
             },

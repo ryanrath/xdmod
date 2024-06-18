@@ -61,7 +61,6 @@ try {
             default:
                 fwrite(STDERR, "Unexpected option '$key'\n");
                 exit(1);
-                break;
         }
     }
 

@@ -46,7 +46,7 @@ class FilterListHelper
     public static function getTableName(Query $realmQuery, GroupBy $groupBy1, GroupBy $groupBy2 = null) {
         $groupBy1Id = $groupBy1->getId();
 
-        $secondDimensionGiven = $groupBy2 !== null;
+        $secondDimensionGiven = $groupBy2 instanceof \Realm\GroupBy;
         if ($secondDimensionGiven) {
             $groupBy2Id = $groupBy2->getId();
 

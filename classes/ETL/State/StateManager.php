@@ -51,7 +51,7 @@ class StateManager
 
     private static function logAndThrowException($msg, LoggerInterface $logger = null, $logLevel = Log::ERR)
     {
-        if ( null !== $logger ) {
+        if ( $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->log($logLevel, $msg);
         }
         throw new Exception($msg);
@@ -93,11 +93,11 @@ class StateManager
 
         $type = self::INTER_ACTION;
 
-        if ( null === $key ) {
+        if (null === $key) {
             // If this string changes, the key for intra-action state objects will also change
             $key = self::generateKey($actionName);
             $type = self::INTRA_ACTION;
-        } else if ( empty($key) || ! is_string($key) ) {
+        } elseif (empty($key) || ! is_string($key)) {
             $msg = "Key must be a non-empty string";
             self::logAndThrowException($msg, $logger);
         }
@@ -109,7 +109,7 @@ class StateManager
             $stateObj = self::load($key, $endpoint, $logger);
             if ( false === $stateObj ) {
                 $stateObj = new ActionState($key, $actionName, $type, $options, $logger);
-                if ( null !== $logger) {
+                if ( $logger instanceof \Psr\Log\LoggerInterface) {
                     $logger->info("Created new state object '$key'");
                 }
             }
@@ -154,7 +154,7 @@ state_type, creating_action, modifying_action, creation_time, modified_time, sta
 FROM $tableName
 WHERE state_key = ?";
 
-        if ( null !== $logger ) {
+        if ( $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->info("Load action state object with key '$key'");
             $logger->debug("$sql");
         }
@@ -173,13 +173,13 @@ WHERE state_key = ?";
         }
 
         if ( 0 == $stmt->rowCount() ) {
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $msg = "No state object found with key '$key'";
                 $logger->warning($msg);
             }
             return false;
         }
-        
+
         $stateObj = unserialize($serializedObj);
 
         // We don't serialize the logger so add it back in upon re-hydration
@@ -195,7 +195,7 @@ WHERE state_key = ?";
         $stateObj->getMetadata()->state_size_bytes = $stateBytes;
 
         return $stateObj;
-        
+
     }  // load()
 
     /* ------------------------------------------------------------------------------------------
@@ -218,15 +218,15 @@ WHERE state_key = ?";
 
         // If we have an object extract the key, otherwise assume the identifier is a key string
 
-        if ( $identifier instanceof iActionState) {
+        if ($identifier instanceof iActionState) {
             $key = $identifier->getKey();
-        } else if ( ! empty($identifier) && is_string($identifier) ) {
+        } elseif (! empty($identifier) && is_string($identifier)) {
             $key = $identifier;
         } else {
             $msg = "Identifier must be an object implementing iActionState or a non-empty key string";
             self::logAndThrowException($msg, $logger);
         }
-        
+
         if ( strlen($key) > self::MAX_STATE_KEY_LEN ) {
             $msg = "Object state key cannot exceed " . self::MAX_STATE_KEY_LEN. " bytes";
             self::logAndThrowException($msg, $logger);
@@ -235,7 +235,7 @@ WHERE state_key = ?";
         $tableName = $endpoint->getSchema(true) . "." . $endpoint->quoteSystemIdentifier(self::STATE_TABLE);
         $sql = "DELETE FROM $tableName WHERE state_key = ?";
 
-        if ( null !== $logger ) {
+        if ( $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->info("Delete action state object with key '$key'");
             $logger->debug("$sql");
         }
@@ -248,7 +248,7 @@ WHERE state_key = ?";
         }
 
         if ( 0 == $rowsAffected ) {
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $msg = "No state object found with with key '$key'";
                 $logger->warning($msg);
             }
@@ -297,15 +297,15 @@ ON DUPLICATE KEY UPDATE
   modifying_action = :modifying_action_upd,
   state_size_bytes = :object_size_upd,
   state_object= :object_upd";
-        
+
         $key = $stateObj->getKey();
         $type = $stateObj->getType();
 
-        if ( null !== $logger ) {
+        if ( $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->info("Save action state object with key '$key' and type '$type'");
             $logger->debug("$sql");
         }
-        
+
         $serialized = serialize($stateObj);
         $size = strlen($serialized);
 
@@ -351,7 +351,7 @@ ON DUPLICATE KEY UPDATE
 state_key, state_type, creating_action, creation_time, modifying_action, modified_time, state_size_bytes
 FROM $tableName";
 
-        if ( null !== $logger ) {
+        if ( $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->debug("$sql");
         }
 

@@ -147,7 +147,6 @@ SQL;
     /**
      * Attempt to delete the acl identified by the provided '$aclId'.
      *
-     * @param Acl $acl
      * @return bool true iff the number of rows deleted = 1.
      * @throws Exception if the provided acls aclId is null
      */
@@ -169,9 +168,7 @@ SQL;
     /**
      * Retrieve a list of a user's current acls.
      *
-     * @param XDUser $user
      * @return array[]
-     *
      * @throws Exception if the user's userId is null
      */
     public static function listUserAcls(XDUser $user)
@@ -966,7 +963,6 @@ SQL;
      * `acl_group_bys` table with additional information merged in from roles.json ( anything that
      * isn't 'realm' or 'group_by' ).
      *
-     * @param XDUser $user
      * @param string $realmName
      * @param string $groupByName
      * @param string $statisticName

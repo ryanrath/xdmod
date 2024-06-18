@@ -48,25 +48,22 @@ class AdminControllerProviderTest extends BaseTest
             ]
         );
         // Test bad request parameters.
-        array_push(
-            $tests,
-            [
-                'invalid_data_parameter',
-                'mgr',
-                parent::mergeParams(
-                    $validInput,
-                    'data',
-                    ['viewedTour' => '-1']
-                ),
-                parent::validateBadRequestResponse('Invalid data parameter')
-            ],
-            [
-                'user_not_found',
-                'mgr',
-                parent::mergeParams($validInput, 'data', ['uid' => '-1']),
-                parent::validateBadRequestResponse('User not found')
-            ]
-        );
+        $tests[] = [
+            'invalid_data_parameter',
+            'mgr',
+            parent::mergeParams(
+                $validInput,
+                'data',
+                ['viewedTour' => '-1']
+            ),
+            parent::validateBadRequestResponse('Invalid data parameter')
+        ];
+        $tests[] = [
+            'user_not_found',
+            'mgr',
+            parent::mergeParams($validInput, 'data', ['uid' => '-1']),
+            parent::validateBadRequestResponse('User not found')
+        ];
         // Test successful requests.
         foreach ([1, 0] as $viewedTour) {
             $tests[] = [
@@ -81,9 +78,7 @@ class AdminControllerProviderTest extends BaseTest
                     'success' => true,
                     'total' => 1,
                     'message' => (
-                        'This user will be now be prompted to'
-                        . ' view the New User Tour the next'
-                        . ' time they visit XDMoD'
+                        'This user will be now be prompted to view the New User Tour the next time they visit XDMoD'
                     )
                 ])
             ];

@@ -19,7 +19,7 @@ class UsageChartsTest extends \PHPUnit\Framework\TestCase
      *
      * @var string|null
      */
-    private static $hashFilePath = null;
+    private static $hashFilePath;
 
     protected static $helper;
 
@@ -92,7 +92,7 @@ class UsageChartsTest extends \PHPUnit\Framework\TestCase
 
         if ($type === 'png' || $type === 'svg') {
             $command = '/root/bin/imagehash';
-            if ($type == 'svg') {
+            if ($type === 'svg') {
                 $command = 'rsvg-convert -f png | /root/bin/imagehash';
             }
             $pipes = array();

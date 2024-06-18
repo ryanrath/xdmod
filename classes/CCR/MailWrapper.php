@@ -21,7 +21,7 @@ class MailWrapper
             try {
                 $prefix = \xd_utilities\getConfiguration('mailer', 'subject_prefix');
                 if(!empty($prefix)){
-                    $prefix = $prefix . ': ';
+                    $prefix .= ': ';
                 }
             }
             catch(\Exception $e){
@@ -124,22 +124,20 @@ class MailWrapper
      */
     public static function addAddresses($mail, $properties)
     {
-        if(\xd_utilities\getConfiguration('general', 'debug_mode') == 'on') {
+        if (\xd_utilities\getConfiguration('general', 'debug_mode') == 'on') {
             $mail->addAddress(\xd_utilities\getConfiguration('general', 'debug_recipient'));
-        } else {
-            if(is_string($properties['toAddress'])) {
-                if(!empty($properties['toName'])) {
-                    $mail->addAddress($properties['toAddress'], $properties['toName']);
+        } elseif (is_string($properties['toAddress'])) {
+            if(!empty($properties['toName'])) {
+                $mail->addAddress($properties['toAddress'], $properties['toName']);
+            } else {
+                $mail->addAddress($properties['toAddress']);
+            }
+        } elseif(is_array($properties['toAddress'])) {
+            foreach($properties['toAddress'] as $entry) {
+                if(!empty($entry['name'])) {
+                    $mail->addAddress($entry['address'], $entry['name']);
                 } else {
-                    $mail->addAddress($properties['toAddress']);
-                }
-            } elseif(is_array($properties['toAddress'])) {
-                foreach($properties['toAddress'] as $entry) {
-                    if(!empty($entry['name'])) {
-                        $mail->addAddress($entry['address'], $entry['name']);
-                    } else {
-                        $mail->addAddress($entry['address']);
-                    }
+                    $mail->addAddress($entry['address']);
                 }
             }
         }

@@ -75,30 +75,6 @@ class CloudInstanceTypeStateIngestorTest extends \PHPUnit\Framework\TestCase
         "start_time" => 1524063549
     );
 
-    private $instance_type_state_change_resource_id = array(
-        "resource_id" => 9,
-        "instance_type_id" => 0,
-        "instance_type" => 'c1.m4',
-        "display" => 'c1.m4',
-        "description" => '',
-        "num_cores" => 1,
-        "memory_mb" => 4096,
-        "disk_gb" => 20,
-        "start_time" => 1524063549
-    );
-
-    private $instance_type_state_change_instance_type = array(
-        "resource_id" => 8,
-        "instance_type_id" => 0,
-        "instance_type" => 'c2.m4',
-        "display" => 'c2.m4',
-        "description" => '',
-        "num_cores" => 2,
-        "memory_mb" => 4096,
-        "disk_gb" => 20,
-        "start_time" => 1524063549
-    );
-
     private $instance_type_state_original = array(
         "resource_id" => 8,
         "instance_type_id" => 0,
@@ -121,18 +97,6 @@ class CloudInstanceTypeStateIngestorTest extends \PHPUnit\Framework\TestCase
         "memory_mb" => 4096,
         "disk_gb" => 20,
         "start_time" => 1524243500
-    );
-
-    private $instance_type_state_zero = array(
-        "resource_id" => 0,
-        "instance_type_id" => 0,
-        "instance_type" => 0,
-        "display" => 0,
-        "description" => 0,
-        "num_cores" => 0,
-        "memory_mb" => 0,
-        "disk_gb" => 0,
-        "start_time" => 0
     );
 
     private $instance_state_no_change_result = array(

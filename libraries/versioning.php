@@ -36,7 +36,7 @@ function getPortalVersion($short = false)
         $revision = '';
     }
 
-    if (!empty($revision)) {
+    if (!($revision === '' || $revision === '0' || $revision === false)) {
 
         // This is a development version (since the git meta-data (in
         // the .git directory) is intact).

@@ -24,7 +24,6 @@ abstract class aFileWriter extends Loggable implements iFileWriter
      * Open the file for writing.
      *
      * @param string $file
-     * @param LoggerInterface $logger
      */
     public function __construct($file, LoggerInterface $logger)
     {

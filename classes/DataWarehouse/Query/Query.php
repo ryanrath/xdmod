@@ -26,6 +26,11 @@ use Realm\Statistic;
 
 class Query extends Loggable
 {
+    public $parameters;
+    /**
+     * @var array<int, array<'column_name'|'direction', mixed>>
+     */
+    public $sortInfo;
     public $roleParameterDescriptions;
     public $filterParameterDescriptions;
     private $pdoparams;
@@ -35,7 +40,7 @@ class Query extends Loggable
      * @var Realm The Realm that this query will provide data for.
      */
 
-    protected $realm = null;
+    protected $realm;
 
     /**
      * Tracks whether or not role restrictions have been applied to this query.
@@ -47,18 +52,6 @@ class Query extends Loggable
      * @var boolean
      */
     private $restrictedByRoles = false;
-
-    /**
-     * Tracks whether or not role restrictions that potentially include a wide
-     * range of data have been applied to this query.
-     *
-     * Note that this does not reflect whether or not the role restrictions
-     * will affect the results returned. If the query has been sufficiently
-     * resticted by the user, the restrictions will be redundant.
-     *
-     * @var boolean
-     */
-    private $restrictedByWideRoles = false;
 
     /**
      * The set of role parameters applied to this query, if any.
@@ -92,13 +85,13 @@ class Query extends Loggable
      *   (or other) strings.
      */
 
-    protected $variableStore = null;
+    protected $variableStore;
 
     /**
      * @var string The name of the aggregation unit for this query (e.g., day, month, etc.)
      */
 
-    protected $aggregationUnitName = null;
+    protected $aggregationUnitName;
 
     private $leftJoins = array();
 
@@ -119,7 +112,7 @@ class Query extends Loggable
     ) {
         // If the logger was not passed in, create one specifically for the query logs
 
-        if ( null === $logger ) {
+        if ( !$logger instanceof \Psr\Log\LoggerInterface ) {
             try {
                 $sqlDebug = \xd_utilities\filter_var(
                     \xd_utilities\getConfiguration('general', 'sql_debug_mode'),
@@ -234,7 +227,7 @@ class Query extends Loggable
      * @var GroupBy|null The primary group by passed in via the constructor and set by setGroupBy().
      */
 
-    protected $_group_by = null;
+    protected $_group_by;
 
     public function groupBy()
     {
@@ -261,7 +254,7 @@ class Query extends Loggable
      * @var Statistic|null The primary statistic by passed in via the constructor and set by setStat().
      */
 
-    protected $_main_stat_field = null;
+    protected $_main_stat_field;
 
     private $_tables = array();
     private $_fields = array();
@@ -370,11 +363,7 @@ class Query extends Loggable
                     $return['name'][] =$result['name'];
                     $return['short_name'][] =$result['short_name'];
                     $return[$stat][] = $result[$stat];
-                    if (isset($result[$sem_name])) {
-                        $return[$sem_name][] = $result[$sem_name];
-                    } else {
-                        $return[$sem_name][] = 0;
-                    }
+                    $return[$sem_name][] = isset($result[$sem_name]) ? $result[$sem_name] : 0;
                     $return['weight'][] = $result[$stat_weight];
                 } else {
                     if ($index == $limit) {
@@ -382,11 +371,7 @@ class Query extends Loggable
                         $return['name'][] = 'Other';
                         $return['short_name'][] = 'Other';
                         $return[$stat][] = $result[$stat];
-                        if (isset($result[$sem_name])) {
-                            $return[$sem_name][] = $result[$sem_name];
-                        } else {
-                            $return[$sem_name][] = 0;
-                        }
+                        $return[$sem_name][] = isset($result[$sem_name]) ? $result[$sem_name] : 0;
                         $return['weight'][] = $result[$stat_weight];
                     }
                     $return['id'][$limit] = -1;
@@ -551,7 +536,7 @@ class Query extends Loggable
     {
         $orders = $this->getOrders();
         $select_order_by = array();
-        foreach ($orders as $order_key => $order) {
+        foreach ($orders as $order) {
             $select_order_by[] = $order->getField()->getQualifiedName(false).' '.$order->getOrder();
         }
         return $select_order_by;
@@ -975,7 +960,7 @@ SQL;
                     $this->roleRestrictions[$dimensionName]['dimensionValues']
                 );
 
-                if (empty($filterValuesNotInRoleRestrictions)) {
+                if ($filterValuesNotInRoleRestrictions === []) {
                     return false;
                 }
             }
@@ -1131,7 +1116,6 @@ SQL;
 
         $this->_where_conditions["allroles"] = "(" . implode(" OR ", $allwheres) . ")";
         $this->restrictedByRoles = true;
-        $this->restrictedByWideRoles = $wide_role_parameter_found;
         $this->roleRestrictions = $role_parameters;
 
         return $role_parameters;

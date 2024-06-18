@@ -31,19 +31,14 @@ abstract class TimePeriodGenerator
         switch ($unit) {
             case 'day':
                 return new DayGenerator();
-                break;
             case 'month':
                 return new MonthGenerator();
-                break;
             case 'quarter':
                 return new QuarterGenerator();
-                break;
             case 'year':
                 return new YearGenerator();
-                break;
             default:
                 throw new Exception("No time period generator was found for unit of time \"$unit\".");
-                break;
         }
     }
 
@@ -100,17 +95,6 @@ abstract class TimePeriodGenerator
      * @return DateTime     The start of the time period the datetime is in.
      */
     abstract protected function getTimePeriodStart(DateTime $dt);
-
-    /**
-     * Converts a datetime string from the database to a datetime.
-     *
-     * @param  string $dt_str The string to convert.
-     * @return DateTime       A datetime.
-     */
-    private function getDatabaseDateTime($dt_str)
-    {
-        return DateTime::createFromFormat(self::DATABASE_DATETIME_FORMAT, $dt_str);
-    }
 
     /**
      * Converts a datetime to a string readable by the database.

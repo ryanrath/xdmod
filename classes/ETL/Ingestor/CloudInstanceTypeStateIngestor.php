@@ -25,6 +25,11 @@ use Psr\Log\LoggerInterface;
 class CloudInstanceTypeStateIngestor extends pdoIngestor implements iAction
 {
 
+    public $_end_time;
+    /**
+     * @var null
+     */
+    public $_instance_state;
     private $_instance_type_state;
 
     /**
@@ -43,7 +48,7 @@ class CloudInstanceTypeStateIngestor extends pdoIngestor implements iAction
     {
         // Since we only get information for when a configuration changes we assume a configuration has an end date
         // of today unless we have a row that tells us otherwise
-        $default_end_time = isset($this->_end_time) ? $this->_end_time : date('Y-m-d') . ' 23:59:59';
+        $default_end_time = property_exists($this, '_end_time') && $this->_end_time !== null ? $this->_end_time : date('Y-m-d') . ' 23:59:59';
 
         $this->_instance_type_state = array(
             'resource_id' => $srcRecord['resource_id'],
@@ -82,7 +87,7 @@ class CloudInstanceTypeStateIngestor extends pdoIngestor implements iAction
     {
         // We want to just flush when we hit the dummy row
         if ($srcRecord['start_time'] === 0) {
-            if (isset($this->_instance_type_state)) {
+            if ($this->_instance_type_state !== null) {
                 return array($this->_instance_type_state);
             } else {
                 return array();
@@ -143,9 +148,8 @@ class CloudInstanceTypeStateIngestor extends pdoIngestor implements iAction
         // is lost. To work around this we add a dummy row filled with zeroes.
         $colCount = count($this->etlSourceQuery->records);
         $unionValues = array_fill(0, $colCount, 0);
-        $sql .= "\nUNION ALL\nSELECT " . implode(',', $unionValues) . "\nORDER BY 1 DESC, 3 ASC, 9 ASC, 2 DESC";
 
-        return $sql;
+        return $sql . ("\nUNION ALL\nSELECT " . implode(',', $unionValues) . "\nORDER BY 1 DESC, 3 ASC, 9 ASC, 2 DESC");
     }
 
     public function transformHelper(array $srcRecord)

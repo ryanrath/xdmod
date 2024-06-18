@@ -30,21 +30,21 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * path.
      */
 
-    protected $path = null;
+    protected $path;
 
     /**
      * @var string|null An optional PCRE that files must match to be identified by the scanner. This
      * applies to the file portion of the path only.
      */
 
-    protected $filePattern = null;
+    protected $filePattern;
 
     /**
      * @var string|null An optional PCRE that directories must match to be identified by the
      * scanner.
      */
 
-    protected $directoryPattern = null;
+    protected $directoryPattern;
 
     /**
      * @var integer|null The maximum depth that we will recurse into the directory hierarchy. -1
@@ -53,21 +53,21 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * files in /data/lives/here/raw are a depth of 2, etc.
      */
 
-    protected $maxRecursionDepth = null;
+    protected $maxRecursionDepth;
 
     /**
      * @var int|null Only files modified on or after this time will be examined. Stored as a unix
      * timestamp, NULL indicates no restriction.
      */
 
-    protected $lastModifiedStartTimestamp = null;
+    protected $lastModifiedStartTimestamp;
 
     /**
      * @var int|null Only files modified on or before this time will be examined. Stored as a unix
      * timestamp, NULL indicates to restriction.
      */
 
-    protected $lastModifiedEndTimestamp = null;
+    protected $lastModifiedEndTimestamp;
 
     /**
      * @var array|null Multiple methods may be used to determine the last modified date of a file
@@ -79,7 +79,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * directory - Use the last modified timestamp of the directory
      */
 
-    protected $lastModifiedMethods = null;
+    protected $lastModifiedMethods;
 
     /**
      * @var string|null A regular expression used to determine the last modified time based on the
@@ -88,7 +88,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * stat().
      */
 
-    protected $lastModifiedFileRegex = null;
+    protected $lastModifiedFileRegex;
 
     /**
      * @var string|null A regular expression used to determine the last modified time based on the
@@ -119,7 +119,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * $lastModifiedDirRegexReformat: '$1-$2'
      */
 
-    protected $lastModifiedDirRegex = null;
+    protected $lastModifiedDirRegex;
 
     /**
      * @var object|null When a parenthesized regex is specified in $lastModifiedDirRegex, the format
@@ -133,47 +133,47 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
      * "2018-01-03".
      */
 
-    protected $lastModifiedDirRegexReformat = null;
+    protected $lastModifiedDirRegexReformat;
 
     /**
      * @var object|null A handler template that will be used to instantiate the handler for each
      * file matched by the directory scanner. The file name will be injected into the template.
      */
 
-    protected $handlerTemplate = null;
+    protected $handlerTemplate;
 
     /**
      * @var string The name of the current file that we are parsing.
      */
 
-    private $currentFilename = null;
+    private $currentFilename;
 
     /**
      * @var \Iterator The iterator for the current file that we are parsing.
      */
 
-    private $currentFileIterator = null;
+    private $currentFileIterator;
 
     /**
      * @var string The name of the first file that was parsed. This allows us to reset the iterator
      * witout re-parsing the first file.
      */
 
-    private $firstFilename = null;
+    private $firstFilename;
 
     /**
      * @var \Iterator The iterator for the first file that was parsed. This allows us to reset the
      * iterator witout re-parsing the first file.
      */
 
-    private $firstFileIterator = null;
+    private $firstFileIterator;
 
     /**
      * @var mixed The first record parsed from the first file, NULL if no files have been parsed, or
      * FALSE if there was a parse error.
      */
 
-    private $firstRecord = null;
+    private $firstRecord;
 
     /**
      * @var integer The number of files that have been scanned so far. Note that an empty file
@@ -335,7 +335,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                         // If the paths block has been set in the options, add it to the handler template
                         // so it can take advantage of the paths passed down from the configuration.
 
-                        if ( isset($options->paths) ) {
+                        if ( $options->paths !== null ) {
                             $this->handlerTemplate->paths = $options->paths;
                         }
                     }
@@ -353,15 +353,9 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
         // directory regex is specified. Any values specified in last_modified_methods overrides
         // this.
 
-        if (
-            null === $this->lastModifiedMethods &&
-            (null !== $this->lastModifiedStartTimestamp || null !== $this->lastModifiedEndTimestamp)
-        ) {
-            if ( null !== $this->lastModifiedDirRegex ) {
-                $this->lastModifiedMethods = array('directory');
-            } else {
-                $this->lastModifiedMethods = array('file');
-            }
+        if (null === $this->lastModifiedMethods &&
+        (null !== $this->lastModifiedStartTimestamp || null !== $this->lastModifiedEndTimestamp)) {
+            $this->lastModifiedMethods = null !== $this->lastModifiedDirRegex ? array('directory') : array('file');
         }
     }
 
@@ -638,9 +632,8 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                     // directory.  We must also traverse individual files or nothing will make it
                     // past this filter.
 
-                    if ( $current->isDir() ) {
+                    if ($current->isDir()) {
                         $logger->debug(sprintf("Examine directory: %s", $key));
-
                         $matches = array();
                         if ( 0 !== preg_match($lmDirRegex, $key, $matches) ) {
 
@@ -680,15 +673,13 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                         } elseif ( $iterator->hasChildren() ) {
                             return true;
                         }
-                    } else {
+                    } elseif (0 !== preg_match($lmDirRegex, $current->getPath())) {
                         // In order to process files, the directory that the file resides in must
                         // match the directory pattern.
                         //
-                        if ( 0 !== preg_match($lmDirRegex, $current->getPath()) ) {
-                            return true;
-                        } else {
-                            $logger->debug(sprintf("Skipping file where path does not match directory regex: %s", $key));
-                        }
+                        return true;
+                    } else {
+                        $logger->debug(sprintf("Skipping file where path does not match directory regex: %s", $key));
                     }
                     return false;
                 }
@@ -751,7 +742,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                                         $err['message']
                                     )
                                 );
-                            } elseif ( ! $match ) {
+                            } elseif ( $match === 0 ) {
                                 return false;
                             }
                         }
@@ -766,7 +757,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                                         $err['message']
                                     )
                                 );
-                            } elseif ( ! $match ) {
+                            } elseif ( $match === 0 ) {
                                 return false;
                             }
                         }
@@ -819,19 +810,17 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                         if ( null !== $lmRegex ) {
                             $matches = null;
                             $retval = preg_match($lmRegex, $current->getFilename(), $matches);
-                            if ( 0 === $retval ) {
+                            if (0 === $retval) {
                                 return false;
-                            } else {
-                                if ( false === ($ts = strtotime($matches[0])) ) {
-                                    $logger->warning(
-                                        sprintf(
-                                            "Skipping file '%s'. Regex '%s' matches but could not be converted to a timestamp.",
-                                            $current->getFilename(),
-                                            $lmRegex
-                                        )
-                                    );
-                                    return false;
-                                }
+                            } elseif (false === ($ts = strtotime($matches[0]))) {
+                                $logger->warning(
+                                    sprintf(
+                                        "Skipping file '%s'. Regex '%s' matches but could not be converted to a timestamp.",
+                                        $current->getFilename(),
+                                        $lmRegex
+                                    )
+                                );
+                                return false;
                             }
                         } else {
                             $ts = $current->getMTime();
@@ -1325,6 +1314,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                 )
             );
         }
+        return null;
     }
 
     /**
@@ -1346,6 +1336,7 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                 )
             );
         }
+        return null;
     }
 
     /**
@@ -1371,5 +1362,6 @@ class DirectoryScanner extends aDataEndpoint implements iStructuredFile, iComple
                 )
             );
         }
+        return null;
     }
 }

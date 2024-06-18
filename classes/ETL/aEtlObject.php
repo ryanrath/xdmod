@@ -21,7 +21,7 @@ use stdClass;
 abstract class aEtlObject extends \CCR\Loggable
 {
     // All ELT objects can be named
-    protected $name = null;
+    protected $name;
 
     // Flag indicating whether or not initialization was performed on this action.
     protected $initialized = false;

@@ -25,7 +25,6 @@ class AuthenticationControllerProvider extends BaseControllerProvider
     /**
      * AuthenticationControllerProvider constructor.
      *
-     * @param array $params
      *
      * @throws \Exception if there is a problem retrieving email addresses from configuration files.
      */

@@ -29,9 +29,7 @@ class RoleParametersTest extends BaseTest
      * RoleParametersTest constructor.
      *
      * @param null $name
-     * @param array $data
      * @param string $dataName
-     *
      * @throws \Exception if there is a problem retrieving a db connection.
      */
     public function __construct($name = null, array $data = array(), $dataName = '')
@@ -69,11 +67,7 @@ class RoleParametersTest extends BaseTest
         $roleName = $options['role_name'];
 
         // Ensure that we retrieve the correct user.
-        if ($username !== 'pub') {
-            $user = XDUser::getUserByUserName($username);
-        } else {
-            $user = XDUser::getPublicUser();
-        }
+        $user = $username !== 'pub' ? XDUser::getUserByUserName($username) : XDUser::getPublicUser();
 
         // `Parameters::getParameters` is the actual output as it's the proposed way of doing things
         $actual = Parameters::getParameters($user, $roleName);
@@ -107,7 +101,6 @@ class RoleParametersTest extends BaseTest
     /**
      * This function converts from human readable values to system unique id's.
      *
-     * @param array $expected
      * @return array
      * @throws \Exception if there is a problem converting any of the provided values.
      */
@@ -288,7 +281,6 @@ class RoleParametersTest extends BaseTest
         /**
          * Generates all combinations of the elements contained within $data.
          *
-         * @param array $data
          * @return array
          */
         function allCombinations(array $data)
@@ -296,7 +288,7 @@ class RoleParametersTest extends BaseTest
             $results = array(array());
             foreach ($data as $element) {
                 foreach ($results as $combination) {
-                    array_push($results, array_merge(array($element), $combination));
+                    $results[] = array_merge(array($element), $combination);
                 }
             }
             return $results;
@@ -307,8 +299,6 @@ class RoleParametersTest extends BaseTest
          * It is required that $acls be ordered most privileged -> least privileged for this
          * function to work properly
          *
-         * @param array $acls
-         * @param array $userAcls
          * @return mixed|null
          */
         function mostPrivileged(array $acls, array $userAcls)
@@ -360,7 +350,7 @@ class RoleParametersTest extends BaseTest
             array_filter(
                 allCombinations($baseAcls),
                 function (array $value) {
-                    return count($value) > 0;
+                    return $value !== [];
                 }
             )
         );
@@ -433,10 +423,8 @@ class RoleParametersTest extends BaseTest
                     }
 
                     // Feature acls don't have any parameters and return an empty array.
-                    if (in_array($acl, $featureAcls)) {
-                        if (!isset($expected[$acl])) {
-                            $expected[$acl] = array();
-                        }
+                    if (in_array($acl, $featureAcls) && !isset($expected[$acl])) {
+                        $expected[$acl] = array();
                     }
                 }
 
@@ -452,13 +440,8 @@ class RoleParametersTest extends BaseTest
     /**
      * A helper function that logs useful debug information.
      *
-     * @param array $expected
-     * @param array $expectedContents
-     * @param array $actual
-     * @param array $actualContents
      * @param string $username
      * @param string $roleClass
-     * @param \XDUser $user
      * @param boolean $testEquality
      */
     protected function debug(array $expected, array $expectedContents, array $actual, array $actualContents, $username, $roleClass, \XDUser $user, $testEquality)

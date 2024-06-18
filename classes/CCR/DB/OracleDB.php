@@ -20,6 +20,7 @@ use Exception;
 
 class OracleDB extends PDODB
 {
+    public $_dsn;
     /* ------------------------------------------------------------------------------------------
      * Set up the machinery. Oracle requires at minimum a database name (local naming,
      * this resolves to an entry in tnsnames.org) or a name, host, and optionally a port
@@ -35,7 +36,7 @@ class OracleDB extends PDODB
      * ------------------------------------------------------------------------------------------
      */
 
-    public function __construct($db_host, $db_port, $db_name, $db_username, $db_password, $dsn_extra = null)
+    public function __construct($db_host, $db_port, $db_name, $db_username, $db_password)
     {
         // At a minimum we must have either the (db_name) or the (db_host, db_name)
 
@@ -115,7 +116,7 @@ class OracleDB extends PDODB
             $msg = __CLASS__
                 . " Error connecting to database '" . $this->_dsn . "' using $namingMethod Naming. "
                 . $e->getMessage();
-            throw new Exception($msg);
+            throw new Exception($msg, $e->getCode(), $e);
         }
 
         return $this->_dbh;

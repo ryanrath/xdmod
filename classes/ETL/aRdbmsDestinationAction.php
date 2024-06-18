@@ -90,7 +90,7 @@ abstract class aRdbmsDestinationAction extends aAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -104,7 +104,7 @@ abstract class aRdbmsDestinationAction extends aAction
             );
         }
 
-        if ( isset($this->parsedDefinitionFile) && ! isset($this->parsedDefinitionFile->table_definition) ) {
+        if ( $this->parsedDefinitionFile !== null && ! isset($this->parsedDefinitionFile->table_definition) ) {
             $this->logAndThrowException("Definition file does not contain a 'table_definition' key");
         }
 
@@ -161,9 +161,9 @@ abstract class aRdbmsDestinationAction extends aAction
         $parsedTableDefinition = $this->parsedDefinitionFile->table_definition;
 
         $parsedTableDefinitionList =
-            ( ! is_array($parsedTableDefinition)
-              ? array($parsedTableDefinition)
-              : $parsedTableDefinition );
+            ( is_array($parsedTableDefinition)
+              ? $parsedTableDefinition
+              : array($parsedTableDefinition) );
 
         foreach ( $parsedTableDefinitionList as $tableDefinition ) {
 
@@ -178,7 +178,7 @@ abstract class aRdbmsDestinationAction extends aAction
                 );
                 $etlTable->schema = $this->destinationEndpoint->getSchema();
 
-                if ( ! is_string($etlTable->name) || empty($etlTable->name) ) {
+                if ( ! is_string($etlTable->name) || ($etlTable->name === '' || $etlTable->name === '0') ) {
                     $this->logAndThrowException("Destination table name must be a non-empty string");
                 }
 
@@ -272,9 +272,8 @@ abstract class aRdbmsDestinationAction extends aAction
 
         $success = true;
         $success &= $this->verifyDestinationMapKeys();
-        $success &= $this->verifyDestinationMapSourceFields($sourceFields, $sourceEndpoint);
 
-        return $success;
+        return $success & $this->verifyDestinationMapSourceFields($sourceFields, $sourceEndpoint);
 
     }  // parseDestinationFieldMap()
 
@@ -352,8 +351,7 @@ abstract class aRdbmsDestinationAction extends aAction
                 array_reduce(
                     $commonFields,
                     function ($carry, $item) {
-                        $carry .= sprintf("%s  %s -> %s", PHP_EOL, $item, $item);
-                        return $carry;
+                        return $carry . sprintf("%s  %s -> %s", PHP_EOL, $item, $item);
                     },
                     ''
                 )
@@ -469,7 +467,7 @@ abstract class aRdbmsDestinationAction extends aAction
             // endpoints yet). Endpoints that support complex data records perform their own
             // validation of the source fields in the destination field map.
 
-            if ( null !== $sourceEndpoint && $sourceEndpoint->supportsComplexDataRecords() ) {
+            if ( $sourceEndpoint instanceof \ETL\DataEndpoint\iDataEndpoint && $sourceEndpoint->supportsComplexDataRecords() ) {
                 $missing = $sourceEndpoint->validateDestinationMapSourceFields($destinationTableMap);
             } else {
                 $missing = array_diff($destinationTableMap, $sourceFields);
@@ -525,7 +523,7 @@ abstract class aRdbmsDestinationAction extends aAction
     protected function truncateDestination()
     {
         if ( ! $this->options->truncate_destination ) {
-            return;
+            return null;
         }
 
         // Truncate the old table, if requested. If queries are provided use them,
@@ -600,10 +598,10 @@ abstract class aRdbmsDestinationAction extends aAction
             // Bring the destination table in line with the configuration if necessary.  Note that
             // manageTable() is DRYRUN aware so we don't need to handle that here.
 
-            foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+            foreach ( $this->etlDestinationTableList as $etlTable ) {
                 $qualifiedDestTableName = $etlTable->getFullName();
 
-                if ( "myisam" == strtolower($etlTable->engine) ) {
+                if ( "myisam" === strtolower($etlTable->engine) ) {
                     $disableForeignKeys = true;
                     if ( $this->options->disable_keys ) {
                         $this->logger->info("Disable keys on $qualifiedDestTableName");
@@ -645,10 +643,10 @@ abstract class aRdbmsDestinationAction extends aAction
         $sqlList = array();
         $enableForeignKeys = false;
 
-        foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
+        foreach ( $this->etlDestinationTableList as $etlTable ) {
             $qualifiedDestTableName = $etlTable->getFullName();
 
-            if ( "myisam" == strtolower($etlTable->engine) ) {
+            if ( "myisam" === strtolower($etlTable->engine) ) {
                 $enableForeignKeys = true;
                 if ( $this->options->disable_keys ) {
                     $this->logger->info("Enable keys on $qualifiedDestTableName");
@@ -930,7 +928,7 @@ abstract class aRdbmsDestinationAction extends aAction
             $warningsToLog[] = implode(' ', (is_array($row) ? $row : array($row)));
         }
 
-        if ( count($warningsToLog) > 0 ) {
+        if ( $warningsToLog !== [] ) {
             $this->logger->warning($msg);
             foreach ( $warningsToLog as $warning ) {
                 $this->logger->warning($warning);
@@ -956,7 +954,7 @@ abstract class aRdbmsDestinationAction extends aAction
     protected function quoteIdentifierNames(array $names, iRdbmsEndpoint $endpoint = null)
     {
         // Default to the destination endpoint
-        $endpoint = ( null === $endpoint ? $this->destinationEndpoint : $endpoint);
+        $endpoint = ( $endpoint instanceof \ETL\DataEndpoint\iRdbmsEndpoint ? $endpoint : $this->destinationEndpoint);
 
         $quoteChar = $endpoint->getSystemQuoteChar();
         $quotedNames = array();

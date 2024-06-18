@@ -14,7 +14,7 @@ use Models\Services\Realms;
 // Get URL ------------
 
 $port = ($_SERVER['SERVER_PORT'] >= 9000) ? ':' . $_SERVER['SERVER_PORT'] : '';
-$proto = (!empty($_SERVER['HTTPS'])) ? 'https' : 'http';
+$proto = (empty($_SERVER['HTTPS'])) ? 'http' : 'https';
 
 $url = $proto . '://' . $_SERVER['SERVER_NAME'] . $port . $_SERVER['REQUEST_URI'];
 $referer = $url;
@@ -496,7 +496,7 @@ JS;
         <script type="text/javascript" src="gui/js/ChangeStack.js"></script>
 
     <?php /* Single Job Viewer */ ?>
-    <?php if (!empty($rawDataRealms)): ?>
+    <?php if ($rawDataRealms !== []): ?>
         <script type="text/javascript" src="gui/js/modules/job_viewer/JobViewer.js"></script>
         <script type="text/javascript" src="gui/js/modules/job_viewer/ChartPanel.js"></script>
         <script type="text/javascript" src="gui/js/modules/job_viewer/ChartTab.js"></script>
@@ -513,7 +513,7 @@ JS;
         <script type="text/javascript" src="gui/lib/groupdataview.js"></script>
         <script type="text/javascript" src="gui/lib/groupcombo.js"></script>
     <?php endif; ?>
-    <?php endif; ?>
+<?php endif; ?>
 
     <?php
     xd_utilities\checkForCenterLogo();
@@ -572,7 +572,7 @@ JS;
         }
         // ==============================================
 
-        if (!empty($profile_editor_init_flag)) {
+        if ($profile_editor_init_flag !== '' && $profile_editor_init_flag !== '0') {
 
         ?>
 

@@ -16,7 +16,7 @@ class Aggregator extends Loggable
      *
      * @var string|null
      */
-    protected $realmName = null;
+    protected $realmName;
 
     /**
      * Update the filter lists associated with this aggregator's realm.

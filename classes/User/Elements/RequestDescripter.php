@@ -61,16 +61,11 @@ class RequestDescripter
 
         foreach ($this->_request_keys as $key) {
             if ($key != "controller_module") {
-
                 // Array values are not being handled properly, but if
                 // they are implicitly converted to a string a warning
                 // is generated.  Use the literal string "Array" instead
                 // until better serialization is implemented.
-                if (is_array($this->_request[$key])) {
-                    $kvs[] = $key . '=Array';
-                } else {
-                    $kvs[] = $key . '=' . $this->_request[$key];
-                }
+                $kvs[] = is_array($this->_request[$key]) ? $key . '=Array' : $key . '=' . $this->_request[$key];
             }
         }
 
@@ -94,7 +89,7 @@ class RequestDescripter
         foreach ($arr as $a) {
 
             // To account for the input string containing a trailing '&'
-            if (empty($a)) { continue; }
+            if ($a === '' || $a === '0') { continue; }
 
             list($key, $value) = explode('=', $a, 2);
 

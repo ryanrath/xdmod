@@ -6,7 +6,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class Common
 {
-    protected $request = null;
+    protected $request;
     /*
         Contents of $request may include the following (and lots of other stuff)
         
@@ -103,9 +103,7 @@ class Common
     protected function getShowTitle()
     {
         return (
-            isset($this->request['show_title'])
-            ? $this->request['show_title'] === 'y'
-            : false
+            isset($this->request['show_title']) && $this->request['show_title'] === 'y'
         );
     }
 
@@ -142,6 +140,7 @@ class Common
             return $this->request['show_guide_lines'] == 'true'
                 || $this->request['show_guide_lines'] === 'y';
         }
+        return null;
     }
 
     protected function getRealm()
@@ -156,27 +155,21 @@ class Common
     protected function getSwapXY()
     {
         return
-            isset($this->request['swap_xy'])
-            ? $this->request['swap_xy'] == 'true' || $this->request['swap_xy'] === 'y'
-            : false;
+            isset($this->request['swap_xy']) && ($this->request['swap_xy'] == 'true' || $this->request['swap_xy'] === 'y');
     }
 
     protected function getShareYAxis()
     {
         return
-            isset($this->request['share_y_axis'])
-            ? $this->request['share_y_axis'] == 'true'
-            || $this->request['share_y_axis'] === 'y'
-            : false;
+            isset($this->request['share_y_axis']) && ($this->request['share_y_axis'] == 'true'
+            || $this->request['share_y_axis'] === 'y');
     }
 
     protected function getHideTooltip()
     {
         return
-            isset($this->request['hide_tooltip'])
-            ? $this->request['hide_tooltip'] == 'true'
-            || $this->request['hide_tooltip'] === 'y'
-            : false;
+            isset($this->request['hide_tooltip']) && ($this->request['hide_tooltip'] == 'true'
+            || $this->request['hide_tooltip'] === 'y');
     }
 
     protected function getLegendLocation()
@@ -205,26 +198,12 @@ class Common
 
     protected function getLimit()
     {
-        if (!isset($this->request['limit']) || empty($this->request['limit'])) {
-            $limit = 20;
-        }
-        else {
-            $limit = $this->request['limit'];
-        }
-
-        return $limit;
+        return !isset($this->request['limit']) || empty($this->request['limit']) ? 20 : $this->request['limit'];
     }
 
     protected function getOffset()
     {
-        if (!isset($this->request['start']) || empty($this->request['start'])) {
-            $offset = 0;
-        }
-        else {
-            $offset = $this->request['start'];
-        }
-
-        return $offset;
+        return !isset($this->request['start']) || empty($this->request['start']) ? 0 : $this->request['start'];
     }
 
     protected function getShowRemainder()
@@ -280,9 +259,7 @@ class Common
     protected function getTimeseries()
     {
         return
-            isset($this->request['timeseries'])
-            ? $this->request['timeseries'] == 'true' || $this->request['timeseries'] === 'y'
-            : false;
+            isset($this->request['timeseries']) && ($this->request['timeseries'] == 'true' || $this->request['timeseries'] === 'y');
     }
 
     protected function getFilename()
@@ -297,12 +274,10 @@ class Common
 
             \xd_charting\processForThumbnail($returnData);
 
-            $result = array(
+            return array(
                 "headers" => array( "Content-Type" => "image/png"),
                 "results" => \xd_charting\exportChart($returnData, '148', '69', 2, 'png')
             );
-
-            return $result;
         }
 
         if (isset($this->request['render_for_report']))
@@ -310,12 +285,10 @@ class Common
 
             \xd_charting\processForReport($returnData);
 
-            $result = array( 
+            return array( 
                 "headers" => array( "Content-Type" => "image/png"),
                 "results" => \xd_charting\exportChart($returnData, $width, $height, $scale, 'png')
             );
-
-            return $result;
         }
 
         if ($format === 'png' || $format === 'svg' || $format === 'pdf')
@@ -327,47 +300,39 @@ class Common
                 );
             }
 
-            $result = array(
+            return array(
                 "headers" => \DataWarehouse\ExportBuilder::getHeader( $format, false, $filename),
                 "results" => \xd_charting\exportChart($returnData['data'][0], $width, $height, $scale, $format, null, $fileMeta)
             );
-
-            return $result;
         }
         elseif($format === 'png_inline')
         {
-            $result = array(
+            return array(
                 "headers" => \DataWarehouse\ExportBuilder::getHeader( $format, false, $filename),
                 "results" => 'data:image/png;base64,'.base64_encode(\xd_charting\exportChart($returnData['data'][0], $width, $height, $scale, 'png'))
             );
-            return $result;
 
         }
         elseif($format === 'svg_inline')
         {
-            $result = array(
+            return array(
                 "headers" => \DataWarehouse\ExportBuilder::getHeader( $format, false, $filename),
                 "results" => 'data:image/svg+xml;base64,' . base64_encode(
                     \xd_charting\exportChart( $returnData['data'][0], $width, $height, $scale, 'svg'))
                 );
-
-            return $result;
         }
         elseif ($format === 'hc_jsonstore' ) {
 
-            $result = array(
+            return array(
                 "headers" => \DataWarehouse\ExportBuilder::getHeader( $format ),
                 "results" => json_encode($returnData)
             );
-
-            return $result;
         }
         elseif ($format === '_internal') {
-            $result = array(
+            return array(
                 'headers' => \DataWarehouse\ExportBuilder::getHeader( 'hc_jsonstore' ),
                 'results' => $returnData,
             );
-            return $result;
         }
 
         throw new \Exception("Internal Error: unsupported image format $format");

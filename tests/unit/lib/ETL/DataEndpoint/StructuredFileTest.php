@@ -48,7 +48,7 @@ class StructuredFileTest extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface
      */
-    private $logger = null;
+    private $logger;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -543,7 +543,7 @@ class StructuredFileTest extends \PHPUnit\Framework\TestCase
             )
         );
 
-        foreach ($file as $index => $record) {
+        foreach ($file as $record) {
             $this->assertEquals($expected, $record, "Valid record does not match expected values");
         }
 

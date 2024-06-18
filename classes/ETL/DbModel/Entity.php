@@ -328,7 +328,7 @@ class Entity extends Loggable
         // Note that an empty stdClass will be treated as an array and must be overriden
         // in a child class.
 
-        if ( is_array($value) && count($value) > 0 ) {
+        if ( is_array($value) && $value !== [] ) {
 
             // Attempt to maintain objects or arrays. If all of the array keys are numeric
             // assume it is an array, otherwise treat it as an object.  Child classes may

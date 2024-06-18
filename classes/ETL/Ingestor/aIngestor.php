@@ -48,7 +48,7 @@ abstract class aIngestor extends aRdbmsDestinationAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -68,7 +68,7 @@ abstract class aIngestor extends aRdbmsDestinationAction
 
     public function execute(EtlOverseerOptions $etlOverseerOptions)
     {
-        $inDryrunMode = $this->getEtlOverseerOptions()->isDryrun();
+        $this->getEtlOverseerOptions()->isDryrun();
 
         $time_start = microtime(true);
         $totalRecordsProcessed = 0;
@@ -80,58 +80,47 @@ abstract class aIngestor extends aRdbmsDestinationAction
         // truncation, which could be slow.
 
         $this->truncateDestination();
-
         // The EtlOverseerOptions class allows iteration over a list of chunked date ranges
+        if ( null !== $this->getEtlOverseerOptions()->getChunkSizeDays() && $this->supportDateRangeChunking ) {
+            $datePeriodChunkList = $etlOverseerOptions->getChunkedDatePeriods();
+            $this->logger->info("Breaking ETL period into " . count($datePeriodChunkList) . " chunks");
+        } else {
+            // Generate an array containing a single tuple. This may be (null, null)
+            // if no start/end date was provided.
+            $datePeriodChunkList = array(array( $this->currentStartDate, $this->currentEndDate ));
+        }
+        $numDateIntervals = count($datePeriodChunkList);
+        $intervalNum = 1;
+        foreach ( $datePeriodChunkList as $dateInterval ) {
 
-        if ( false !== $this->performPreExecuteTasks() ) {
+            // Set current start and end dates for use deeper down in the machinery.
 
-            // If this action supports chunking of the date range, use the chunked list
-            // otherwise use the entire date range.
+            $this->currentStartDate = $dateInterval[0];
+            $this->currentEndDate = $dateInterval[1];
 
-            if ( null !== $this->getEtlOverseerOptions()->getChunkSizeDays() && $this->supportDateRangeChunking ) {
-                $datePeriodChunkList = $etlOverseerOptions->getChunkedDatePeriods();
-                $this->logger->info("Breaking ETL period into " . count($datePeriodChunkList) . " chunks");
-            } else {
-                // Generate an array containing a single tuple. This may be (null, null)
-                // if no start/end date was provided.
-                $datePeriodChunkList = array(array( $this->currentStartDate, $this->currentEndDate ));
-            }
+            $this->logger->info(
+                "Process date interval ($intervalNum/$numDateIntervals) "
+                . "(start: "
+                . ( null === $this->currentStartDate ? "none" : $this->currentStartDate )
+                . ", end: "
+                . ( null === $this->currentEndDate ? "none" : $this->currentEndDate )
+                . ")"
+            );
 
-            $numDateIntervals = count($datePeriodChunkList);
-            $intervalNum = 1;
+            $this->variableStore->overwrite('START_DATE', $this->currentStartDate);
+            $this->variableStore->overwrite('END_DATE', $this->currentEndDate);
 
-            foreach ( $datePeriodChunkList as $dateInterval ) {
+            $this->logger->debug(
+                sprintf("Available Variables: %s", $this->variableStore->toDebugString())
+            );
 
-                // Set current start and end dates for use deeper down in the machinery.
+            $numRecordsProcessed = $this->_execute();
+            $totalRecordsProcessed += $numRecordsProcessed;
+            $intervalNum++;
 
-                $this->currentStartDate = $dateInterval[0];
-                $this->currentEndDate = $dateInterval[1];
-
-                $this->logger->info(
-                    "Process date interval ($intervalNum/$numDateIntervals) "
-                    . "(start: "
-                    . ( null === $this->currentStartDate ? "none" : $this->currentStartDate )
-                    . ", end: "
-                    . ( null === $this->currentEndDate ? "none" : $this->currentEndDate )
-                    . ")"
-                );
-
-                $this->variableStore->overwrite('START_DATE', $this->currentStartDate);
-                $this->variableStore->overwrite('END_DATE', $this->currentEndDate);
-
-                $this->logger->debug(
-                    sprintf("Available Variables: %s", $this->variableStore->toDebugString())
-                );
-
-                $numRecordsProcessed = $this->_execute();
-                $totalRecordsProcessed += $numRecordsProcessed;
-                $intervalNum++;
-
-            }  // foreach ( $datePeriodChunkList as $dateInterval )
-
-            $this->performPostExecuteTasks($totalRecordsProcessed);
-
-        }  // if ( false !== $this->performPreExecuteTasks() )
+        }
+        // foreach ( $datePeriodChunkList as $dateInterval )
+        $this->performPostExecuteTasks($totalRecordsProcessed);  // if ( false !== $this->performPreExecuteTasks() )
 
         $time_end = microtime(true);
         $time = $time_end - $time_start;

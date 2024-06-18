@@ -16,18 +16,18 @@ abstract class aDataEndpoint extends aEtlObject
     /**
      * @var string The endpoint type (e.g., mysql, pdo, file, url)
      */
-    protected $type = null;
+    protected $type;
 
     /**
      * @var resource A handle to the actual class or file descriptor that implements the endpoint
      */
-    protected $handle = null;
+    protected $handle;
 
     /**
      * @var string A unique key that can be used to identify this endpoint. Typically some
      * combination of type and name.
      */
-    protected $key = null;
+    protected $key;
 
     /**
      * @var string Default separator used in key generation.

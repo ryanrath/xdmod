@@ -40,7 +40,7 @@ class FileWriterTest extends TestCase
      */
     private function getTestFiles()
     {
-        if (!isset($this->testFiles)) {
+        if ($this->testFiles === null) {
             $this->testFiles = new TestFiles(__DIR__ . '/../../../..');
         }
         return $this->testFiles;

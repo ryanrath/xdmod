@@ -14,7 +14,7 @@ function getToken()
 {
     if (isset($_SESSION['session_token'])) {
         $token = $_SESSION['session_token'];
-    } else if (isset($_SESSION['public_session_token'])) {
+    } elseif (isset($_SESSION['public_session_token'])) {
         $token = $_SESSION['public_session_token'];
     } else {
         $token = '';

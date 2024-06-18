@@ -51,7 +51,7 @@ class Menu
      */
     public function display()
     {
-        $this->console->displaySectionHeader($this->title, false);
+        $this->console->displaySectionHeader($this->title);
 
         $triggerSet = array();
 

@@ -30,49 +30,49 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      * @var Realm The realm that this GroupBy belongs to.
      */
 
-    protected $realm = null;
+    protected $realm;
 
     /**
      * @var string The name of the module that defined this group by
      */
 
-    protected $moduleName = null;
+    protected $moduleName;
 
     /**
      * @var string The short identifier.
      */
 
-    protected $id = null;
+    protected $id;
 
     /**
      * @var string The display name.
      */
 
-    protected $name = null;
+    protected $name;
 
     /**
      * @var string Human-readable description supporting basic HTML formatting.
      */
 
-    protected $description = null;
+    protected $description;
 
     /**
      * @var string Schema for the attribute table.
      */
 
-    protected $attributeTableSchema = null;
+    protected $attributeTableSchema;
 
     /**
      * @var string Name of the table where attributes are stored.
      */
 
-    protected $attributeTableName = null;
+    protected $attributeTableName;
 
     /**
      * @var \DataWarehouse\Query\Model\Table Attribute table object.
      */
 
-    protected $attributeTableObj = null;
+    protected $attributeTableObj;
 
     /**
      * @var array Two dimensional array describing the mapping between attribute table keys and the
@@ -81,7 +81,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      *   by using multiple ordered key-value pairs.
      */
 
-    protected $attributeToAggregateKeyMap = null;
+    protected $attributeToAggregateKeyMap;
 
     /**
      * @var array A list of alternate group-by columns to be used in the generated SQL query. The
@@ -100,7 +100,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      *   aggregate data tables to ensure we are restricting data properly.
      */
 
-    protected $additionalJoinConstraints = null;
+    protected $additionalJoinConstraints;
 
     /**
      * @var DbQuery The Attribute Values Query provides a mechanism for the GroupBy class to
@@ -108,13 +108,13 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      *   is constructed from the same JSON configuration object used by the ETL.
      */
 
-    protected $attributeValuesQuery = null;
+    protected $attributeValuesQuery;
 
     /**
      * @var stdClass The Attribute Values Query represented as a stdClass.
      */
 
-    protected $attributeValuesQueryAsStdClass = null;
+    protected $attributeValuesQueryAsStdClass;
 
     /**
      * @var array An associative array describing how to apply attribute filters to the aggregate
@@ -123,7 +123,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      *   the values are subqueries to be used to filter results.
      */
 
-    protected $attributeFilterMapSqlList = null;
+    protected $attributeFilterMapSqlList;
 
     /**
      * @var int A numerical ordering hint as to how this realm should be displayed visually relative
@@ -139,7 +139,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
      *   values query. The _filtervalues_ marker will be replaced by the values of the filters.
      */
 
-    protected $attributeDescriptionSql = null;
+    protected $attributeDescriptionSql;
 
     /**
      * @var string Category used to group attributes, used in the Job Viewer filters.
@@ -257,7 +257,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
             $this->logger->logAndThrowException(
                 sprintf('GroupBy short name must be a string, %s provided: %s', $shortName, gettype($shortName))
             );
-        } elseif ( null === $config ) {
+        } elseif ( !$config instanceof \stdClass ) {
             $this->logger->logAndThrowException('No GroupBy configuration provided');
         }
 
@@ -507,7 +507,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
                 $valid = array_reduce(
                     $this->alternateGroupByColumns,
                     function ($item, $carry) {
-                        return $carry && ! empty($item);
+                        return $carry && $item;
                     },
                     true
                 );
@@ -804,7 +804,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
 
         foreach ( $requestFilters as $filterValues ) {
             $list = explode(self::FILTER_DELIMITER, $filterValues);
-            foreach ( $this->attributeToAggregateKeyMap as $attributeKey => $aggregateKey ) {
+            foreach ( array_keys($this->attributeToAggregateKeyMap) as $attributeKey ) {
                 $attributeKeyFilters[$attributeKey][] = $db->quote(array_shift($list));
             }
         }
@@ -848,7 +848,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
             // Construct the where conditions for each key column and replace the placeholder in the
             // attribute description query.
 
-            foreach ( $attributeKeyFilters as $attributeKey => $filterValues ) {
+            foreach ( $attributeKeyFilters as $filterValues ) {
                 $filters = implode(",", $filterValues);
             }
 
@@ -991,7 +991,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
                     }
 
                     $where = new WhereCondition(
-                        new TableField(!empty($alternateAttributeTableObj) ? $alternateAttributeTableObj : $tableObj, $attributeKey),
+                        new TableField($alternateAttributeTableObj instanceof \DataWarehouse\Query\Model\Table ? $alternateAttributeTableObj : $tableObj, $attributeKey),
                         '=',
                         new TableField($query->getDataTable(), $aggregateKey)
                     );
@@ -1005,9 +1005,9 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
         if ( null !== $this->additionalJoinConstraints ) {
             foreach ( $this->additionalJoinConstraints as $constraint ) {
                 $where = new WhereCondition(
-                    new TableField(!empty($constraint->attribute_table) ? new Table($this->attributeTableObj->getSchema(), $constraint->attribute_table, $constraint->attribute_table) : $this->attributeTableObj, $constraint->attribute_expr),
+                    new TableField(empty($constraint->attribute_table) ? $this->attributeTableObj : new Table($this->attributeTableObj->getSchema(), $constraint->attribute_table, $constraint->attribute_table), $constraint->attribute_expr),
                     $constraint->operation,
-                    new TableField(!empty($constraint->aggregate_table) ? new Table($query->getDataTable()->getSchema(), $constraint->aggregate_table, $constraint->aggregate_table) : $query->getDataTable(), $constraint->aggregate_expr)
+                    new TableField(empty($constraint->aggregate_table) ? $query->getDataTable() : new Table($query->getDataTable()->getSchema(), $constraint->aggregate_table, $constraint->aggregate_table), $constraint->aggregate_expr)
                 );
                 $query->addWhereCondition($where);
             }
@@ -1061,7 +1061,7 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
             // alias ourselves.
 
             $alias = (
-                'start_ts' != $fieldName
+                'start_ts' !== $fieldName
                 ? $this->qualifyColumnName($fieldName, true)
                 : sprintf('%s_%s', $query->getAggregationUnit(), $fieldName)
             );
@@ -1191,14 +1191,14 @@ class GroupBy extends \CCR\Loggable implements iGroupBy
         // Normalize the WHERE constraint. We may be able to set this as an array in the parameter
         // list.
 
-        $whereConstraint = ( ! is_array($whereConstraint) ? array($whereConstraint) : $whereConstraint );
+        $whereConstraint = ( is_array($whereConstraint) ? $whereConstraint : array($whereConstraint) );
 
         // Add the specified WHERE constraint. Note that to support multi-column keys the individual
         // values of the constraint may be encoded with a delimiter
 
         foreach ( $whereConstraint as $constraint ) {
             $list = explode(self::FILTER_DELIMITER, $constraint);
-            foreach ( $this->attributeToAggregateKeyMap as $attributeKey => $aggregateKey ) {
+            foreach ( array_keys($this->attributeToAggregateKeyMap) as $attributeKey ) {
                 $attributeKeyConstraints[$attributeKey][] = array_shift($list);
             }
         }

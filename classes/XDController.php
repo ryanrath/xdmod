@@ -6,39 +6,38 @@
 	 */
 
 	class XDController {
-	
+
 		private $_requirements;
-		private $_registered_operations;
+		private $_registered_operations = array();
 		private $_operation_handler_directory;
-		
+
 		// ---------------------------
-		
+
 		function __construct($requirements = array(), $basePath = OPERATION_DEF_BASE_PATH) {
-		
+
 			$this->_requirements = $requirements;
-			$this->_registered_operations = array();
-			
+
 			$this->_operation_handler_directory = $basePath.'/'.substr(basename($_SERVER["SCRIPT_NAME"]), 0, -4);
-			
+
 		}//construct
-		
+
 		// ---------------------------
-		
+
 		public function registerOperation($operation) {
-		
+
 			$this->_registered_operations[] = $operation;	
-		
+
 		}//registerOperation
-		
+
 		// ---------------------------
-		
+
 		public function invoke($method, $session_variable = 'xdUser') {
-		
-		   
+
+
 			xd_security\enforceUserRequirements($this->_requirements, $session_variable);
-	
+
 			// --------------------
-		
+
 			$params = array('operation' => RESTRICTION_OPERATION);
 
 			$isValid = xd_security\secureCheck($params, $method);
@@ -51,9 +50,9 @@
 				$returnData['data'] = array();
 				xd_controller\returnJSON($returnData);
 			};
-			
+
 			// --------------------
-			
+
 			if(!in_array($_REQUEST['operation'], $this->_registered_operations)){
 				$returnData['status'] = 'invalid_operation_specified';
 				$returnData['success'] = false;
@@ -62,9 +61,9 @@
 				$returnData['data'] = array();
 				xd_controller\returnJSON($returnData);
 			}
-			
+
 			$operation_handler = $this->_operation_handler_directory.'/'.$_REQUEST['operation'].'.php';
-			
+
 			if (file_exists($operation_handler)){
 				include $operation_handler;
 			}
@@ -76,7 +75,7 @@
 				$returnData['data'] = array();
 				xd_controller\returnJSON($returnData);
 			}
-	
+
 		}//invoke
-		
+
 	}//XDController

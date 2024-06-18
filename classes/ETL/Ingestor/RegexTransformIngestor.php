@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
 class RegexTransformIngestor extends pdoIngestor implements iAction
 {
     private $regex_column;
-    private $dest_configs;
+    private $dest_configs = array();
 
     /**
      * @see ETL\Ingestor\pdoIngestor::__construct()
@@ -51,7 +51,6 @@ class RegexTransformIngestor extends pdoIngestor implements iAction
         $this->verifyRequiredConfigKeys(array('regex_column', 'regex_config'), $options);
 
         $this->regex_column = $options->regex_column;
-        $this->dest_configs = array();
         foreach ($options->regex_config as $dest => $config) {
             $this->dest_configs[$dest] = get_object_vars($config);
         }

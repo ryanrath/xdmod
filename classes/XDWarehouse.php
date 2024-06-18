@@ -10,7 +10,7 @@ use CCR\DB;
  */
 class XDWarehouse
 {
-    private $_pdo = null;
+    private $_pdo;
 
     public function __construct()
     {
@@ -110,7 +110,7 @@ class XDWarehouse
         }
 
         $filter
-            = (count($filterElements) > 0)
+            = ($filterElements !== [])
             ? $filterConcatClause . ' ' . implode(' AND ', $filterElements)
             : '';
 
@@ -180,7 +180,6 @@ class XDWarehouse
 
             default:
                 throw new \Exception('Invalid search mode specified');
-                break;
         }
 
         return array($recordCountQuery[0]['total_records'], $usersQuery);

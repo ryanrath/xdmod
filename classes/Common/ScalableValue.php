@@ -23,19 +23,16 @@ class ScalableValue
     public function set($value = 0, $scale = 1.0)
     {	
         $this->_value = $value;
-		if($scale < 1)
-		{
-        	$this->_scaled_value = $value * pow($scale,$this->_scale_exponent);
-		}else
-		{
-			$this->_scaled_value = $value * $scale;
-		}
+		$this->_scaled_value = $scale < 1 ? $value * pow($scale,$this->_scale_exponent) : $value * $scale;
     }
 
     public function get($scaled = true)
     {
-        if($scaled) return $this->_scaled_value;
-        else return $this->_value;
+        if ($scaled) {
+            return $this->_scaled_value;
+        } else {
+            return $this->_value;
+        }
     }
 
     public function __toString()

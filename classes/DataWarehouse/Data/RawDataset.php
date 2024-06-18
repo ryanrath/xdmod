@@ -4,13 +4,13 @@ namespace DataWarehouse\Data;
 
 class RawDataset
 {
+    public $userType;
     private $query;
     private $query_results;
 
     public function __construct(&$query, $user)
     {
         $this->query = $query;
-        $this->query_results = null;
         $this->userType = $user->getUserType();
     }
 
@@ -67,11 +67,7 @@ class RawDataset
             $errorMsg = '';
 
             if (isset($docs[$key])) {
-                if (isset($docs[$key]['units'])) {
-                    $units = $docs[$key]['units'];
-                } else {
-                    $units = null;
-                }
+                $units = isset($docs[$key]['units']) ? $docs[$key]['units'] : null;
                 $kdoc = $docs[$key]['documentation'];
                 $hname = $docs[$key]['name'];
                 $group = isset($docs[$key]['group']) ? $docs[$key]['group'] : 'Other';
@@ -115,7 +111,7 @@ class RawDataset
             );
         }
 
-        if (count($redactlist) > 0) {
+        if ($redactlist !== []) {
             foreach ($output as &$datum) {
                 foreach ($redactlist as $redact) {
                     if (false !== strpos($datum['value'], $redact)) {

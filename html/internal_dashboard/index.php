@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../configuration/linker.php';
-require_once 'user_check.php';
+require_once __DIR__ . '/user_check.php';
 
 // Set REST cookies.
 \xd_rest\setCookies();
@@ -210,19 +210,15 @@ require_once 'user_check.php';
   <?php /* App Kernel code. */ ?>
   <?php if (xd_utilities\getConfiguration('features', 'appkernels') == 'on'): ?>
   <?php
-    if(isset($_GET['op']))
-    {
-        if($_GET['op']=='ak_instance')
-        {
-          $instance_id=$_GET['instance_id'];
-          echo <<< END
+    if (isset($_GET['op']) && $_GET['op']=='ak_instance') {
+        $instance_id=$_GET['instance_id'];
+        echo <<< END
 <script type="text/javascript">
     Ext.onReady(function () {
     new XDMoD.AppKernel.InstanceWindow({instanceId:$instance_id}).show();
 }, window, true);
 </script>
 END;
-        }
     }
   ?>
   <?php endif; ?>

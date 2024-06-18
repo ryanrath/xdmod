@@ -99,10 +99,10 @@ EOT
         $this->console->displayBlankLine();
 
         $nodes = $this->console->prompt('How many CPU nodes does this resource have?');
-        if (strlen($nodes) === 0 || !is_numeric($nodes)) { $nodes = 1; }
+        if ((string) $nodes === '' || !is_numeric($nodes)) { $nodes = 1; }
 
         $cpus = $this->console->prompt('How many total CPU processors (cpu cores) does this resource have?');
-        if (strlen($cpus) === 0 || !is_numeric($cpus)) { $cpus = 1; }
+        if ((string) $cpus === '' || !is_numeric($cpus)) { $cpus = 1; }
 
         $ppn = ($nodes == 0) ? 0 : $cpus / $nodes;
 

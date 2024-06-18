@@ -41,7 +41,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
     /**
      * BaseControllerProvider constructor.
-     * @param array $params
      */
     public function __construct(array $params = array())
     {
@@ -59,7 +58,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * by all child classes. As this is what is at the heart of a
      * ControllerProviders' functionality.
      *
-     * @param Application $app
      * @return mixed an instance of the controller collection for this application.
      */
     public function connect(Application $app)
@@ -74,14 +72,11 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
 
         return $controller;
     } // connect
-
     /**
      * This function is responsible for the setting up of any routes that this
      * ControllerProvider is going to be managing. It *must* be overridden by
      * a child class.
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     abstract public function setupRoutes(Application $app, ControllerCollection $controller);
@@ -91,15 +86,12 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * ControllerProvider may require or provide. It defaults to a no-op
      * function if not overridden by a child class.
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     public function setupDefaultValues(Application $app, ControllerCollection $controller)
     {
         // NO-OP UNLESS OVERRIDDEN
     } // setupDefaultValues
-
     /**
      * This function is responsible for setting up any global conversions that may be
      * required by this ControllerProvider to function. A conversion
@@ -110,15 +102,12 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      *     // do something with int $id here....
      * })->convert('id', function($id) { return (int) $id; });
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     public function setupConversions(Application $app, ControllerCollection $controller)
     {
         // NO-OP UNLESS OVERRIDDEN
     } //setupConversions
-
     /**
      * This function is responsible for setting up any global middleware that is particular
      * to this ControllerProvider. Middleware can be thought of as functions that
@@ -128,15 +117,12 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * normal execution of a route by returning a 'Response' object. In this case, the
      * next Middleware will not be run nor will the route callback.
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     public function setupMiddleware(Application $app, ControllerCollection $controller)
     {
         // NO-OP UNLESS OVERRIDDEN
     } // setupMiddleware
-
     /**
      * This function is responsible for setting up any global assertions that
      * this ControllerProvider will need during it's lifecycle. An assertion
@@ -152,8 +138,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      *  ( 0-9 ). If the route does not conform to this regex then it does not
      *  match.
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     public function setupAssertions(Application $app, ControllerCollection $controller)
@@ -217,7 +201,7 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
         // If role requirements were not given, then the only check to perform
         // is that the user is not a public user.
         $isPublicUser = $user->isPublicUser();
-        if (empty($requirements) && $isPublicUser) {
+        if ($requirements === [] && $isPublicUser) {
             throw new UnauthorizedHttpException('xdmod', self::EXCEPTION_MESSAGE);
         }
 
@@ -635,7 +619,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * property is defined by the provided 'selector'. If the 'id' does not
      * exist than a default can be supplied, otherwise null will be returned.
      *
-     * @param array $values
      * @param string $selector
      * @param null $default
      * @return null
@@ -656,10 +639,8 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      * blob for storage in the database.
      *
      * @param string                                    $message A general message
-     * @param \Symfony\Component\HttpFoundation\Request $request
      * @param boolean                                   $includeParams if set to
      * TRUE include the GET and POST parameters in the log message.
-     *
      * @return array An associative array containing the message, request path, and a block of
      *  supplemental data including host, port, method, ip address, get & post parameters, etc.
      *
@@ -677,7 +658,6 @@ abstract class BaseControllerProvider implements ControllerProviderInterface
      *
      * ------------------------------------------------------------------------------------------
      */
-
     public function formatLogMesssage($message, Request $request, $includeParams = false)
     {
         $retval = array('message' => $message);

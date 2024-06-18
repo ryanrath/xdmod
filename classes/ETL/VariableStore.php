@@ -267,7 +267,7 @@ class VariableStore extends Loggable
 
         // Can't do anything with NULL, "", or non-strings.
 
-        if ( ! is_string($string) || empty($string) ) {
+        if ( ! is_string($string) || ($string === '' || $string === '0') ) {
             return $string;
         }
 

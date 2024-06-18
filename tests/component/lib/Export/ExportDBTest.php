@@ -11,10 +11,10 @@ use \XDUser;
 // Test access to batch_export_requests table, via QueryHandler class.
 class ExportDBTest extends BaseTest
 {
-    private static $dbh = null;
+    private static $dbh;
 
     // Used for: Clean up table to initial state following testing.
-    private static $maxId = null;
+    private static $maxId;
 
     // $debug variable, if true, enables print of output from public functions,
     private static $debug = false;

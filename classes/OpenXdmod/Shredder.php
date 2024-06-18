@@ -225,7 +225,7 @@ class Shredder
      */
     public function hasHostFilter()
     {
-        return isset($this->hostFilter);
+        return $this->hostFilter !== null;
     }
 
     /**
@@ -246,7 +246,7 @@ class Shredder
 
         if ($result === false) {
             throw new Exception('Error applying host filter');
-        } elseif ($result) {
+        } elseif ($result !== 0) {
             $this->logger->debug("Host filter allows '$host'");
             return true;
         } else {
@@ -291,7 +291,7 @@ class Shredder
      */
     public function hasResource()
     {
-        return isset($this->resource);
+        return $this->resource !== null;
     }
 
     /**
@@ -511,13 +511,11 @@ class Shredder
      */
     protected function createInsertStatement($table, array $columns)
     {
-        $sql = "INSERT INTO $table ("
+        return "INSERT INTO $table ("
             . implode(', ', $columns)
             . ') VALUES ('
             . implode(', ', array_fill(0, count($columns), '?'))
             . ')';
-
-        return $sql;
     }
 
     /**
@@ -589,11 +587,7 @@ class Shredder
         $columns = array();
 
         foreach (static::$columnMap as $key => $value) {
-            if ($key === $value) {
-                $columns[] = $value;
-            } else {
-                $columns[] = "$value AS $key";
-            }
+            $columns[] = $key === $value ? $value : "$value AS $key";
         }
 
         $columns[] = "'{$this->format}' AS source_format";
@@ -756,7 +750,7 @@ class Shredder
             }
         }
 
-        if (count($errorMessages) > 0) {
+        if ($errorMessages !== []) {
             $this->logJobError(array(
                 'job_id'   => $mappedData['job_id'],
                 'input'    => $input,
@@ -794,7 +788,7 @@ class Shredder
                 // Don't add missing wall times to the list of error
                 // messages since we prefer to calculate it using the
                 // start and end times.
-                if ($time == 'wall time') {
+                if ($time === 'wall time') {
                     continue;
                 }
 
@@ -958,8 +952,6 @@ class Shredder
 
     /**
      * Log a job data error.
-     *
-     * @param array $jobInfo
      */
     protected function logJobError(array $jobInfo)
     {

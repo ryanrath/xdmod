@@ -57,7 +57,7 @@ SQL;
             "SELECT o.id FROM modw.organization o WHERE o.name = :organization_name;",
             array(':organization_name' => $organizationName)
         );
-        return !empty($rows) ? $rows[0]['id'] : -1;
+        return empty($rows) ? -1 : $rows[0]['id'];
     }
 
     /**

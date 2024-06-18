@@ -26,7 +26,7 @@ class RoleRestrictionsStringBuilder
             $symbol = $roleRestrictionsList['symbol'];
 
             $parameterStrings = array();
-            foreach ($roleRestrictionsList['parameters'] as $dimensionId => $parameterOptions) {
+            foreach ($roleRestrictionsList['parameters'] as $parameterOptions) {
                 $parameterGroupBy = $parameterOptions['groupBy'];
                 $parameterValueNames = array();
                 foreach ($parameterOptions['dimensionValues'] as $valueId) {

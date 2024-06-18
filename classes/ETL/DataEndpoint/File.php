@@ -20,7 +20,7 @@ class File extends aDataEndpoint implements iDataEndpoint
     /**
      * @var string The path to the file.
      */
-    protected $path = null;
+    protected $path;
 
     /**
      * @var string File mode. See http://php.net/manual/en/function.fopen.php
@@ -48,7 +48,7 @@ class File extends aDataEndpoint implements iDataEndpoint
             $this->logAndThrowException("Error verifying options: " . implode(", ", $messages));
         }
 
-        if ( isset($options->mode) ) {
+        if ( $options->mode !== null ) {
             $this->mode = $options->mode;
         }
 
@@ -159,7 +159,7 @@ class File extends aDataEndpoint implements iDataEndpoint
             $this->logAndThrowException("Path '" . $this->path . "' is not readable");
         }
 
-        $fh = $this->connect();
+        $this->connect();
 
         if ( ! $leaveConnected ) {
             $this->disconnect();

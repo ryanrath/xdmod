@@ -273,8 +273,6 @@ class BatchProcessor extends Loggable
     /**
      * Get the data set for the given request.
      *
-     * @param array $request
-     * @param \XDUser $user
      * @return \DataWarehouse\Data\BatchDataset;
      * @throws \Exception
      */
@@ -306,8 +304,7 @@ class BatchProcessor extends Loggable
                 ],
                 'batch'
             );
-            $dataSet = new BatchDataset($query, $user, $this->logger);
-            return $dataSet;
+            return new BatchDataset($query, $user, $this->logger);
         } catch (Exception $e) {
             $this->logger->err([
                 'module' => self::LOG_MODULE,

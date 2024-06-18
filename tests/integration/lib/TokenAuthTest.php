@@ -24,7 +24,7 @@ abstract class TokenAuthTest extends BaseTest
      * all tests that need the tokens. Indexed first by string role (e.g.,
      * 'cd') and then by string token type (e.g., 'valid_token').
      */
-    private static $tokens = null;
+    private static $tokens;
 
     /**
      * User IDs for each of the base roles (@see BaseTest::getBaseRoles()),
@@ -119,7 +119,7 @@ abstract class TokenAuthTest extends BaseTest
             } elseif ('expired_token' === $tokenType) {
                 // Expire the token (it will be unexpired at the end of this
                 // test).
-                self::expireToken($role);
+                $this->expireToken($role);
                 // Load the token for use in this test.
                 $token = self::getToken('valid_token', $role);
             } elseif ('revoked_token' === $tokenType) {
@@ -238,7 +238,7 @@ abstract class TokenAuthTest extends BaseTest
         );
         // If the token is expired, unexpire it.
         if ('expired_token' === $tokenType) {
-            self::unexpireToken($role);
+            $this->unexpireToken($role);
         }
         return $actualBodies['token_in_header'];
     }
@@ -337,12 +337,9 @@ abstract class TokenAuthTest extends BaseTest
      * @throws Exception if there is an error establishing the database
      *                   connection or executing the SQL statement.
      */
-    private static function expireToken($role)
+    private function expireToken($role)
     {
-        self::updateTokenExpirationDate(
-            self::$userIds[$role],
-            'SUBDATE(NOW(), 1)'
-        );
+        $this->updateTokenExpirationDate(self::$userIds[$role], 'SUBDATE(NOW(), 1)');
     }
 
     /**
@@ -352,12 +349,9 @@ abstract class TokenAuthTest extends BaseTest
      * @throws Exception if there is an error establishing the database
      *                   connection or executing the SQL statement.
      */
-    private static function unexpireToken($role)
+    private function unexpireToken($role)
     {
-        self::updateTokenExpirationDate(
-            self::$userIds[$role],
-            'DATE_ADD(NOW(), INTERVAL 1 DAY)'
-        );
+        $this->updateTokenExpirationDate(self::$userIds[$role], 'DATE_ADD(NOW(), INTERVAL 1 DAY)');
     }
 
     /**
@@ -369,7 +363,7 @@ abstract class TokenAuthTest extends BaseTest
      * @throws Exception if there is an error establishing the database
      *                   connection or executing the SQL statement.
      */
-    private static function updateTokenExpirationDate($userId, $newDate)
+    private function updateTokenExpirationDate($userId, $newDate)
     {
         // We need to directly access the database as we do not have an
         // endpoint for expiring/unexpiring a token.

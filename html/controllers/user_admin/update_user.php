@@ -100,13 +100,9 @@ if (isset($_POST['is_active'])) {
     $user_to_update->setAccountStatus($_POST['is_active'] == 'y' ? ACTIVE : INACTIVE);
 }
 
-if (isset($_POST['user_type'])) {
+if (isset($_POST['user_type']) && $user_to_update->getUserType() != SSO_USER_TYPE) {
 
-    if ($user_to_update->getUserType() != SSO_USER_TYPE) {
-
-        $user_to_update->setUserType($_POST['user_type']);
-
-    }
+    $user_to_update->setUserType($_POST['user_type']);
 
 }
 
@@ -135,7 +131,7 @@ if (!isset($_POST['is_active'])) {
         $featureAcls = Acls::getAclsByTypeName('feature');
         $tabAcls = Acls::getAclsByTypeName('tab');
         $uiOnlyAcls = array_merge($featureAcls, $tabAcls);
-        if (count($uiOnlyAcls) > 0) {
+        if ($uiOnlyAcls !== []) {
             $aclNames = array_reduce(
                 $uiOnlyAcls,
                 function ($carry, Acl $item) {
@@ -146,7 +142,7 @@ if (!isset($_POST['is_active'])) {
             );
         }
         $diff = array_diff(array_keys($acls), $aclNames);
-        $found = !empty($diff);
+        $found = $diff !== [];
         if (!$found) {
             \xd_response\presentError('Please include a non-feature acl ( i.e. User, PI etc. )');
         }
@@ -182,31 +178,27 @@ if (isset($_POST['institution'])) {
 try {
     $user_to_update->saveUser();
 
-    if (!isset($_POST['is_active'])) {
-        if (isset($_POST['acls']) && isset($acls)) {
-
-            // clear the organizations first.
-            $user_to_update->setOrganizations(array(), ROLE_ID_CENTER_DIRECTOR);
-            $user_to_update->setOrganizations(array(), ROLE_ID_CENTER_STAFF);
-
-            // then add each new one.
-            foreach ($acls as $aclName => $centers) {
-                // Now that the user has been created, We need to check if they have been assigned
-                // any 'center' acls. If they have and if an 'institution' has been provided ( it
-                // should have been ) then we need to call `setOrganizations` so that the
-                // user_acl_group_by_parameters table is updated accordingly.
-                //
-                if (in_array($aclName, array('cd', 'cs')) && isset($_POST['institution'])) {
-                    $user_to_update->setOrganizations(
-                        array(
-                            $_POST['institution'] => array(
-                                'primary'=> 1,
-                                'active' => 1
-                            )
-                        ),
-                        $aclName
-                    );
-                }
+    if (!isset($_POST['is_active']) && (isset($_POST['acls']) && isset($acls))) {
+        // clear the organizations first.
+        $user_to_update->setOrganizations(array(), ROLE_ID_CENTER_DIRECTOR);
+        $user_to_update->setOrganizations(array(), ROLE_ID_CENTER_STAFF);
+        // then add each new one.
+        foreach ($acls as $aclName => $centers) {
+            // Now that the user has been created, We need to check if they have been assigned
+            // any 'center' acls. If they have and if an 'institution' has been provided ( it
+            // should have been ) then we need to call `setOrganizations` so that the
+            // user_acl_group_by_parameters table is updated accordingly.
+            //
+            if (in_array($aclName, array('cd', 'cs')) && isset($_POST['institution'])) {
+                $user_to_update->setOrganizations(
+                    array(
+                        $_POST['institution'] => array(
+                            'primary'=> 1,
+                            'active' => 1
+                        )
+                    ),
+                    $aclName
+                );
             }
         }
     }

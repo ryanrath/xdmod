@@ -127,8 +127,6 @@ class SimpleTimeseriesData extends SimpleData
     {
         $t_values    = $this->_values;
         $t_errors    = $this->_errors;
-        $t_order_ids = $this->_order_ids;
-        $t_ids       = $this->_ids;
         $t_start_ts  = $this->_start_ts;
 
         $ts_to_index = array();
@@ -142,7 +140,7 @@ class SimpleTimeseriesData extends SimpleData
         $this->_order_ids = array();
         $this->_start_ts  = array();
 
-        foreach ($left->_start_ts as $index => $start_ts) {
+        foreach ($left->_start_ts as $start_ts) {
             $this->_start_ts[] = $start_ts;
 
             if (isset($ts_to_index[$start_ts])) {
@@ -151,9 +149,7 @@ class SimpleTimeseriesData extends SimpleData
                 $this->_values[] = $t_values[$i];
 
                 $this->_errors[]
-                    = array_key_exists($i, $t_errors)
-                    ? $t_errors[$i]
-                    : null;
+                    = $t_errors[$i] ?? null;
             } else {
                 $this->_values[] = $no_value;
                 $this->_errors[] = $no_value;
@@ -190,18 +186,13 @@ class SimpleTimeseriesData extends SimpleData
         $isMax = strpos($stat, 'max_') !== false ;
 
         $in_values  = $d->getValues();
-        $in_sems    = $d->getErrors();
+        $d->getErrors();
 
         foreach ($in_values as $key => $value) {
             $oldValue = \xd_utilities\array_get($values, $key, 0);
 
             if ($isMin) {
-                if ($oldValue == 0 && $value != 0) {
-                    $values[$key] = $value;
-                } else {
-                    $values[$key] = min($oldValue, $value);
-                }
-
+                $values[$key] = $oldValue == 0 && $value != 0 ? $value : min($oldValue, $value);
             } elseif ($isMax) {
                 $values[$key] = max($oldValue, $value);
 
@@ -221,11 +212,10 @@ class SimpleTimeseriesData extends SimpleData
     public function __toString() {
 
         $retval = parent::__toString();
-        $retval .= "Start Timestamp:".  implode(',',$this->getStartTs())."\n"
+        return $retval . ("Start Timestamp:".  implode(',',$this->getStartTs())."\n"
             . "groupByObject: " . $this->getGroupBy(). "\n"
             . "groupName: " . $this->getGroupName() . "\n"
-            . "groupId: " . $this->getGroupId() . "\n";
-        return $retval;
+            . "groupId: " . $this->getGroupId() . "\n");
 
     } // __toString() 
 

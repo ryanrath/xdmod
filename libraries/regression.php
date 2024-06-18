@@ -12,7 +12,7 @@ function linear_regression($x, $y) {
   $n = count($x);
   
   // ensure both arrays of points are the same size
-  if ($n != count($y)) {
+  if ($n !== count($y)) {
 
     trigger_error("linear_regression(): Number of elements in coordinate arrays do not match.", E_USER_ERROR);
   
@@ -45,13 +45,10 @@ function linear_regression($x, $y) {
   if($den != 0)  
   {
     $r = (($n * $xy_sum) - ($x_sum * $y_sum)) / $den;
-    if ($r > 1.0)
-    {
-      $r = 1.0;
-    }
-    else if ($r < -1.0)
-    {
-      $r = -1.0;
+    if ($r > 1.0) {
+        $r = 1.0;
+    } elseif ($r < -1.0) {
+        $r = -1.0;
     }
   } 
   else

@@ -10,11 +10,7 @@ $query = $xda->enumerateInstitutions($name_filter);
 
 // If there were records found based on the free-form `query` parameter -> organization name then go
 // ahead and return them. If not, then by default retrieve / return the full list of organizations.
-if (count($query) > 0) {
-    $institutions = $query;
-} else {
-    $institutions = $xda->enumerateInstitutions(null);
-}
+$institutions = count($query) > 0 ? $query : $xda->enumerateInstitutions(null);
 
 $returnData['status'] = 'success';
 $returnData['success'] = true;

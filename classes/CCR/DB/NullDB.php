@@ -14,10 +14,6 @@ namespace CCR\DB;
 
 class NullDB implements iDatabase
 {
-    public function __construct()
-    {
-    }
-
     public function __destruct()
     {
     }

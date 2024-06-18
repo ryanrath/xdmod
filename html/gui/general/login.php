@@ -73,7 +73,7 @@ try {
 </head>
     <?php
 
-    if (!empty($message)) {
+    if ($message !== '' && $message !== '0') {
     ?>
       <body class="error_message">
         <p>

@@ -55,7 +55,7 @@ class ReportBuilderTest extends BaseTest
     protected function setup(): void
     {
         $this->verbose = getenv('TEST_VERBOSE');
-        if (!isset($this->verbose)) {
+        if ($this->verbose === null) {
             $this->verbose = false;
         }
         $this->helper = new XdmodTestHelper(__DIR__ . '/../../../');
@@ -139,7 +139,6 @@ class ReportBuilderTest extends BaseTest
 
     /**
      * @dataProvider provideEnumAvailableCharts
-     * @param array $options
      * @throws \Exception
      */
     public function testEnumAvailableCharts(array $options)
@@ -200,7 +199,6 @@ class ReportBuilderTest extends BaseTest
 
     /**
      * @dataProvider provideEnumReports
-     * @param array $options
      * @throws \Exception
      */
     public function testEnumReports(array $options)
@@ -262,7 +260,6 @@ class ReportBuilderTest extends BaseTest
 
     /**
      * @dataProvider provideCreateReport
-     * @param array $options
      * @throws \Exception
      */
     public function testCreateReport(array $options)
@@ -320,7 +317,7 @@ class ReportBuilderTest extends BaseTest
                     list($key, $value) = explode('=', $param);
 
                     // Don't include empty tokens.
-                    if ($key === 'token' && empty($value)) {
+                    if ($key === 'token' && ($value === '' || $value === '0')) {
                         continue;
                     }
                     $results[$key] = $value;
@@ -396,7 +393,6 @@ class ReportBuilderTest extends BaseTest
      * @dataProvider provideCreateChart
      *
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testCreateChart(array $options)
@@ -440,7 +436,6 @@ class ReportBuilderTest extends BaseTest
 
     /**
      * @dataProvider provideEnumTemplates
-     * @param array $options
      * @throws \Exception
      */
     public function testEnumTemplates(array $options)
@@ -492,7 +487,6 @@ class ReportBuilderTest extends BaseTest
     /**
      * Create the chart specified by the provided $data.
      *
-     * @param array $data
      * @param array $expected
      * @return mixed
      */
@@ -523,7 +517,6 @@ class ReportBuilderTest extends BaseTest
     /**
      * Remove the chart specified by the provided $data parameter.
      *
-     * @param array $data
      * @param array $expected
      * @return mixed
      */
@@ -554,8 +547,6 @@ class ReportBuilderTest extends BaseTest
      * A generic helper function that does the heavy lifting for both add and
      * remove Chart.
      *
-     * @param array $data
-     * @param array $expected
      * @return mixed
      */
     private function processChartAction(array $data, array $expected)
@@ -588,7 +579,6 @@ class ReportBuilderTest extends BaseTest
     /**
      * Creates the report identified by the contents of $data.
      *
-     * @param array $data
      * @return mixed
      */
     private function createReport(array $data)
@@ -727,8 +717,6 @@ class ReportBuilderTest extends BaseTest
 
     /**
      * Renders the report image ( chart ) identified by the contents of $params.
-     *
-     * @param array $params
      */
     private function reportImageRenderer(array $params)
     {

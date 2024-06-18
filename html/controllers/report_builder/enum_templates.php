@@ -8,7 +8,7 @@ try {
     // We do not want to show the "Dashboard Tab Reports" - copy to a new array to ensure
     // continuous indexes so it will be serialized to a json array not a json object.
     $templates = [];
-    foreach($orig_templates as $key => $value){
+    foreach($orig_templates as $value){
         if ($value['name'] !== 'Dashboard Tab Report') {
             $templates[] = $value;
         }

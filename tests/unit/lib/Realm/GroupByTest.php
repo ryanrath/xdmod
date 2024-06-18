@@ -19,7 +19,7 @@ class GroupByTest extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface|null
      */
-    protected static $logger = null;
+    protected static $logger;
 
     public static function setupBeforeClass(): void
     {

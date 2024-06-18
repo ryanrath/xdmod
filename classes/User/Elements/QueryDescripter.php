@@ -8,12 +8,11 @@ use \DataWarehouse\Query\TimeseriesQuery;
 class QueryDescripter
 {
 
+    public $groupByInstance;
     /**
      * @var \Realm\iRealm The Realm that we are querying.
      */
-    private $realm = null;
-
-    private $_realm_name;
+    private $realm;
 
     /**
      * @var string
@@ -47,12 +46,12 @@ class QueryDescripter
     /**
      * @var bool
      */
-    private $_show_menu;
+    private $_show_menu = true;
 
     /**
      * @var bool
      */
-    private $_disable_menu;
+    private $_disable_menu = false;
 
     public function __construct(
         $realm_name,
@@ -65,14 +64,11 @@ class QueryDescripter
     ) {
 
         $this->realm = \Realm\Realm::factory($realm_name);
-        $this->_realm_name = $this->realm->getId();
         $this->_group_by_name   = $group_by_name;
         $this->_default_statisticname         = $default_statisticname;
         $this->_default_aggregation_unit_name = $default_aggregation_unit_name;
         $this->_default_query_type            = $default_query_type;
         $this->_order_id = $order_id;
-        $this->_show_menu    = true;
-        $this->_disable_menu = false;
     }
 
     public function getDrillTargets($hiddenGroupBys = array())
@@ -146,7 +142,7 @@ class QueryDescripter
 
     public function getGroupByInstance()
     {
-        if (!isset($this->groupByInstance)) {
+        if (!property_exists($this, 'groupByInstance') || $this->groupByInstance === null) {
             $this->groupByInstance = $this->realm->getGroupByObject($this->getGroupByName());
         }
 

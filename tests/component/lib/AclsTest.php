@@ -60,7 +60,6 @@ TXT;
      * checks that MetricExplorer::checkDataAccess returns what we would expect.
      *
      * @dataProvider provideHasDataAccess
-     * @param array $options
      * @throws \Exception
      */
     public function testHasDataAccess(array $options)
@@ -71,9 +70,9 @@ TXT;
         }
         $userName = $options['username'];
 
-        $realm = !empty($options['realm']) ? $options['realm'] : null;
-        $groupBy = !empty($options['group_by']) ? $options['group_by'] : null;
-        $statistic = !empty($options['statistic']) ? $options['statistic'] : null;
+        $realm = empty($options['realm']) ? null : $options['realm'];
+        $groupBy = empty($options['group_by']) ? null : $options['group_by'];
+        $statistic = empty($options['statistic']) ? null : $options['statistic'];
 
         $expected = (bool)$options['enabled'];
 
@@ -165,7 +164,6 @@ TXT;
      *
      * @dataProvider provideGetQueryDescripters
      *
-     * @param array $options
      * @throws \Exception if there is a problem retrieving the user.
      */
     public function testGetQueryDescripters(array $options)
@@ -265,7 +263,6 @@ TXT;
     /**
      * Extracts the pertinent testing information from a single QueryDescripter object.
      *
-     * @param QueryDescripter $queryDescripter
      * @return array
      * @throws \ReflectionException
      */
@@ -379,7 +376,6 @@ TXT;
      *
      * @dataProvider provideTestAclsGetDisabledMenus
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testAclsGetDisabledMenus(array $options)

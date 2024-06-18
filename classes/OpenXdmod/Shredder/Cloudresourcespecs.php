@@ -18,7 +18,7 @@ class Cloudresourcespecs extends Shredder
     /**
      * @inheritdoc
      */
-    public function __construct(iDatabase $db)
+    public function __construct()
     {
         $this->logger = Log::singleton('null');
     }
@@ -51,6 +51,7 @@ class Cloudresourcespecs extends Shredder
               'variable-overrides' => ['CLOUD_RESOURCE_SPECS_DIRECTORY' => $directory]
             )
         );
+        return null;
     }
 
     /**

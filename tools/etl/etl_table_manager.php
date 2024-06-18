@@ -225,9 +225,9 @@ $outputStr = null;
 switch ( $scriptOptions['operation'] ) {
 
     case 'dump-discovered':
-        if ( null !== $discoveredTable ) {
+        if ( $discoveredTable instanceof \ETL\DbModel\Table ) {
             $outputStr = "";
-            if ( "json" == $scriptOptions['output-format'] ) {
+            if ( "json" === $scriptOptions['output-format'] ) {
                 $obj = $discoveredTable->toStdClass();
                 if ( null !== $scriptOptions['table-key'] ) {
                     $tableKey = $scriptOptions['table-key'];
@@ -245,8 +245,8 @@ switch ( $scriptOptions['operation'] ) {
         break;
 
     case 'dump-parsed':
-        if ( null !== $parsedTable ) {
-            if ( "json" == $scriptOptions['output-format'] ) {
+        if ( $parsedTable instanceof \ETL\DbModel\Table ) {
+            if ( "json" === $scriptOptions['output-format'] ) {
                 $obj = $parsedTable->toStdClass();
                 if ( null !== $scriptOptions['table-key'] ) {
                     $tableKey = $scriptOptions['table-key'];
@@ -264,8 +264,8 @@ switch ( $scriptOptions['operation'] ) {
         break;
 
     case 'dump-alter':
-        if ( null !== $discoveredTable && null !== $parsedTable ) {
-            if ( "json" == $scriptOptions['output-format'] ) {
+        if ( $discoveredTable instanceof \ETL\DbModel\Table && $parsedTable instanceof \ETL\DbModel\Table ) {
+            if ( "json" === $scriptOptions['output-format'] ) {
                 usage_and_exit("JSON format not supported for ALTER TABLE");
             }
             $alterSqlList = $discoveredTable->getAlterSql($parsedTable, $scriptOptions['include-schema']);

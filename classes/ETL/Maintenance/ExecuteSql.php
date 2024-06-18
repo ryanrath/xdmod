@@ -75,7 +75,7 @@ class ExecuteSql extends aAction implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -242,7 +242,7 @@ class ExecuteSql extends aAction implements iAction
                 try {
                     $this->logger->info(array(
                         "message" => "Executing statement " . $statementPositionDisplay,
-                        "action" => (string) $this . '-sql-' . $statementPosition,
+                        "action" => $this . '-sql-' . $statementPosition,
                         "endpoint" => $this->destinationEndpoint,
                         "sql" => $sql
                     ));
@@ -259,7 +259,7 @@ class ExecuteSql extends aAction implements iAction
                 $endTime = microtime(true);
                 $this->logger->info(array(
                     "message" => "Finished executing statement " . $statementPositionDisplay,
-                    "action" => (string) $this . '-sql-' . $statementPosition,
+                    "action" => $this . '-sql-' . $statementPosition,
                     "rows" =>  $numRowsAffected,
                     "start_time" => $sqlStartTime,
                     "end_time" => $endTime,

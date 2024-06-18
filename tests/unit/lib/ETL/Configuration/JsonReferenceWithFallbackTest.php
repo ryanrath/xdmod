@@ -14,8 +14,8 @@ class JsonReferenceWithFallbackTest extends \PHPUnit_Framework_TestCase
     const VALID_REFERENCE = self::VALID_FILE . '#/bar';
     const VALID_REFERENCE_2 = self::VALID_FILE . '#/foo';
 
-    protected static $transformer = null;
-    protected static $config = null;
+    protected static $transformer;
+    protected static $config;
 
     public static function setupBeforeClass()
     {

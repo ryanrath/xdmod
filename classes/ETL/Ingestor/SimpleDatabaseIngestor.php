@@ -19,7 +19,7 @@ class SimpleDatabaseIngestor extends pdoIngestor implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -80,11 +80,7 @@ class SimpleDatabaseIngestor extends pdoIngestor implements iAction
 
         $columns = ( isset($this->parsedDefinitionFile->source_columns) ? $optionalColumnNames : $sourceColumnNames );
 
-        $destColumnNames = array();
-
-        $sourceQuery = "SELECT " . implode(", ", $columns) . " FROM $sourceTable";
-
-        return $sourceQuery;
+        return "SELECT " . implode(", ", $columns) . " FROM $sourceTable";
 
     }  // getSourceQuery()
 }  // class SimpleDatabaseIngestor

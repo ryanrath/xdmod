@@ -19,7 +19,7 @@ class Loggable
     /**
      * @var LoggerInterface
      */
-    protected $logger = null;
+    protected $logger;
 
     /**
      * Set the provided logger or instantiate a null logger if one was not provided.  The null handler
@@ -43,7 +43,7 @@ class Loggable
 
     public function setLogger(LoggerInterface $logger = null)
     {
-        $this->logger = ( null === $logger ? Log::singleton('null') : $logger );
+        $this->logger = ( $logger instanceof \Psr\Log\LoggerInterface ? $logger : Log::singleton('null') );
         return $this;
     }
 
@@ -104,7 +104,7 @@ class Loggable
             if ( array_key_exists('exception', $options) && $options['exception'] instanceof Exception ) {
                 // Don't add the exception message if it is the same as the general message
                 $exceptionMessage = $options['exception']->getMessage();
-                if ( $message != $exceptionMessage ) {
+                if ( $message !== $exceptionMessage ) {
                     $message .= sprintf(" Exception: '%s'", $exceptionMessage);
                 }
 

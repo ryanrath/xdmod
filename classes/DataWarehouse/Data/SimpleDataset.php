@@ -18,9 +18,6 @@ class SimpleDataset
 
     protected $_results;
 
-    // TODO: what say we:
-    private $_count;
-
     public function __construct(&$query)
     {
         $this->_query = $query;
@@ -68,7 +65,7 @@ class SimpleDataset
         $where_column = null,
         $where_value = null
     ) {
-        if ($force_reexec === true || !isset($this->_results)) {
+        if ($force_reexec === true || $this->_results === null) {
 
             $having
                 = $where_column != NULL
@@ -185,7 +182,7 @@ class SimpleDataset
         $column_type = substr($column_type_and_name, 0, 3);
         $column_name = substr($column_type_and_name, 4);
 
-        $is_dimension = $column_type == 'dim';
+        $is_dimension = $column_type === 'dim';
 
         $values_column_name    = null;
         $sem_column_name       = null;
@@ -327,7 +324,6 @@ class SimpleDataset
         $group_bys = $this->_query->getGroupBys();
 
         $stats = $this->_query->getStats();
-        $has_stats = count($stats) > 0;
 
         foreach ($group_bys as $group_by) {
             $headers[]
@@ -340,7 +336,7 @@ class SimpleDataset
             $stat_unit  = $stat->getUnit();
 
             $data_unit = '';
-            if (substr( $stat_unit, -1 ) == '%') {
+            if (substr( $stat_unit, -1 ) === '%') {
                 $data_unit = '%';
             }
 
@@ -406,7 +402,6 @@ class SimpleDataset
         $count    = -1;
         $records  = array();
         $columns  = array();
-        $subnotes = array();
         $sortInfo = array();
         $message  = '';
         $count    = $this->_query->getCount();
@@ -443,7 +438,7 @@ class SimpleDataset
                 $stat_alias = $stat->getId();
 
                 $data_unit = '';
-                if (substr( $stat_unit, -1 ) == '%') {
+                if (substr( $stat_unit, -1 ) === '%') {
                     $data_unit = '%';
                 }
 
@@ -534,7 +529,7 @@ class SimpleDataset
             "records" => $records,
             "columns" => $columns
         );
-        if (!empty($sortInfo)) {
+        if ($sortInfo !== []) {
             $returnData["metaData"]["sortInfo"] = $sortInfo;
         }
 

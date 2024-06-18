@@ -53,7 +53,7 @@ class DataEndpoint
      * @var array | null
      */
 
-    private static $endpointClassMap = null;
+    private static $endpointClassMap;
 
     /** -----------------------------------------------------------------------------------------
      * Private constructor ensures the singleton can't be instantiated.
@@ -132,7 +132,7 @@ class DataEndpoint
         // The iterator returns SplFileInfo objects where the keys are the path to the
         // file.
 
-        foreach ( $flattenedIterator as $path => $fileInfo ) {
+        foreach ( $flattenedIterator as $fileInfo ) {
 
             if ( $flattenedIterator->isDot() ) {
                 continue;
@@ -183,7 +183,7 @@ class DataEndpoint
                         $name = $r->getConstant(self::ENDPOINT_NAME_CONSTANT);
                         if ( ! array_key_exists($name, self::$endpointClassMap) ) {
                             self::$endpointClassMap[$name] = $r->getName();
-                        } elseif ( null !== $logger ) {
+                        } elseif ( $logger instanceof \Psr\Log\LoggerInterface ) {
                             $logger->warning(
                                 sprintf(
                                     "%s Endpoint with name '%s' already exists, skipping",
@@ -193,7 +193,7 @@ class DataEndpoint
                             );
                         }
 
-                    } elseif ( null !== $logger ) {
+                    } elseif ( $logger instanceof \Psr\Log\LoggerInterface ) {
 
                         $logger->warning(
                             sprintf(
@@ -237,7 +237,7 @@ class DataEndpoint
 
         if ( ! array_key_exists($options->type, self::$endpointClassMap) ) {
             $msg = sprintf("%s: Undefined data endpoint type: '%s'", __CLASS__, $options->type);
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->err($msg);
             }
             throw new Exception($msg);
@@ -250,7 +250,7 @@ class DataEndpoint
 
         if ( ! $endpoint instanceof iDataEndpoint ) {
             $msg = sprintf("%s: %s does not implement iDataEndpoint", __CLASS__, $className);
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->err($msg);
             }
             throw new Exception($msg);

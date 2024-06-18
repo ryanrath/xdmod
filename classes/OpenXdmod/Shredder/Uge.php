@@ -31,7 +31,7 @@ class Uge extends Sge
         $this->logger->debug("Shredding line '$line'");
 
         // Ignore comments.
-        if (substr($line, 0, 1) == '#') {
+        if (substr($line, 0, 1) === '#') {
             return;
         }
 

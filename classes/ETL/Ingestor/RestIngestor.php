@@ -28,23 +28,23 @@ use Psr\Log\LoggerInterface;
 class RestIngestor extends aIngestor implements iAction
 {
     // Parsed configuration options for REST request handling
-    protected $restRequestConfig = null;
+    protected $restRequestConfig;
 
     // Parsed configuration options for REST response handling
-    protected $restResponseConfig = null;
+    protected $restResponseConfig;
 
     // Column names for the destination table
-    protected $destinationTableColumnNames = null;
+    protected $destinationTableColumnNames;
 
     // Optional source query for additional parameters
-    protected $etlSourceQuery = null;
-    protected $etlSourceQueryResult = null;
+    protected $etlSourceQuery;
+    protected $etlSourceQueryResult;
 
     // Optional parameters for the rest call
     protected $restParameters = array();
 
     // The current url, useful for debugging
-    private $currentUrl = null;
+    private $currentUrl;
 
     // List of transformation and verificaiton directives to apply to request parameters. Keys are
     // parameter names and values are an object containing the directives.
@@ -57,7 +57,7 @@ class RestIngestor extends aIngestor implements iAction
 
     // This action does not (yet) support multiple destination tables. If multiple destination
     // tables are present, store the first here and use it.
-    protected $etlDestinationTable = null;
+    protected $etlDestinationTable;
 
     /* ------------------------------------------------------------------------------------------
      * Set up data endpoints and other options.
@@ -81,7 +81,7 @@ class RestIngestor extends aIngestor implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -296,15 +296,7 @@ class RestIngestor extends aIngestor implements iAction
         $countKey = ( isset($this->restResponseConfig->count) ? $this->restResponseConfig->count : null );
         $resultsKey = ( isset($this->restResponseConfig->results) ? $this->restResponseConfig->results : null );
         $nextKey = ( isset($this->restResponseConfig->next) ? $this->restResponseConfig->next : null );
-        $prevKey = ( isset($this->restResponseConfig->prev) ? $this->restResponseConfig->prev : null );
         $fieldMap = ( isset($this->restResponseConfig->field_map) ? (array) $this->restResponseConfig->field_map : null );
-
-        $reservedKeys = array_filter(
-            array($countKey, $resultsKey, $nextKey, $prevKey),
-            function ($value) {
-                return ( null !== $value );
-            }
-        );
 
         // --------------------------------------------------------------------------------
         // Perform a-priori verifications
@@ -496,7 +488,7 @@ class RestIngestor extends aIngestor implements iAction
                     $recordParameters[":{$dbCol}_{$recordCounter}"] = $result->$resultKey;
                 }
 
-                if ( $numColumns != count($recordParameters) ) {
+                if ( $numColumns !== count($recordParameters) ) {
                     $this->logger->warning(
                         "{$this} Record counts do not match (expected $numColumns but receieved "
                         . count($recordParameters) . "). url = {$this->currentUrl}"
@@ -620,7 +612,7 @@ class RestIngestor extends aIngestor implements iAction
     protected function setRestUrlWithParameters()
     {
         if ( 0 == count($this->restParameters) ) {
-            return;
+            return null;
         }
 
         // Apply any parameter transform/verify directives prior to setting the url.
@@ -834,7 +826,6 @@ class RestIngestor extends aIngestor implements iAction
 
         switch ( $directive->type ) {
             case 'datetime':
-                break;
             case 'sprintf':
                 break;
             case 'regex':

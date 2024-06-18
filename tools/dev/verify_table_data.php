@@ -319,7 +319,7 @@ function compareTables($srcTable, $destTable)
         $logger->info("Exclude columns: " . implode(', ', $scriptOptions['exclude-columns']));
     }
 
-    if ( $qualifiedSrcTable == $qualifiedDestTable ){
+    if ( $qualifiedSrcTable === $qualifiedDestTable ){
         $logger->warning(sprintf(
             "Cannot compare a table to itself: %s",
             $qualifiedSrcTable
@@ -339,7 +339,7 @@ function compareTables($srcTable, $destTable)
     $numSrcColumns = count($srcTableColumns);
     $numDestColumns = count($destTableColumns);
 
-    if ( ! $scriptOptions['ignore-column-count'] && $numSrcColumns != $numDestColumns ) {
+    if ( ! $scriptOptions['ignore-column-count'] && $numSrcColumns !== $numDestColumns ) {
         $logger->err(sprintf(
             "Column number mismatch %s (%d); dest %s (%d)",
             $qualifiedSrcTable,
@@ -768,7 +768,7 @@ function compareTableData(
         "SELECT src.*\nFROM %s src\nLEFT OUTER JOIN %s dest ON (\n%s\n)\nWHERE %s%s",
         $srcTableName,
         $destTableName,
-        join("\nAND ", $constraints),
+        implode("\nAND ", $constraints),
         implode("\nAND ", $where),
         ( null !== $scriptOptions['num-missing-rows'] ? "\nLIMIT " . $scriptOptions['num-missing-rows'] : "" )
     );
@@ -818,7 +818,7 @@ function compareTableData(
                 $sql = "
                 SELECT dest.*
                 FROM $srcTableName src
-                JOIN $destTableName dest ON (" . join("\nAND ", $constraints) . ")"
+                JOIN $destTableName dest ON (" . implode("\nAND ", $constraints) . ")"
                 . ( 0 != count($where) ? "\nWHERE " . implode("\nAND ", $where) : "" );
 
                 $deltaStmt = $dbh->prepare($sql);

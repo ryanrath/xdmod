@@ -23,7 +23,7 @@ class FileTest extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface
      */
-    private $logger = null;
+    private $logger;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {

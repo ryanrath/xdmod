@@ -47,7 +47,7 @@ class Version
      *
      * @var LoggerInterface
      */
-    protected static $logger = null;
+    protected static $logger;
 
 
     /**

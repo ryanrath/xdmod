@@ -10,7 +10,6 @@ use CCR\Json;
 
 class AggregateTest extends BaseTest
 {
-    private $_query;
     /**
      * @dataProvider QueryDataProvider
      */
@@ -34,7 +33,6 @@ class AggregateTest extends BaseTest
 
     public function queryDataProvider(){
         $expectedFileName = $this->getTestFiles()->getFile('acls', 'aggregate_durations');
-        $expected = JSON::loadFile($expectedFileName);
-        return $expected;
+        return JSON::loadFile($expectedFileName);
     }
 }

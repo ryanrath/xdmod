@@ -5,10 +5,10 @@
  */
 class ArraySourceIngestor implements Ingestor
 {
-	protected $_dest_db = null;
+	protected $_dest_db;
 
 	protected $_source_data;
-	protected $_dest_insert_statement = null;
+	protected $_dest_insert_statement;
 
     protected $_logger;
 
@@ -20,10 +20,6 @@ class ArraySourceIngestor implements Ingestor
 		$this->_dest_insert_statement = $dest_insert_statement;
 
         $this->_logger = Log::singleton('null');
-	}
-
-	function __destruct()
-	{
 	}
 
 	public function ingest()

@@ -54,7 +54,7 @@ abstract class aAggregator extends aRdbmsDestinationAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -111,56 +111,50 @@ abstract class aAggregator extends aRdbmsDestinationAction
 
             $this->variableStore->overwrite('START_DATE', $this->currentStartDate);
             $this->variableStore->overwrite('END_DATE', $this->currentEndDate);
+            foreach ( $this->options->aggregation_units as $aggregationUnit ) {
+                $startTime = microtime(true);
 
-            if ( false !== $this->performPreExecuteTasks() ) {
+                // The aggregation unit must be set for the AggregationTable
 
-                foreach ( $this->options->aggregation_units as $aggregationUnit ) {
-                    $startTime = microtime(true);
+                foreach ( $this->etlDestinationTableList as $etlTable ) {
+                    $etlTable->aggregation_unit = $aggregationUnit;
+                }
 
-                    // The aggregation unit must be set for the AggregationTable
+                $this->variableStore->overwrite('AGGREGATION_UNIT', $aggregationUnit);
 
-                    foreach ( $this->etlDestinationTableList as $etlTableKey => $etlTable ) {
-                        $etlTable->aggregation_unit = $aggregationUnit;
-                    }
+                if ( false === $this->performPreAggregationUnitTasks($aggregationUnit) ) {
+                    $this->logger->notice("Pre-aggregation unit tasks failed, skipping unit '$aggregationUnit'");
+                    continue;
+                }
 
-                    $this->variableStore->overwrite('AGGREGATION_UNIT', $aggregationUnit);
+                // The destination should be truncated once prior to executing the aggregation
+                // but after the table exists.
 
-                    if ( false === $this->performPreAggregationUnitTasks($aggregationUnit) ) {
-                        $this->logger->notice("Pre-aggregation unit tasks failed, skipping unit '$aggregationUnit'");
-                        continue;
-                    }
+                $this->truncateDestination();
 
-                    // The destination should be truncated once prior to executing the aggregation
-                    // but after the table exists.
+                $this->logger->debug(
+                    sprintf("Available Variables: %s", $this->variableStore->toDebugString())
+                );
 
-                    $this->truncateDestination();
+                // Perform the dirty work
 
-                    $this->logger->debug(
-                        sprintf("Available Variables: %s", $this->variableStore->toDebugString())
-                    );
+                $numAggregationPeriodsProcessed = $this->_execute($aggregationUnit);
 
-                    // Perform the dirty work
+                $this->performPostAggregationUnitTasks($aggregationUnit, $numAggregationPeriodsProcessed);
 
-                    $numAggregationPeriodsProcessed = $this->_execute($aggregationUnit);
+                $endTime = microtime(true);
+                $msg = sprintf(
+                    'Aggregation time for %s %.2fs (avg %.2fs/period)',
+                    $aggregationUnit,
+                    $endTime - $startTime,
+                    ($numAggregationPeriodsProcessed > 0 ? ($endTime - $startTime) / $numAggregationPeriodsProcessed : 0 )
+                );
+                $this->logger->info($msg);
 
-                    $this->performPostAggregationUnitTasks($aggregationUnit, $numAggregationPeriodsProcessed);
-
-                    $endTime = microtime(true);
-                    $msg = sprintf(
-                        'Aggregation time for %s %.2fs (avg %.2fs/period)',
-                        $aggregationUnit,
-                        $endTime - $startTime,
-                        ($numAggregationPeriodsProcessed > 0 ? ($endTime - $startTime) / $numAggregationPeriodsProcessed : 0 )
-                    );
-                    $this->logger->info($msg);
-
-                }  // foreach ( $this->options->aggregation_units as $aggregationUnit )
-
-                // Perform any post execution actions
-
-                $this->performPostExecuteTasks($numAggregationPeriodsProcessed);
-
-            }  // if ( false !== $this->performPreExecuteTasks() )
+            }
+            // foreach ( $this->options->aggregation_units as $aggregationUnit )
+            // Perform any post execution actions
+            $this->performPostExecuteTasks($numAggregationPeriodsProcessed);  // if ( false !== $this->performPreExecuteTasks() )
 
             $intervalNum++;
 

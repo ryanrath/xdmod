@@ -130,7 +130,9 @@ foreach ($args as $arg => $value) {
 
   case 'x':
   case 'output-format':
-    if ( ! in_array($value, $supportedFormats) ) usage_and_exit("Unsupported output format");
+    if (! in_array($value, $supportedFormats)) {
+        usage_and_exit("Unsupported output format");
+    }
     $scriptOptions['output-format'] = $value;
     break;
 
@@ -152,15 +154,17 @@ $conf = array(
   'mail' => FALSE
   );
 
-if ( NULL !== $scriptOptions['verbosity'] ) $conf['consoleLogLevel'] = $scriptOptions['verbosity'];
+if (NULL !== $scriptOptions['verbosity']) {
+    $conf['consoleLogLevel'] = $scriptOptions['verbosity'];
+}
 
 $logger = Log::factory('etl_aggregation_table_manager', $conf);
 
-if ( NULL === $scriptOptions['config-file'] ||
-     NULL === $scriptOptions['operation'] ) {
-  usage_and_exit();
-} else if ( ! is_file($scriptOptions['config-file']) ) {
-  usage_and_exit("Config file not found: '" . $scriptOptions['config-file'] . "'");
+if (NULL === $scriptOptions['config-file'] ||
+     NULL === $scriptOptions['operation']) {
+    usage_and_exit();
+} elseif (! is_file($scriptOptions['config-file'])) {
+    usage_and_exit("Config file not found: '" . $scriptOptions['config-file'] . "'");
 }
 
 // ------------------------------------------------------------------------------------------
@@ -225,7 +229,7 @@ try {
     break;
     
   case 'dump-parsed':
-    if ( NULL !== $parsedTable ) {
+    if ( $parsedTable instanceof \ETL\Table\AggregationTable ) {
       $outputStr = ( "json" == $scriptOptions['output-format']
                      ? $parsedTable->toJson($scriptOptions['succinct-mode'], $scriptOptions['include-schema'])
 //                     : "DELIMITER ;;\n" . $parsedTable->getSelectSql($scriptOptions['include-schema']) . "\n;;" );
@@ -234,10 +238,14 @@ try {
     break;
     
   case 'dump-alter':
-    if ( NULL !== $discoveredTable && NULL !== $parsedTable ) {
-      if ( "json" == $scriptOptions['output-format'] ) usage_and_exit("JSON format not supported for ALTER TABLE");
+    if ( NULL !== $discoveredTable && $parsedTable instanceof \ETL\Table\AggregationTable ) {
+      if ("json" == $scriptOptions['output-format']) {
+          usage_and_exit("JSON format not supported for ALTER TABLE");
+      }
       $alterSqlList = $discoveredTable->getAlterSql($parsedTable, $scriptOptions['include-schema']);
-      if ( $alterSqlList ) $outputStr = "DELIMITER ;;\n" . implode("\n;;\n", $alterSqlList) . "\n;;";
+      if ($alterSqlList) {
+          $outputStr = "DELIMITER ;;\n" . implode("\n;;\n", $alterSqlList) . "\n;;";
+      }
     }
     break;
     
@@ -250,7 +258,9 @@ try {
   exit($msg);
 }
 
-if ( NULL === $outputStr ) exit(0);
+if (NULL === $outputStr) {
+    exit(0);
+}
 
 if ( NULL !== $scriptOptions['output-file'] ) {
   file_put_contents($scriptOptions['output-file'], "$outputStr\n");

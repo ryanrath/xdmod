@@ -30,7 +30,7 @@ class UpdateIngestor extends aRdbmsDestinationAction implements iAction
      * @var \ETL\DbModel\Table
      */
 
-    protected $etlDestinationTable = null;
+    protected $etlDestinationTable;
 
     /** -----------------------------------------------------------------------------------------
      * @see iAction::__construct()
@@ -58,7 +58,7 @@ class UpdateIngestor extends aRdbmsDestinationAction implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;

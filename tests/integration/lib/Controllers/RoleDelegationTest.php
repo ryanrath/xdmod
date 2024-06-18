@@ -33,7 +33,6 @@ class RoleDelegationTest extends BaseUserAdminTest
      *
      * @dataProvider provideSuccessfulRoleDelegation
      *
-     * @param array $options
      * @throws \Exception if there is a problem authenticating as the provided user.
      */
     public function testSuccessfulRoleDelegation(array $options)
@@ -84,7 +83,6 @@ class RoleDelegationTest extends BaseUserAdminTest
      *
      * @dataProvider provideInvalidRoleDelegation
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testInvalidRoleDelegation(array $options)
@@ -133,7 +131,6 @@ class RoleDelegationTest extends BaseUserAdminTest
      * not being authorized to perform them.
      *
      * @dataProvider provideUnauthorizedRoleDelegation
-     * @param array $options
      * @throws \Exception
      */
     public function testUnauthorizedRoleDelegation(array $options)

@@ -55,8 +55,35 @@ class CloudStateReconstructorTransformIngestor extends pdoIngestor implements iA
 
     private $_instance_state;
     private $_end_time;
-    private $_state_change_events;
-    private $_vm_inactive_events;
+    private $_state_change_events = array(
+      self::REQUEST_START,
+      self::START,
+      self::REQUEST_STOP,
+      self::STOP,
+      self::TERMINATE,
+      self::REQUEST_TERMINATE,
+      self::REQUEST_RESUME,
+      self::RESUME,
+      self::SUSPEND,
+      self::SHELVE,
+      self::UNSHELVE,
+      self::POWER_OFF_START,
+      self::POWER_OFF,
+      self::PAUSE_START,
+      self::PAUSE,
+      self::UNPAUSE_START,
+      self::UNPAUSE_END,
+      self::POWER_ON_START,
+      self::POWER_ON,
+      self::UNSUSPEND_START,
+      self::UNSUSPEND,
+      self::SUSPEND_START,
+      self::UNSHELVE_END,
+      self::SHELVE_START,
+      self::STATE_REPORT,
+      self::RESIZE
+    );
+    private $_vm_inactive_events = array(self::STOP, self::SUSPEND, self::SHELVE, self::POWER_OFF, self::PAUSE);
 
     /**
      * @see ETL\Ingestor\pdoIngestor::__construct()
@@ -64,37 +91,6 @@ class CloudStateReconstructorTransformIngestor extends pdoIngestor implements iA
     public function __construct(aOptions $options, EtlConfiguration $etlConfig, LoggerInterface $logger = null)
     {
         parent::__construct($options, $etlConfig, $logger);
-
-        $this->_state_change_events = array(
-          self::REQUEST_START,
-          self::START,
-          self::REQUEST_STOP,
-          self::STOP,
-          self::TERMINATE,
-          self::REQUEST_TERMINATE,
-          self::REQUEST_RESUME,
-          self::RESUME,
-          self::SUSPEND,
-          self::SHELVE,
-          self::UNSHELVE,
-          self::POWER_OFF_START,
-          self::POWER_OFF,
-          self::PAUSE_START,
-          self::PAUSE,
-          self::UNPAUSE_START,
-          self::UNPAUSE_END,
-          self::POWER_ON_START,
-          self::POWER_ON,
-          self::UNSUSPEND_START,
-          self::UNSUSPEND,
-          self::SUSPEND_START,
-          self::UNSHELVE_END,
-          self::SHELVE_START,
-          self::STATE_REPORT,
-          self::RESIZE
-        );
-
-        $this->_vm_inactive_events = array(self::STOP, self::SUSPEND, self::SHELVE, self::POWER_OFF, self::PAUSE);
         $this->_end_time = $etlConfig->getVariableStore()->endDate ? date('Y-m-d H:i:s', strtotime($etlConfig->getVariableStore()->endDate)) : null;
 
         $this->resetInstance();
@@ -105,7 +101,7 @@ class CloudStateReconstructorTransformIngestor extends pdoIngestor implements iA
         // A TERMINATE event should never be able to start a new record since it is
         // the last event a VM can have
         if ($srcRecord['event_type_id'] != self::TERMINATE) {
-            $default_end_time = isset($this->_end_time) ? $this->_end_time : $srcRecord['event_time_ts'];
+            $default_end_time = $this->_end_time !== null ? $this->_end_time : $srcRecord['event_time_ts'];
 
             $this->_instance_state = array(
                 'resource_id' => $srcRecord['resource_id'],
@@ -136,7 +132,7 @@ class CloudStateReconstructorTransformIngestor extends pdoIngestor implements iA
     {
         // We want to just flush when we hit the dummy row
         if ($srcRecord['event_type_id'] === 0) {
-            if (isset($this->_instance_state)) {
+            if ($this->_instance_state !== null) {
                 return array($this->_instance_state);
             } else {
                 return array();
@@ -183,9 +179,7 @@ class CloudStateReconstructorTransformIngestor extends pdoIngestor implements iA
         $unionValues = array_fill(0, $colCount, 0);
         $subSelect = "(SELECT DISTINCT instance_id from modw_cloud.event WHERE last_modified > \"" . $this->getEtlOverseerOptions()->getLastModifiedStartDate() . "\")";
 
-        $sql = "$sql WHERE instance_id IN " . $subSelect . " AND event_type_id IN (" . implode(',', $this->_state_change_events) . ")\nUNION ALL\nSELECT " . implode(',', $unionValues) . "\nORDER BY 1 DESC, 2 DESC, 3 ASC, 4 DESC";
-
-        return $sql;
+        return "$sql WHERE instance_id IN " . $subSelect . " AND event_type_id IN (" . implode(',', $this->_state_change_events) . ")\nUNION ALL\nSELECT " . implode(',', $unionValues) . "\nORDER BY 1 DESC, 2 DESC, 3 ASC, 4 DESC";
     }
 
     public function transformHelper(array $srcRecord)

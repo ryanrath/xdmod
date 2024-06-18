@@ -58,9 +58,7 @@ function checkDateParameters()
 function getShowTitle()
 {
     return (
-        isset($_REQUEST['show_title'])
-        ? $_REQUEST['show_title'] === 'y'
-        : false
+        isset($_REQUEST['show_title']) && $_REQUEST['show_title'] === 'y'
     );
 }
 
@@ -93,8 +91,6 @@ function getScale()
 
 function getShowGuideLines()
 {
-    $show_guide_lines = true;
-
     if (isset($_REQUEST['show_guide_lines'])) {
         return $_REQUEST['show_guide_lines'] == 'true'
             || $_REQUEST['show_guide_lines'] === 'y';
@@ -113,27 +109,21 @@ function getRealm()
 function getSwapXY()
 {
     return
-        isset($_REQUEST['swap_xy'])
-        ? $_REQUEST['swap_xy'] == 'true' || $_REQUEST['swap_xy'] === 'y'
-        : false;
+        isset($_REQUEST['swap_xy']) && ($_REQUEST['swap_xy'] == 'true' || $_REQUEST['swap_xy'] === 'y');
 }
 
 function getShareYAxis()
 {
     return
-        isset($_REQUEST['share_y_axis'])
-        ? $_REQUEST['share_y_axis'] == 'true'
-            || $_REQUEST['share_y_axis'] === 'y'
-        : false;
+        isset($_REQUEST['share_y_axis']) && ($_REQUEST['share_y_axis'] == 'true'
+            || $_REQUEST['share_y_axis'] === 'y');
 }
 
 function getHideTooltip()
 {
     return
-        isset($_REQUEST['hide_tooltip'])
-        ? $_REQUEST['hide_tooltip'] == 'true'
-            || $_REQUEST['hide_tooltip'] === 'y'
-        : false;
+        isset($_REQUEST['hide_tooltip']) && ($_REQUEST['hide_tooltip'] == 'true'
+            || $_REQUEST['hide_tooltip'] === 'y');
 }
 
 function getLegendLocation()
@@ -154,26 +144,12 @@ function getTitle()
 
 function getLimit()
 {
-    if (!isset($_REQUEST['limit']) || empty($_REQUEST['limit'])) {
-        $limit = 20;
-    }
-    else {
-        $limit = $_REQUEST['limit'];
-    }
-
-    return $limit;
+    return !isset($_REQUEST['limit']) || empty($_REQUEST['limit']) ? 20 : $_REQUEST['limit'];
 }
 
 function getOffset()
 {
-    if (!isset($_REQUEST['start']) || empty($_REQUEST['start'])) {
-        $offset = 0;
-    }
-    else {
-        $offset = $_REQUEST['start'];
-    }
-
-    return $offset;
+    return !isset($_REQUEST['start']) || empty($_REQUEST['start']) ? 0 : $_REQUEST['start'];
 }
 
 function getSortInfo()

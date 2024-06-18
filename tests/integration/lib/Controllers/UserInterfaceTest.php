@@ -12,7 +12,6 @@ class UserInterfaceTest extends BaseUserAdminTest
      *
      * @dataProvider provideTestGetMenus
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testGetMenus(array $options)
@@ -65,10 +64,8 @@ class UserInterfaceTest extends BaseUserAdminTest
             if (!is_file($expectedOutputFile)) {
                 $newFile = array();
                 foreach ($actual as $arr) {
-                    if (isset($arr['realm'])) {
-                        if (strtolower($arr['realm']) == $realm) {
-                            array_push($newFile, $arr);
-                        }
+                    if (isset($arr['realm']) && strtolower($arr['realm']) == $realm) {
+                        $newFile[] = $arr;
                     }
                 }
                 $separator = array(
@@ -79,7 +76,7 @@ class UserInterfaceTest extends BaseUserAdminTest
                     "leaf" => true,
                     "disabled" => true
                 );
-                array_push($newFile, $separator);
+                $newFile[] = $separator;
                 $filePath = dirname($expectedOutputFile);
                 if (!is_dir($filePath)){
                     mkdir($filePath);

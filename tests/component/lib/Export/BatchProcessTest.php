@@ -121,9 +121,9 @@ class BatchProcessTest extends BaseTest
      *
      * @return array[]
      */
-    private static function getEmails()
+    private function getEmails()
     {
-        while (trim(`postqueue -p | tail -n1 | awk '{print $5}'`) != '') {
+        while (trim(`postqueue -p | tail -n1 | awk '{print $5}'`) !== '') {
             usleep(10000);
         }
 
@@ -140,7 +140,7 @@ class BatchProcessTest extends BaseTest
             // Check for a new message.
             if (substr($line, 0, 5) === 'From ') {
                 // Store previous email.
-                if (!empty($currentEmail)) {
+                if ($currentEmail !== []) {
                     // Remove trailing newline.
                     $body = substr($body, 0, -1);
                     // Undo "From " escaping.
@@ -151,7 +151,7 @@ class BatchProcessTest extends BaseTest
                 $currentEmail = [];
                 $headers = [];
                 // Parse headers.
-                while (count($lines) > 0 && $lines[0] != "\n") {
+                while ($lines !== [] && $lines[0] !== "\n") {
                     $line = substr(array_shift($lines), 0, -1);
                     list($key, $value) = explode(': ', $line, 2);
                     while ($lines[0][0] === "\t") {
@@ -168,7 +168,7 @@ class BatchProcessTest extends BaseTest
             }
         }
         // Store last email.
-        if (!empty($currentEmail)) {
+        if ($currentEmail !== []) {
             // Remove trailing newline.
             $body = substr($body, 0, -1);
             // Undo "From " escaping.
@@ -209,7 +209,7 @@ class BatchProcessTest extends BaseTest
     public function testDryRun()
     {
         // Capture state before processing requests.
-        $emails = self::getEmails();
+        $emails = $this->getEmails();
         $files = self::getExportFiles();
         $submittedRequests = self::$queryHandler->listSubmittedRecords();
         $expiringRequests = self::$queryHandler->listExpiringRecords();
@@ -218,7 +218,7 @@ class BatchProcessTest extends BaseTest
         $batchProcessor->setDryRun(true);
         $batchProcessor->processRequests();
 
-        $this->assertEquals($emails, self::getEmails(), 'No new emails');
+        $this->assertEquals($emails, $this->getEmails(), 'No new emails');
         $this->assertEquals($files, self::getExportFiles(), 'No new export files');
         $this->assertEquals(
             $submittedRequests,
@@ -238,7 +238,7 @@ class BatchProcessTest extends BaseTest
     public function testRequestProcessing()
     {
         // Capture state before processing requests.
-        $emailsBefore = self::getEmails();
+        $emailsBefore = $this->getEmails();
         $filesBefore = self::getExportFiles();
         $submittedRequestsBefore = self::$queryHandler->listSubmittedRecords();
         $expiringRequestsBefore = self::$queryHandler->listExpiringRecords();
@@ -247,7 +247,7 @@ class BatchProcessTest extends BaseTest
         $batchProcessor->processRequests();
 
         // Capture state after processing requests.
-        $emailsAfter = self::getEmails();
+        $emailsAfter = $this->getEmails();
         $filesAfter = self::getExportFiles();
         $submittedRequestsAfter = self::$queryHandler->listSubmittedRecords();
         $expiringRequestsAfter = self::$queryHandler->listExpiringRecords();

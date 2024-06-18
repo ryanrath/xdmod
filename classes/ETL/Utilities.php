@@ -16,7 +16,7 @@ use stdClass;
 class Utilities
 {
     // EtlConfiguration object
-    private static $etlConfig = null;
+    private static $etlConfig;
 
     /* ------------------------------------------------------------------------------------------
      * Set the ETL configuration object in the utilities class. This should occur once upon
@@ -124,7 +124,7 @@ class Utilities
             throw new Exception($msg);
         } elseif ( 0 == filesize($filename) ) {
             // No use processing an empty macro
-            return;
+            return null;
         }
 
         if ( false === ($macro = @file_get_contents($filename)) ) {
@@ -157,9 +157,8 @@ class Utilities
 
         $vs->clear();
         $vs->add(array($config->name => $macro));
-        $string = $vs->substitute($string);
 
-        return $string;
+        return $vs->substitute($string);
 
     }  // processMacro()
 

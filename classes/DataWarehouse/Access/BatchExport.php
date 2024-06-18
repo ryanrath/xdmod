@@ -14,7 +14,6 @@ class BatchExport
     /**
      * Get all the realms for a user.
      *
-     * @param \XDUser $user
      * @return array[] Batch export realm configurations enabled for user.
      */
     public static function getBatchExportRealms(XDUser $user)
@@ -37,7 +36,6 @@ class BatchExport
     /**
      * Check if a realm exists for a user.
      *
-     * @param \XDUser $user
      * @param string $realm
      * @return boolean
      */

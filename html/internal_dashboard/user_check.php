@@ -58,6 +58,6 @@ function denyWithMessage($message)
 {
     $reject_response = $message;
 
-    include 'splash.php';
+    include __DIR__ . '/splash.php';
     exit;
 }

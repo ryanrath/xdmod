@@ -124,11 +124,10 @@ class WarehouseControllerProviderTest extends TokenAuthTest
                 'string_params' => ['realm', 'data']
             ]
         );
-        $tests = $this->provideSearchParamsMalformedDataTests(
+        return $this->provideSearchParamsMalformedDataTests(
             $tests,
             $validInput
         );
-        return $tests;
     }
 
     private function provideSearchParamsMalformedDataTests($tests, $validInput)
@@ -217,11 +216,10 @@ class WarehouseControllerProviderTest extends TokenAuthTest
                 'string_params' => ['realm', 'data']
             ]
         );
-        $tests = $this->provideSearchParamsMalformedDataTests(
+        return $this->provideSearchParamsMalformedDataTests(
             $tests,
             $validInput
         );
-        return $tests;
     }
 
     /**
@@ -541,14 +539,7 @@ class WarehouseControllerProviderTest extends TokenAuthTest
 
     public function aggregateDataAccessControlsProvider()
     {
-        $inputs = array();
-
-        $inputs[] = array('pub', 401, $this->getAggDataParameterGenerator());
-        $inputs[] = array('cd', 403, $this->getAggDataParameterGenerator(array('statistics' => array('unavaiablestat'))));
-        $inputs[] = array('cd', 403, $this->getAggDataParameterGenerator(array('group_by' => 'turnips')));
-        $inputs[] = array('cd', 403, $this->getAggDataParameterGenerator(array('realm' => 'Agricultural')));
-
-        return $inputs;
+        return [array('pub', 401, $this->getAggDataParameterGenerator()), array('cd', 403, $this->getAggDataParameterGenerator(array('statistics' => array('unavaiablestat')))), array('cd', 403, $this->getAggDataParameterGenerator(array('group_by' => 'turnips'))), array('cd', 403, $this->getAggDataParameterGenerator(array('realm' => 'Agricultural')))];
     }
 
     /**
@@ -609,7 +600,7 @@ class WarehouseControllerProviderTest extends TokenAuthTest
                 return "Missing mandatory config property $param";
             }
         );
-        $tests = $this->getAggregateDataMalformedParamTests(
+        return $this->getAggregateDataMalformedParamTests(
             $tests,
             $validInput,
             $config,
@@ -619,7 +610,6 @@ class WarehouseControllerProviderTest extends TokenAuthTest
                 return 'Malformed config property order_by';
             }
         );
-        return $tests;
     }
 
     private function getAggregateDataMalformedParamTests(
@@ -630,11 +620,7 @@ class WarehouseControllerProviderTest extends TokenAuthTest
         $idPrefix,
         $getMessage
     ) {
-        if (is_null($key)) {
-            $params = $config;
-        } else {
-            $params = $config[$key];
-        }
+        $params = is_null($key) ? $config : $config[$key];
         foreach (array_keys($params) as $param) {
             $newConfig = $config;
             if (is_null($key)) {
@@ -816,42 +802,39 @@ class WarehouseControllerProviderTest extends TokenAuthTest
         );
         $testData = [];
         // Test bad request parameters.
-        array_push(
-            $testData,
-            [
-                'end_before_start',
-                ['end_date' => '2016-01-01'],
-                parent::validateBadRequestResponse(
-                    'End date cannot be less than start date.'
-                )
-            ],
-            [
-                'invalid_realm',
-                ['realm' => 'foo'],
-                parent::validateBadRequestResponse('Invalid realm.')
-            ],
-            [
-                'invalid_fields',
-                ['fields' => 'foo,bar;'],
-                parent::validateBadRequestResponse(
-                    "Invalid fields specified: 'foo', 'bar;'."
-                )
-            ],
-            [
-                'invalid_filter_key',
-                ['filters[foo]' => '177'],
-                parent::validateBadRequestResponse(
-                    "Invalid filter key 'foo'."
-                )
-            ],
-            [
-                'negative_offset',
-                ['offset' => -1],
-                parent::validateBadRequestResponse(
-                    "Offset must be non-negative."
-                )
-            ]
-        );
+        $testData[] = [
+            'end_before_start',
+            ['end_date' => '2016-01-01'],
+            parent::validateBadRequestResponse(
+                'End date cannot be less than start date.'
+            )
+        ];
+        $testData[] = [
+            'invalid_realm',
+            ['realm' => 'foo'],
+            parent::validateBadRequestResponse('Invalid realm.')
+        ];
+        $testData[] = [
+            'invalid_fields',
+            ['fields' => 'foo,bar;'],
+            parent::validateBadRequestResponse(
+                "Invalid fields specified: 'foo', 'bar;'."
+            )
+        ];
+        $testData[] = [
+            'invalid_filter_key',
+            ['filters[foo]' => '177'],
+            parent::validateBadRequestResponse(
+                "Invalid filter key 'foo'."
+            )
+        ];
+        $testData[] = [
+            'negative_offset',
+            ['offset' => -1],
+            parent::validateBadRequestResponse(
+                "Offset must be non-negative."
+            )
+        ];
         foreach ($testData as $t) {
             list($id, $params, $output) = $t;
             $tests[] = [

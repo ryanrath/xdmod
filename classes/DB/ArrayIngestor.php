@@ -9,26 +9,25 @@ use Psr\Log\LoggerInterface;
 
 class ArrayIngestor implements Ingestor
 {
-    protected $_dest_db = null;
+    protected $_dest_db;
 
     protected $_source_data = array();
-    protected $_insert_table = null;
-    protected $_insert_fields = null;
+    protected $_insert_table;
+    protected $_insert_fields;
 
     protected $_post_ingest_update_statements = array();
-    protected $_delete_statement = null;
-    protected $_count_statement = null;
+    protected $_delete_statement;
+    protected $_count_statement;
 
-    protected $_logger = null;
+    protected $_logger;
 
     function __construct(
         iDatabase $dest_db,
-        array $source_data = array(),
         $insert_table,
+        array $source_data = array(),
         array $insert_fields = array(),
         array $post_ingest_update_statements = array(),
-        $delete_statement = null,
-        $count_statement = null
+        $delete_statement = null
     ) {
         $this->_dest_db =  $dest_db;
 

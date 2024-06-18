@@ -26,7 +26,6 @@ class JsonFileWriter extends aFileWriter
      * Open the file and write the opening bracket.
      *
      * @param string $file
-     * @param LoggerInterface $logger
      */
     public function __construct($file, LoggerInterface $logger)
     {
@@ -55,8 +54,6 @@ class JsonFileWriter extends aFileWriter
 
     /**
      * Write a record to file formatted as JSON.
-     *
-     * @param array $record
      */
     public function writeRecord(array $record)
     {

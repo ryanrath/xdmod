@@ -114,9 +114,9 @@ class Json
             $nextChar = $i < $strLen ? substr($json, $i + 1, 1) : '';
 
             // Are we inside a quoted string?
-            if ($char == '"' && $prevChar != '\\') {
+            if ($char === '"' && $prevChar !== '\\') {
                 $outOfQuotes = !$outOfQuotes;
-            } elseif (($char == '}' || $char == ']') && $outOfQuotes) {
+            } elseif (($char === '}' || $char === ']') && $outOfQuotes) {
 
                 // If this character is the end of an element,
                 // output a new line and indent the next line.
@@ -131,16 +131,16 @@ class Json
 
                 // If the last character was the beginning of an
                 // element, output a new line and indent the next line.
-                if ($char == ',' || $char == '{' || $char == '[') {
-                    if ($char == '{' || $char == '[') {
+                if ($char === ',' || $char === '{' || $char === '[') {
+                    if ($char === '{' || $char === '[') {
                         $indentLvl++;
                     }
 
                     // If the array or object is empty, close it immediately
                     // skipping the next char.
                     if (
-                           ($char     == '{' || $char     == '[')
-                        && ($nextChar == '}' || $nextChar == ']')
+                           ($char === '{' || $char === '[')
+                        && ($nextChar === '}' || $nextChar === ']')
                     ) {
                         $result .= $nextChar;
                         $indentLvl--;
@@ -148,7 +148,7 @@ class Json
                     } else {
                         $result .= $newLine . str_repeat($indentStr, $indentLvl);
                     }
-                } elseif ($char == ':') {
+                } elseif ($char === ':') {
                     $result .= ' ';
                 }
             }
@@ -156,9 +156,7 @@ class Json
             $prevChar = $char;
         }
 
-        $result .= $newLine;
-
-        return $result;
+        return $result . $newLine;
     }
 
     /**
@@ -177,22 +175,16 @@ class Json
         switch ($error) {
             case JSON_ERROR_NONE:
                 return 'No error';
-                break;
             case JSON_ERROR_DEPTH:
                 return 'Maximum stack depth exceeded';
-                break;
             case JSON_ERROR_STATE_MISMATCH:
                 return 'Invalid or malformed JSON';
-                break;
             case JSON_ERROR_CTRL_CHAR:
                 return 'Control character error';
-                break;
             case JSON_ERROR_SYNTAX:
                 return 'Syntax error';
-                break;
             default:
                 return 'Unknown error';
-                break;
         }
     }
 

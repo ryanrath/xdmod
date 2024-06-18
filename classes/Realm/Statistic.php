@@ -14,55 +14,55 @@ class Statistic extends \CCR\Loggable implements iStatistic
      * @var Realm The realm that this GroupBy belongs to.
      */
 
-    protected $realm = null;
+    protected $realm;
 
     /**
      * @var string The name of the module that defined this group by
      */
 
-    protected $moduleName = null;
+    protected $moduleName;
 
     /**
      * @var string The short identifier. Must be unique among all statistics across all realms.
      */
 
-    protected $id = null;
+    protected $id;
 
     /**
      * @var string The display name.
      */
 
-    protected $name = null;
+    protected $name;
 
     /**
      * @var string The SQL fragment used to generate the statistic.
      */
 
-    protected $formula = null;
+    protected $formula;
 
     /**
      * @var string The SQL fragment used specifically for aggregate queries (optional, overrides formula)
      */
 
-    protected $aggregateFormula = null;
+    protected $aggregateFormula;
 
     /**
      * @var string The SQL fragment used specifically for timeseries queries (optional, overrides formula)
      */
 
-    protected $timeseriesFormula = null;
+    protected $timeseriesFormula;
 
     /**
      * @var string Human-readable description supporting basic HTML formatting.
      */
 
-    protected $description = null;
+    protected $description;
 
     /**
      * @var string The unit of measurement.
      */
 
-    protected $unit = null;
+    protected $unit;
 
     /**
      * @var int A numerical ordering hint as to how this realm should be displayed visually relative
@@ -111,7 +111,7 @@ class Statistic extends \CCR\Loggable implements iStatistic
      *   example: array('netdrv_panasas_rx', 'IS NOT', 'NULL').
      */
 
-    protected $additionalWhereConditionDefinition = null;
+    protected $additionalWhereConditionDefinition;
 
     /**
      * @var boolean Set to false if this statistic cannot use tables where data is rolled up by time
@@ -127,7 +127,7 @@ class Statistic extends \CCR\Loggable implements iStatistic
      *   various properties.
      */
 
-    protected $variableStore = null;
+    protected $variableStore;
 
     /**
      * @var array Group By names that should be hidden for this statistic.
@@ -170,7 +170,7 @@ class Statistic extends \CCR\Loggable implements iStatistic
             $this->logger->logAndThrowException(
                 sprintf('Statistic short name must be a string, %s provided: %s', $shortName, gettype($shortName))
             );
-        } elseif ( null === $config ) {
+        } elseif ( !$config instanceof \stdClass ) {
             $this->logger->logAndThrowException('No Statistic configuration provided');
         }
 
@@ -372,7 +372,7 @@ class Statistic extends \CCR\Loggable implements iStatistic
         // If no query was specified return the unmodified formula. If a query was specified, return
         // the appropriate formula based on whether this is an aggregate or timeseries query.
 
-        if ( null === $query ) {
+        if ( !$query instanceof \DataWarehouse\Query\iQuery ) {
             if ( null === $this->formula ) {
                 throw new \Exception(
                     sprintf("Key 'formula' not specified for statistic %s and Query not provided to getFormula()", $this)

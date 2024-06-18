@@ -13,7 +13,6 @@ interface iFileWriter
      * Open the file for writing.
      *
      * @param string $file
-     * @param LoggerInterface $logger
      */
     public function __construct($file, LoggerInterface $logger);
 
@@ -26,8 +25,6 @@ interface iFileWriter
 
     /**
      * Write a data warehouse batch export record to file.
-     *
-     * @param array $record
      */
     public function writeRecord(array $record);
 }

@@ -17,6 +17,7 @@ use CCR\DB;
 
 class JobTimeseries
 {
+    public $db;
     public function __construct() {
         $this->db = DB::factory('datawarehouse');
     }

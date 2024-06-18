@@ -59,8 +59,7 @@ class Usage extends Common
 
             $usageSubnotes = array();
             if ($usageGroupBy === 'resource' || array_key_exists('resource', $this->request)) {
-                $usageSubnotes[] = '* Resources marked with asterisk do not provide processor'
-                    . ' counts per job when submitting to the '
+                $usageSubnotes[] = '* Resources marked with asterisk do not provide processor counts per job when submitting to the '
                     . ORGANIZATION_NAME . ' Central Database. This affects the'
                     . ' accuracy of the following (and related) statistics: Job'
                     . ' Size and CPU Consumption';
@@ -314,7 +313,7 @@ class Usage extends Common
 
             // If this is a special format, condense the list of requests to a
             // single request.
-            if ($isTextExport && !empty($meRequests)) {
+            if ($isTextExport && $meRequests !== []) {
                 $firstMeRequest = null;
                 foreach ($meRequests as &$meRequest) {
                     if ($firstMeRequest === null) {
@@ -357,7 +356,7 @@ class Usage extends Common
             }
 
             // If no charts were generated, return a failure response.
-            if (empty($meResponses)) {
+            if ($meResponses === []) {
                 return array(
                     'results' => json_encode(array(
                         'success' => false,
@@ -432,14 +431,9 @@ class Usage extends Common
                     // If no results were returned, return a failure response.
                     // Otherwise, finish combining the results.
                     if ($combinedResult === null) {
-                        if ($emptyResultFound) {
-                            $failureResults = reset($meResponse['results']);
-                        } else {
-                            $failureResults = json_encode(array(
-                                'success' => false,
-                            ));
-                        }
-
+                        $failureResults = $emptyResultFound ? reset($meResponse['results']) : json_encode(array(
+                            'success' => false,
+                        ));
                         return array(
                             'headers' => $meResponse['headers'],
                             'results' => $failureResults,
@@ -553,11 +547,7 @@ class Usage extends Common
                             $sortField = $combinedResultFirstColumn;
                         }
 
-                        if (\xd_utilities\string_ends_with($meRequestSortType, 'desc')) {
-                            $sortDirection = 'desc';
-                        } else {
-                            $sortDirection = 'asc';
-                        }
+                        $sortDirection = \xd_utilities\string_ends_with($meRequestSortType, 'desc') ? 'desc' : 'asc';
                     }
 
                     $combinedResult['metaData']['sortInfo'] = array(
@@ -605,8 +595,7 @@ class Usage extends Common
 
             $usageSubnotes = array();
             if ($usageGroupBy === 'resource' || array_key_exists('resource', $this->request)) {
-                $usageSubnotes[] = '* Resources marked with asterisk do not provide processor'
-                    . ' counts per job when submitting to the '
+                $usageSubnotes[] = '* Resources marked with asterisk do not provide processor counts per job when submitting to the '
                     . ORGANIZATION_NAME . ' Central Database. This affects the'
                     . ' accuracy of the following (and related) statistics: Job'
                     . ' Size and CPU Consumption';
@@ -766,12 +755,7 @@ class Usage extends Common
                     $usageChartCategories = array();
                     $currentCategoryRank = $usageOffset + 1;
                     foreach ($meChartCategories as $meChartCategory) {
-                        if (!empty($meChartCategory)) {
-                            $usageChartCategories[] = "${currentCategoryRank}. ${meChartCategory}";
-                        }
-                        else {
-                            $usageChartCategories[] = '';
-                        }
+                        $usageChartCategories[] = empty($meChartCategory) ? '' : "${currentCategoryRank}. ${meChartCategory}";
                         $currentCategoryRank++;
                     }
                     if (isset($meChart['layout']['yaxis']['ticktext'])) {
@@ -842,15 +826,11 @@ class Usage extends Common
                     // current primary data series. Further, if this chart is
                     // a timeseries chart, it is sorted by value, and it is a
                     // grouped chart, add the rank to the series label.
-                    if ($isPrimaryDataSeries) {
-                        if (
-                            $meRequestIsTimeseries
-                            && $chartSortedByValue
-                            && $usageGroupBy !== 'none'
-                        ) {
-                            $rank = $meDataSeries['legendrank']+1;
-                            $meDataSeries['name'] = "${rank}. " . $meDataSeries['name'];
-                        }
+                    if ($isPrimaryDataSeries && ($meRequestIsTimeseries
+                    && $chartSortedByValue
+                    && $usageGroupBy !== 'none')) {
+                        $rank = $meDataSeries['legendrank']+1;
+                        $meDataSeries['name'] = "${rank}. " . $meDataSeries['name'];
                     }
 
                     // If this is the primary data series and the chart is not a

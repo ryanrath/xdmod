@@ -149,11 +149,7 @@ class RegressionTestHelper extends XdmodTestHelper
     {
         if (!isset(self::$baseDir)) {
             $envBaseDir = getenv('REG_TEST_BASE');
-            if (empty($envBaseDir)) {
-                self::$baseDir = __DIR__ . '/../../../artifacts/xdmod/regression/current';
-            } else {
-                self::$baseDir = __DIR__ . $envBaseDir;
-            }
+            self::$baseDir = empty($envBaseDir) ? __DIR__ . '/../../../artifacts/xdmod/regression/current' : __DIR__ . $envBaseDir;
         }
 
         return self::$baseDir;
@@ -173,11 +169,7 @@ class RegressionTestHelper extends XdmodTestHelper
     {
         if (!isset(self::$envUserrole)) {
             $envUserrole = getenv('REG_TEST_USER_ROLE');
-            if (empty($envUserrole)) {
-                self::$envUserrole = 'public';
-            } else {
-                self::$envUserrole = $envUserrole;
-            }
+            self::$envUserrole = empty($envUserrole) ? 'public' : $envUserrole;
         }
 
         return self::$envUserrole;
@@ -713,7 +705,7 @@ class RegressionTestHelper extends XdmodTestHelper
                 );
             }
         }
-        foreach ($actual as $key => $value) {
+        foreach (array_keys($actual) as $key) {
             if (!array_key_exists($key, $expected)) {
                 $differences[] = (
                     'Extra ' . (is_numeric($key) ? 'item' : 'key')
@@ -732,8 +724,8 @@ class RegressionTestHelper extends XdmodTestHelper
      */
     private function compareCsvData($expected, $provided)
     {
-        $expectedCSV = self::getResultAsCSV($expected);
-        $providedCSV = self::getResultAsCSV($provided);
+        $expectedCSV = $this->getResultAsCSV($expected);
+        $providedCSV = $this->getResultAsCSV($provided);
 
         $expectedRowCount = count($expectedCSV);
         $providedRowCount = count($providedCSV);
@@ -754,7 +746,7 @@ class RegressionTestHelper extends XdmodTestHelper
         $providedHeader = $providedCSV[0];
         $useAssoc = false;
 
-        if (count(array_diff_assoc($expectedHeader, $providedHeader)) > 0) {
+        if (array_diff_assoc($expectedHeader, $providedHeader) !== []) {
             sort($expectedHeader);
             sort($providedHeader);
 
@@ -764,8 +756,8 @@ class RegressionTestHelper extends XdmodTestHelper
 
             $useAssoc = true;
             $this->messages[] = 'Column order mismatch';
-            $expectedCSV = self::getAssocCSV($expectedCSV);
-            $providedCSV = self::getAssocCSV($providedCSV);
+            $expectedCSV = $this->getAssocCSV($expectedCSV);
+            $providedCSV = $this->getAssocCSV($providedCSV);
         }
 
         for ($i = 1; $i < $expectedRowCount; $i++) {
@@ -841,7 +833,7 @@ class RegressionTestHelper extends XdmodTestHelper
      * @param string $raw Raw data from CSV file.
      * @return array Parsed CSV data as array of arrays.
      */
-    private static function getResultAsCSV($raw)
+    private function getResultAsCSV($raw)
     {
         $datasRegEx = '/(?<=---------\n)([\s\S]*)(?=\n---------)/';
         $matches = [];
@@ -867,7 +859,7 @@ class RegressionTestHelper extends XdmodTestHelper
      * @param array $csv Array of numeric arrays.
      * @return array Array of same arrays, but with keys from the header row.
      */
-    private static function getAssocCSV($csv)
+    private function getAssocCSV($csv)
     {
         array_walk(
             $csv,

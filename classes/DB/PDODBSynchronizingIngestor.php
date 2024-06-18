@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 class PDODBSynchronizingIngestor implements Ingestor
 {
 
+    public $insertColumns;
     /**
      * Destination database.
      *
@@ -84,11 +85,7 @@ class PDODBSynchronizingIngestor implements Ingestor
         $uniqColumns,
         array $insertColumns
     ) {
-        if (is_array($uniqColumns)) {
-            $this->uniqColumns = $uniqColumns;
-        } else {
-            $this->uniqColumns = array($uniqColumns);
-        }
+        $this->uniqColumns = is_array($uniqColumns) ? $uniqColumns : array($uniqColumns);
 
         foreach ($this->uniqColumns as $column) {
             if (!in_array($column, $insertColumns)) {
@@ -118,8 +115,6 @@ class PDODBSynchronizingIngestor implements Ingestor
         $this->logger->debug("Source query: {$this->srcQuery}");
         $srcStmt = $this->srcDb->handle()->prepare($this->srcQuery);
         $srcStmt->execute();
-
-        $uniqColumn = $this->uniqColumns;
         $columns    = $this->insertColumns;
 
         $insertSql = 'INSERT INTO ' . $this->destTable . ' ('
@@ -156,7 +151,6 @@ class PDODBSynchronizingIngestor implements Ingestor
         }
 
         $timeEnd = microTime();
-        $time = $timeEnd - $timeStart;
 
         // NOTE: This is needed for the log summary.
         $this->logger->notice(array(
@@ -171,8 +165,6 @@ class PDODBSynchronizingIngestor implements Ingestor
 
     /**
      * Set the logger.
-     *
-     * @param LoggerInterface $logger
      */
     public function setLogger(LoggerInterface $logger)
     {
@@ -197,9 +189,9 @@ class PDODBSynchronizingIngestor implements Ingestor
 
         $rows = $this->destDb->query($sql);
 
-        $keys = array_map(array($this, 'getKeyFromRow'), $rows);
-
-        return $keys;
+        return array_map(function (array $row) : string {
+            return $this->getKeyFromRow($row);
+        }, $rows);
     }
 
     /**

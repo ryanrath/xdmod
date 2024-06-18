@@ -19,8 +19,8 @@ class Rfc6901Test extends \PHPUnit\Framework\TestCase
     const TEST_ARTIFACT_INPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/input";
     const TEST_ARTIFACT_OUTPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/output";
 
-    private $config = null;
-    private $transformer = null;
+    private $config;
+    private $transformer;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {

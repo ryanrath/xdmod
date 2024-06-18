@@ -65,6 +65,7 @@ use Psr\Log\LoggerInterface;
 
 class TimeseriesQuery extends Query implements iQuery
 {
+    public $sortInfo;
     public function getQueryType()
     {
         return 'timeseries';
@@ -121,7 +122,7 @@ class TimeseriesQuery extends Query implements iQuery
             $agg_query->addStat($stat_name);
         }
 
-        if (isset($this->sortInfo)) {
+        if (property_exists($this, 'sortInfo') && $this->sortInfo !== null) {
             foreach ($this->sortInfo as $sort) {
                 $agg_query->addOrderBy($sort['column_name'], $sort['direction']);
             }
@@ -228,7 +229,7 @@ SQL;
             implode(",\n  ", $select_fields),
             implode(",\n  ", $select_tables),
             implode("\n  AND ", $wheres),
-            ( count($select_group_by) > 0 ? "GROUP BY " . implode(",\n  ", $select_group_by) : "" ),
+            ( $select_group_by !== [] ? "GROUP BY " . implode(",\n  ", $select_group_by) : "" ),
             ( null !== $extraHavingClause ? "\nHAVING $extraHavingClause" : "" ),
             ( count($select_order_by) > 0 ? "\nORDER BY " . implode(",\n  ", $select_order_by) : "" ),
             ( null !== $limit && null !== $offset ? "\nLIMIT $limit OFFSET $offset" : "" )
@@ -365,24 +366,22 @@ SQL;
 
                     $group_to_weight[$result['name']] += $weight;
                 }
+            } elseif ($isMin) {
+                $group_to_value[$result['name']] = $result[$stat];
+            } elseif ($isMax) {
+                $group_to_value[$result['name']] = $result[$stat];
             } else {
-                if ($isMin) {
-                    $group_to_value[$result['name']] = $result[$stat];
-                } elseif ($isMax) {
-                    $group_to_value[$result['name']] = $result[$stat];
-                } else {
-                    $weight = $result[$stat_weight]
-                        <= 0
-                        ? 1
-                        : $result[$stat_weight];
+                $weight = $result[$stat_weight]
+                    <= 0
+                    ? 1
+                    : $result[$stat_weight];
 
-                    $group_to_value[$result['name']]
-                        = $useWeights
-                        ? $weight * $result[$stat]
-                        : $result[$stat];
+                $group_to_value[$result['name']]
+                    = $useWeights
+                    ? $weight * $result[$stat]
+                    : $result[$stat];
 
-                    $group_to_weight[$result['name']] = $weight;
-                }
+                $group_to_weight[$result['name']] = $weight;
             }
 
             $group_to_short_label[$result['name']] = $result['short_name'];
@@ -400,7 +399,7 @@ SQL;
 
         if ($useWeights) {
             foreach ($group_info as &$ggggg) {
-                $ggggg['value'] = $ggggg['value'] / $ggggg['weight'];
+                $ggggg['value'] /= $ggggg['weight'];
             }
         }
 

@@ -69,7 +69,9 @@ foreach ($args as $arg => $value) {
 
     case 'b':
     case 'base-dir':
-        if ( ! is_dir($value) ) usage_and_exit("Base directory does not exist: '$value'");
+        if (! is_dir($value)) {
+            usage_and_exit("Base directory does not exist: '$value'");
+        }
         $scriptOptions['base-dir'] = $value;
         break;
 
@@ -147,12 +149,12 @@ foreach ($args as $arg => $value) {
 // etl_overseer.php -c /etc/etl/etl.json -n 2 -p osg month --dryrun
 
 $parsedArgs = array_keys($args);
-foreach ( $argv as $index => $arg ) {
+foreach ( $argv as $arg ) {
     $opt = null;
 
-    if ( 0 === strpos($arg, "--") ) {
+    if (0 === strpos($arg, "--")) {
         $opt = substr($arg, 2);
-    } else if ( 0 === strpos($arg, "-") ) {
+    } elseif (0 === strpos($arg, "-")) {
         $opt = substr($arg, 1);
     }
     if ( null !== $opt && ! in_array($opt, $parsedArgs) ) {
@@ -168,16 +170,18 @@ $conf = array(
     'mail' => false
     );
 
-if ( null !== $scriptOptions['verbosity'] ) $conf['consoleLogLevel'] = $scriptOptions['verbosity'];
+if (null !== $scriptOptions['verbosity']) {
+    $conf['consoleLogLevel'] = $scriptOptions['verbosity'];
+}
 
 $logger = Log::factory('etl_action_state_mgr', $conf);
 
 $cmd = implode(' ', array_map('escapeshellarg', $argv));
 $logger->info("Command: $cmd");
 
-if ( null === $scriptOptions['config-file'] ) {
+if (null === $scriptOptions['config-file']) {
     usage_and_exit("Config file required");
-} else if ( null !== $scriptOptions['config-file'] && ! is_file($scriptOptions['config-file']) ) {
+} elseif (null !== $scriptOptions['config-file'] && ! is_file($scriptOptions['config-file'])) {
     usage_and_exit("Config file not found: '" . $scriptOptions['config-file'] . "'");
 }
 

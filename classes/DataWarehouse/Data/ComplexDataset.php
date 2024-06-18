@@ -14,14 +14,9 @@ class ComplexDataset
 {
     protected $_dataDescripters = array();
 
-    protected $_totalX;
+    protected $_totalX = 1;
 
     protected $_xAxisDataObject;
-
-    public function __construct()
-    {
-        $this->_totalX = 1;
-    }
 
     // --------------------------------------------------------------
     // init()
@@ -68,7 +63,7 @@ class ComplexDataset
         $dimensions  = array();
         $dataSources = array();
 
-        foreach ($data_series as $data_description_index => $data_description) {
+        foreach ($data_series as $data_description) {
 
             $realm = \Realm\Realm::factory($data_description->realm);
 
@@ -189,7 +184,7 @@ class ComplexDataset
     // --------------------------------------------------------------
     public function getTotalX() {
 
-        if (!isset($this->_xAxisDataObject) )  {
+        if ($this->_xAxisDataObject === null )  {
             throw new \Exception(
                 get_class($this)." _xAxisDataObject not set; _totalX=". $this->_totalX
             );
@@ -287,11 +282,11 @@ class ComplexDataset
     ) {
 
         // init() should be called before this function.
-        if (!isset($this->_dataDescripters) )  {
+        if ($this->_dataDescripters === null )  {
             throw new \Exception(get_class($this)." _dataDescripters not set");
         }
 
-        if (!isset($this->_xAxisDataObject) || $force_reexec === true) {
+        if ($this->_xAxisDataObject === null || $force_reexec === true) {
             $names = array();
             $tempXDataObject = array();
             $sort_type = 'none';
@@ -460,7 +455,7 @@ class ComplexDataset
         // For each item on the _dataDescripters array, generate an axisId (name)
         // and push the dataset onto a yAxisArray. If shared y axis, push onto
         // subarray.
-        foreach ($this->_dataDescripters as $data_description_index => $dataDescripterAndDataset) {
+        foreach ($this->_dataDescripters as $dataDescripterAndDataset) {
             $data_description = $dataDescripterAndDataset->data_description;
 
             $realm = \Realm\Realm::factory($data_description->realm);

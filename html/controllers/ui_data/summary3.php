@@ -70,7 +70,7 @@ try {
         } catch (PDOException $e) {
             if ($e->getCode() === '42S02' && strpos($e->getMessage(), 'modw_aggregates.jobfact_by_') !== false) {
                 $msg = 'Aggregate table not found, have you ingested your data?';
-                throw new Exception($msg);
+                throw new Exception($msg, $e->getCode(), $e);
             } else {
                 throw $e;
             }
@@ -107,7 +107,7 @@ try {
         $queries = $queryStore->get();
 
         if ($queries != NULL) {
-            foreach ($queries as $i => $query) {
+            foreach ($queries as $query) {
                 if (isset($query['config'])) {
 
                     $queryConfig = json_decode($query['config']);

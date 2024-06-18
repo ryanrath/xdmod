@@ -69,5 +69,6 @@ class DBObject
         ) {
             $this->$var = $arguments[0];
         }
+        return null;
     }
 }

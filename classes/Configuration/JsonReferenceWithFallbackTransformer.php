@@ -62,7 +62,8 @@ class JsonReferenceWithFallbackTransformer extends JsonReferenceTransformer impl
                 $this->logAndThrowException($exceptionMessage);
             }
         }
-        for ($i = 0; $i < count($value); $i++) {
+        $counter = count($value);
+        for ($i = 0; $i < $counter; $i++) {
             try {
                 $keepGoing = parent::transform(
                     $key,

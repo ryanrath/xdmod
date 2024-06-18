@@ -204,7 +204,7 @@ abstract class aOptions extends \stdClass implements \Iterator
     protected function verifyRequiredProperty($property, $value)
     {
         if ( ! in_array($property, $this->requiredOptions) ) {
-            return;
+            return null;
         }
 
         // Required parameters are not allowed to be empty.

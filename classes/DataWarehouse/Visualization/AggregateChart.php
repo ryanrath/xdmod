@@ -15,17 +15,24 @@ use DataWarehouse\RoleRestrictionsStringBuilder;
 */
 class AggregateChart
 {
+    public $_legend_location;
+    /**
+     * @var bool
+     */
+    public $_hasLegend;
+    public $limit;
+    public $show_filters;
     protected $_swapXY;
     protected $_chart;
     protected $_width;
     protected $_height;
-    protected $_scale;//deprecated
+    protected $_scale = 1;//deprecated
 
     protected $_aggregationUnit;
     protected $_startDate;
     protected $_endDate;
 
-    protected $_total;
+    protected $_total = 0;
 
     protected $_dashStyles = array(
         'Solid',
@@ -61,7 +68,7 @@ class AggregateChart
     protected $_xAxisDataObject; // SimpleData object
     protected $_xAxisLabel;
     protected $_multiCategory = false;
-    protected $_prevCategory = null;
+    protected $_prevCategory;
     protected $_queryType = 'aggregate';
 
     protected $_subtitleText = '';
@@ -101,14 +108,11 @@ class AggregateChart
         $this->setDuration($start_date, $end_date, $aggregation_unit, $min_aggregation_unit);
 
         $this->_width = $width *$scale;
-        $this->_height = $height *$scale;
-        $this->_scale = 1; //deprecated
+        $this->_height = $height *$scale; //deprecated
 
         $this->_swapXY = $swap_xy;
         $this->_shareYAxis = $share_y_axis;
         $this->_hideTooltip = $hide_tooltip;
-
-        $this->_total = 0;
         $this->_showContextMenu = $showContextMenu;
         $this->_showWarnings = $showWarnings;
         $this->_chart = array(
@@ -367,7 +371,7 @@ class AggregateChart
     // ---------------------------------------------------------
     public function setDataSource(array $source)
     {
-        $src = count($source) > 0? ' Src: '.implode(', ', $source).'.':'';
+        $src = $source !== []? ' Src: '.implode(', ', $source).'.':'';
         $this->_chart['layout']['annotations'][2]['text'] = $this->_startDate.' to '.
             $this->_endDate.' '.$src.' Powered by XDMoD/Plotly JS';
     }
@@ -536,7 +540,7 @@ class AggregateChart
             $category = DataWarehouse::getCategoryForRealm(
                 $data_description->realm
             );
-            if(isset($this->_prevCategory) && $category != $this->_prevCategory)
+            if($this->_prevCategory !== null && $category != $this->_prevCategory)
             {
                 $this->_multiCategory = true;
                 return;
@@ -559,7 +563,7 @@ class AggregateChart
     // ---------------------------------------------------------
     protected function setXAxis(&$x_axis, $font_size)
     {
-        if (!isset($this->_xAxisDataObject) )  {
+        if ($this->_xAxisDataObject === null )  {
             throw new \Exception(get_class($this)." _xAxisDataObject not set ");
         }
 
@@ -667,10 +671,8 @@ class AggregateChart
         $this->_xAxisDataObject = $this->_dataset->getXAxis(false, $queryLim, $offset);
         $this->_total = $this->_dataset->getTotalX(); //has to be called after getXAxis
 
-        $this->setXAxis($x_axis, $font_size, $queryLim );
-
-        $yAxisArray = $this->_dataset->getYAxis($queryLim, $offset, $this->_shareYAxis);
-        return $yAxisArray;
+        $this->setXAxis($x_axis, $font_size );
+        return $this->_dataset->getYAxis($queryLim, $offset, $this->_shareYAxis);
     }
 
     // ---------------------------------------------------------
@@ -751,7 +753,7 @@ class AggregateChart
         // This corrects the 'pie charts are wrong' bug...
         if ( !$summarizeDataseries )
         {
-            foreach($yAxisArray as $yAxisIndex => $yAxisObject)
+            foreach($yAxisArray as $yAxisObject)
             {
                 foreach ($yAxisObject->series as $data_object)
                 {
@@ -981,7 +983,8 @@ class AggregateChart
                     $labelLimit = 12;
                     $labelsAllocated = 0;
                     $pieSum = array_sum($yValues);
-                    for ($i = 0; $i < count($xValues); $i++) {
+                    $counter = count($xValues);
+                    for ($i = 0; $i < $counter; $i++) {
                         if ($isThumbnail || (($labelsAllocated < $labelLimit) && (($yValues[$i] / $pieSum) * 100) >= 2.0)) {
                             $text[] = '<b>' . $xValues[$i] . '</b><br>' . number_format($yValues[$i], $decimals, '.', ',');
                             $labelsAllocated++;
@@ -1064,7 +1067,7 @@ class AggregateChart
                 // Set tooltip format
                 if ($data_description->display_type == 'pie')
                 {
-                    $tooltip = '%{label}' . '<br>' . $lookupDataSeriesName
+                    $tooltip = '%{label}<br>' . $lookupDataSeriesName
                                . ": %{value:,.{$decimals}f} <b>(%{percent})</b> <extra></extra>";
                 }
                 else
@@ -1192,20 +1195,13 @@ class AggregateChart
                         $trace['textangle'] = -90;
                     }
 
-                    if ($data_description->combine_type=='side' && $trace['type']=='area'){
-                        if ($this->_swapXY) {
-                            $trace['fill'] = 'tozerox';
-                        }
-                        else {
-                            $trace['fill'] = 'tozeroy';
-                        }
-                    }
-                    elseif($data_description->combine_type=='stack')
+                    if ($data_description->combine_type=='side' && $trace['type']=='area') {
+                        $trace['fill'] = $this->_swapXY ? 'tozerox' : 'tozeroy';
+                    } elseif($data_description->combine_type=='stack')
                     {
                         $trace['stackgroup'] = 'one';
                         $this->_chart['layout']['barmode'] = 'stack';
-                    }
-                    elseif($data_description->combine_type=='percent' && !$data_description->log_scale)
+                    } elseif($data_description->combine_type=='percent' && !$data_description->log_scale)
                     {
                         $trace['stackgroup'] = 'one';
                         $trace['groupnorm'] = 'percent';
@@ -1240,7 +1236,7 @@ class AggregateChart
                         $this->_chart['layout']["{$xAxisName}"] = $ytmp;
 
                         $this->_chart['layout']["{$xAxisName}"]['side'] = ($yAxisIndex % 2 != 0) ? 'top' : 'bottom';
-                        if ($this->_chart['layout']["{$xAxisName}"]['side'] == 'top') {
+                        if ($this->_chart['layout']["{$xAxisName}"]['side'] === 'top') {
                             $this->_chart['layout']["{$xAxisName}"]['title']['standoff'] = 0;
                         }
                         $this->_chart['layout']["{$xAxisName}"]['anchor'] = 'free';
@@ -1249,18 +1245,18 @@ class AggregateChart
                         }
 
                         $xAxisStep = 0.115;
-                        $xAxisBottomBoundStart = 0 + ($xAxisStep * ceil($yAxisCount/2));
+                        $xAxisBottomBoundStart = $xAxisStep * ceil($yAxisCount/2);
                         $xAxisTopBoundStart = 1 - ($xAxisStep * floor($yAxisCount/2));
                         $topShift = floor($yAxisCount/2) - floor($yAxisIndex/2);
                         $bottomShift = ceil($yAxisCount/2) - ceil($yAxisIndex/2);
 
                         $this->_chart['layout']["{$xAxisName}"]['position'] = $this->_chart['layout']["{$xAxisName}"]['side'] == 'top' ? min(1 - ($xAxisStep * $topShift), 1) :
-                            max(0 + ($xAxisStep * $bottomShift), 0);
+                            max($xAxisStep * $bottomShift, 0);
 
                         $this->_chart['layout']["{$xAxisName}"]['domain'] = array(0,1);
                         $this->_chart['layout']["{$xAxisName}"]['title']['standoff'] = 0;
                         $this->_chart['layout']["{$xAxisName}"]['type'] = $yAxisObject->log_scale ? 'log' : '-';
-                        $this->_chart['layout']["{$xAxisName}"]['showgrid'] =$yAxisCount > 1 ? false : true;
+                        $this->_chart['layout']["{$xAxisName}"]['showgrid'] =$yAxisCount <= 1;
 
                         $this->_chart['layout']['yaxis']['linewidth'] = 2 + $font_size / 4;
                         $this->_chart['layout']['yaxis']['linecolor'] = '#c0d0e0';
@@ -1312,25 +1308,19 @@ class AggregateChart
                 }
 
                 // Adjust axis tick labels based on label length
-                if(!($data_description->display_type == 'pie')) {
+                if($data_description->display_type != 'pie') {
                     $categoryLabels = array();
                     $longLabel = false;
-                    for ($i = 0; $i < count($xValues); $i++) {
+                    $counter = count($xValues);
+                    for ($i = 0; $i < $counter; $i++) {
                         if (count($xValues) > 20) {
-                            if ($i % 2 == 0) {
-                                $categoryLabels[] = mb_substr($xValues[$i], 0, 25) . '...';
-                            }
-                            else {
-                                $categoryLabels[] = '';
-                            }
-                        }
-                        elseif (strlen($xValues[$i]) > 70 || $longLabel) {
+                            $categoryLabels[] = $i % 2 == 0 ? mb_substr($xValues[$i], 0, 25) . '...' : '';
+                        } elseif (strlen($xValues[$i]) > 70 || $longLabel) {
                             $categoryLabels[] = mb_substr($xValues[$i], 0, 25) . '...';
                             if (count($xValues) > 10 && !$longLabel) {
                                 $longLabel = true;
                             }
-                        }
-                        elseif ($data_description->display_type == 'h_bar') {
+                        } elseif ($data_description->display_type == 'h_bar') {
                             $categoryLabels[] = wordwrap($xValues[$i], 40, '<br>');
                         } else {
                             $categoryLabels[] = wordwrap($xValues[$i], 25, '<br>');
@@ -1507,7 +1497,8 @@ class AggregateChart
                 }
                 if ($data_description->combine_type=='stack') {
                     $error_trace['y'] = array_fill(0, count($error_trace['y']), 0);
-                    for ($i = 0; $i < count($errorLabels); $i++) {
+                    $counter = count($errorLabels);
+                    for ($i = 0; $i < $counter; $i++) {
                         if (!isset($errorLabels[$i])) {
                             $error_trace['y'][$i] = null;
                         }
@@ -1535,6 +1526,7 @@ class AggregateChart
 
             return array('data_labels' => $dataLabels, 'error_labels' => $errorLabels);
         } // if not pie
+        return null;
     } // end closure for buildErrorDataSeries function
 
         /**
@@ -1589,7 +1581,7 @@ class AggregateChart
         $offset = null
     ) {
 
-        $returnData = array(
+        return array(
             'totalCount' => $this->_total,
             'success' => true,
             'message' => 'success',
@@ -1597,8 +1589,6 @@ class AggregateChart
                 $this->_chart
             )
         );
-
-        return $returnData;
     }
 
     /**
@@ -1650,8 +1640,9 @@ class AggregateChart
         $decimals
     ) {
         // Add data labels
-        if(($data_description->value_labels || $std_err_labels_enabled) && $data_description->display_type != 'pie') {
-            for ($i = 0; $i < count($xValues); $i++) {
+        if (($data_description->value_labels || $std_err_labels_enabled) && $data_description->display_type != 'pie') {
+            $counter = count($xValues);
+            for ($i = 0; $i < $counter; $i++) {
                 $yPosition = is_numeric($yValues[$i]) ? $yValues[$i] : null;
                 if ($data_description->log_scale) {
                     $yPosition = $yPosition > 0 ? log10($yPosition) : $yPosition;
@@ -1701,7 +1692,7 @@ class AggregateChart
                     $data_label['text'] = $error_info['error_labels'][$i];
                 }
 
-                array_push($this->_chart['layout']['annotations'], $data_label);
+                $this->_chart['layout']['annotations'][] = $data_label;
             }
         }
     }

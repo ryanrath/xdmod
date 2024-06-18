@@ -21,42 +21,42 @@ class Summary
      *
      * @var DB
      */
-    protected $dbh = null;
+    protected $dbh;
 
     /**
      * "ident" value used by the logger.
      *
      * @var string
      */
-    protected $ident = null;
+    protected $ident;
 
     /**
      * Time the process started (Y-m-d H:i:s).
      *
      * @var string
      */
-    protected $processStartTime = null;
+    protected $processStartTime;
 
     /**
      * Time the process ended (Y-m-d H:i:s).
      *
      * @var string
      */
-    protected $processEndTime = null;
+    protected $processEndTime;
 
     /**
      * Row "id" column value of the first log entry of the process.
      *
      * @var int
      */
-    protected $processStartRowId = null;
+    protected $processStartRowId;
 
     /**
      * Row "id" column value of the last log entry of the process.
      *
      * @var int
      */
-    protected $processEndRowId = null;
+    protected $processEndRowId;
 
     /**
      * Start time of the data the process is using. Used for ingestors
@@ -64,7 +64,7 @@ class Summary
      *
      * @var string
      */
-    protected $dataStartTime = null;
+    protected $dataStartTime;
 
     /**
      * End time of the data the process is using. Used for ingestors
@@ -72,7 +72,7 @@ class Summary
      *
      * @var string
      */
-    protected $dataEndTime = null;
+    protected $dataEndTime;
 
     /**
      * The number of warnings that were logged by the process.
@@ -182,8 +182,9 @@ class Summary
         // Allow disabling of the expensive database queries if we do not need them (e.g., when
         // querying the summaryu configuration).
 
-        if ( $queryRecordCounts )
-          $this->recordCounts = $this->_getRecordCounts();
+        if ($queryRecordCounts) {
+            $this->recordCounts = $this->_getRecordCounts();
+        }
     }
 
     /**
@@ -208,10 +209,11 @@ class Summary
       // If a ident-string specific summary class exists load it, otherwise use the default.
 
       $summary = "Log\Summary\\$ident";
-      if ( class_exists($summary) )
-        return new $summary($ident, $queryRecordCounts);
-      else
-        return new Summary($ident, $queryRecordCounts);
+      if (class_exists($summary)) {
+          return new $summary($ident, $queryRecordCounts);
+      } else {
+          return new Summary($ident, $queryRecordCounts);
+      }
     }
 
     public function getProcessStartRowId()
@@ -309,7 +311,7 @@ class Summary
             $params[]  = $this->processEndRowId;
         }
 
-        if (count($clauses) > 0) {
+        if ($clauses !== []) {
             $sql .= ' WHERE ' . implode(' AND ', $clauses);
         }
 
@@ -328,7 +330,9 @@ class Summary
 
     private function _getRecordCounts()
     {
-        if ( count($this->recordCountKeys) == 0 ) return array();
+        if (count($this->recordCountKeys) == 0) {
+            return array();
+        }
         $counts = array();
 
         foreach ($this->recordCountKeys as $key) {
@@ -398,7 +402,7 @@ class Summary
             $params[]  = $value;
         }
 
-        if (count($clauses) > 0) {
+        if ($clauses !== []) {
             $sql .= ' WHERE ' . implode(' AND ', $clauses);
         }
 

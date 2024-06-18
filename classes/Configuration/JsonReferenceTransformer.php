@@ -82,8 +82,6 @@ class JsonReferenceTransformer extends aUrlTransformer implements iConfigFileKey
                 array('log_level' => $exceptionLogLevel)
             );
         }
-
-        $parsedUrl = null;
         $contents = $this->getContentsFromUrl($value, $config, $exceptionLogLevel);
         $fragment = ( array_key_exists('fragment', $this->parsedUrl) ? $this->parsedUrl['fragment'] : '' );
         $key = null;

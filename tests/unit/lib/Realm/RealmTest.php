@@ -11,7 +11,7 @@ use Realm\Realm;
 
 class RealmTest extends \PHPUnit\Framework\TestCase
 {
-    protected static $logger = null;
+    protected static $logger;
 
     public static function setupBeforeClass(): void
     {

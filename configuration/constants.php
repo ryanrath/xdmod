@@ -157,11 +157,11 @@ define('OPERATION_DEF_BASE_PATH', $currentDir.'/../html/controllers/');
  * ARGUMENT COMPLIANCE PATTERNS (for controllers)
  */
 
-define('RESTRICTION_NUMERIC_POS', '/^[0-9]{1,10}$/');
+define('RESTRICTION_NUMERIC_POS', '/^\d{1,10}$/');
 define('RESTRICTION_YES_NO', '/^[ny]$/');
 define('RESTRICTION_NON_EMPTY', '/^.+$/');
-define('RESTRICTION_RID', '/^[0-9]+|[0-9]{10,19}|[a-zA-z0-9]{64}$/');
-define('RESTRICTION_UID', '/^(\-?)[0-9]+$/');
+define('RESTRICTION_RID', '/^\d+|\d{10,19}|[a-zA-z0-9]{64}$/');
+define('RESTRICTION_UID', '/^(\-?)\d+$/');
 define('RESTRICTION_USERNAME', '/^[a-zA-Z0-9@.\-_+\']{2,'.CHARLIM_USERNAME.'}$/');
 define('RESTRICTION_PASSWORD', '/^.{5,60}$/');
 define('RESTRICTION_FIRST_NAME', '/^.{1,'.CHARLIM_FIRST_NAME.'}$/');
@@ -170,9 +170,9 @@ define('RESTRICTION_ROLE', '/^[a-z]{2,3}$/');
 define('RESTRICTION_ROLES_DELIM', '/^[a-z]{2,}(;[a-z]{2,})*$/');
 define('RESTRICTION_PASSWORD_FLAG', '/^[ny]$/');
 define('RESTRICTION_ACTIVE_FLAG', RESTRICTION_PASSWORD_FLAG);
-define('RESTRICTION_ASSIGNMENT', '/^[0-9]+$/');
-define('RESTRICTION_GROUP', '/^[0-9]+$/');
-define('RESTRICTION_FIELD_OF_SCIENCE', '/^[0-9]+$/');
+define('RESTRICTION_ASSIGNMENT', '/^\d+$/');
+define('RESTRICTION_GROUP', '/^\d+$/');
+define('RESTRICTION_FIELD_OF_SCIENCE', '/^\d+$/');
 define('RESTRICTION_CHART_TITLE', '/^.{1,}$/');
 define('RESTRICTION_CHART_DETAILS', '/^.{0,}$/');
 define('RESTRICTION_CHART_DATE_DESC', '/^.{1,}$/');
@@ -180,10 +180,10 @@ define('RESTRICTION_CHART_TYPE', '/^.{1,}$/');
 define('RESTRICTION_CHART_MODULE', '/^.{1,}$/');
 define('RESTRICTION_OPERATION', '/^[_a-z]+$/');
 define('RESTRICTION_SEARCH_MODE', '/^\bformal_name\b|\busername\b$/');
-define('RESTRICTION_INSTITUTION', '/^(-)?[0-9]+$/');
+define('RESTRICTION_INSTITUTION', '/^(-)?\d+$/');
 
 // Associated with 'id' in modw.daterange
-define('RESTRICTION_DATE_RANGE_ID', '/^[0-9]{1,2}$/');
+define('RESTRICTION_DATE_RANGE_ID', '/^\d{1,2}$/');
 
 /**
  * Colors

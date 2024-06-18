@@ -26,7 +26,7 @@ class ColumnLayout
         if ($defaults !== null) {
             $this->settings = $defaults;
 
-            foreach ($this->settings as $itemId => $rowcol)
+            foreach ($this->settings as $rowcol)
             {
                 list($row, $col) = $rowcol;
 

@@ -30,16 +30,16 @@ use ETL\DataEndpoint\iRdbmsEndpoint;
 class ActionState extends Loggable implements iActionState
 {
     // The unique key for identifying this state object in the database
-    private $key = null;
+    private $key;
 
     // Object containing state metadata such as date created, last modified, creating action, etc.
-    private $metadata = null;
+    private $metadata;
 
     // List of properties supported by this state object.
     private $properties = array();
-    
+
     // Guard against E_NOTICE for returning null by reference from __get()
-    private $nullGuard = null;
+    private $nullGuard;
 
     /* ------------------------------------------------------------------------------------------
      * @see iActionState::__construct()
@@ -80,7 +80,7 @@ class ActionState extends Loggable implements iActionState
     public function getKey() {
         return $this->key;
     }  // getKey()
-            
+
     /* ------------------------------------------------------------------------------------------
      * @see iActionState::setKey()
      * ------------------------------------------------------------------------------------------
@@ -189,10 +189,9 @@ class ActionState extends Loggable implements iActionState
      */
 
     public function __toString() {
-        $str = "Key: {$this->key}\n" .
+        return "Key: {$this->key}\n" .
             "Metadata: " . print_r($this->metadata, true) .
             "Properties: " . print_r($this->properties, true);
-        return $str;
     }  // __unset()
 
 }  // class ActionState

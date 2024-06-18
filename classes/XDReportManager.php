@@ -12,18 +12,18 @@ use DataWarehouse\Access\Usage;
 class XDReportManager
 {
 
-    private $_user = null;
-    private $_user_id = null;
+    private $_user;
+    private $_user_id;
     private $_charts_per_page = 1;
-    private $_report_name = null;
-    private $_report_title = null;
-    private $_report_header = null;
-    private $_report_footer = null;
-    private $_report_schedule = null;
-    private $_report_delivery = null;
-    private $_report_format = null;
-    private $_report_id = null;
-    private $_pdo = null;
+    private $_report_name;
+    private $_report_title;
+    private $_report_header;
+    private $_report_footer;
+    private $_report_schedule;
+    private $_report_delivery;
+    private $_report_format;
+    private $_report_id;
+    private $_pdo;
 
     /**
      * List of acceptable output formats and their respective content
@@ -119,7 +119,7 @@ class XDReportManager
 
     public function saveThisReport()
     {
-        if (!isset($this->_report_id)) {
+        if ($this->_report_id === null) {
             throw new \Exception(
                 "configureSelectedReport() must be called first"
             );
@@ -166,12 +166,12 @@ class XDReportManager
         $filename = preg_replace('/[^a-zA-Z0-9-_\. ]/', '', $filename);
         $filename = strtolower(str_replace(" ", "_", $filename));
 
-        return (empty($filename) == true) ? 'xdmod_report' : $filename;
+        return (($filename === '' || $filename === '0') == true) ? 'xdmod_report' : $filename;
     }
 
     public function getPreviewData($report_id, $token, $charts_per_page)
     {
-        $report_data = $this->loadReportData($report_id, false);
+        $report_data = $this->loadReportData($report_id);
 
         $rData = array();
         $chartSlot = array();
@@ -180,7 +180,7 @@ class XDReportManager
 
         foreach ($report_data['queue'] as $report_chart) {
             $suffix = ($chartCount++ % $charts_per_page);
-            if (strtolower($report_chart['timeframe_type']) == 'user defined') {
+            if (strtolower($report_chart['timeframe_type']) === 'user defined') {
                 list($start_date, $end_date)
                     = explode(' to ', $report_chart['chart_date_description']);
             }
@@ -239,7 +239,7 @@ class XDReportManager
             }
         }
 
-        if (count($chartSlot) > 0) {
+        if ($chartSlot !== []) {
 
             // Handle remainder of charts...
 
@@ -266,7 +266,7 @@ class XDReportManager
 
     public function insertThisReport($report_derivation_method = 'Manual')
     {
-        if (!isset($this->_report_id)) {
+        if ($this->_report_id === null) {
             throw new \Exception(
                 "configureSelectedReport() must be called first"
             );
@@ -357,7 +357,7 @@ class XDReportManager
             }
         }
 
-        $id = (count($values) > 0) ? (max($values) + 1) : 1;
+        $id = ($values !== []) ? (max($values) + 1) : 1;
 
         $base_name = trim($base_name);
 
@@ -683,15 +683,6 @@ class XDReportManager
         }
 
         return $report_data;
-    }
-
-    private function createElement(&$dom, &$node, $elementText, $text)
-    {
-        $elementNode = $dom->createElement($elementText);
-        $node->appendChild($elementNode);
-
-        $textNode = $dom->createTextNode(empty($text) ? ' ' : $text);
-        $elementNode->appendChild($textNode);
     }
 
     public function removeReportbyID($report_id)
@@ -1210,7 +1201,6 @@ class XDReportManager
                 }
 
                 exit;
-                break;
             case 'chart_pool':
                 $this->ripTransform($insertion_rank, 'did');
 
@@ -1248,7 +1238,6 @@ class XDReportManager
                 }
 
                 exit;
-                break;
             case 'report':
                 $iq = $pdo->query(
                     "
@@ -1301,7 +1290,7 @@ class XDReportManager
             $timeframe_type = $iq[0]['timeframe_type'];
         }
 
-        if (strtolower($timeframe_type) == 'user defined') {
+        if (strtolower($timeframe_type) === 'user defined') {
             $start_date = $active_start;
             $end_date = $active_end;
         }
@@ -1342,7 +1331,7 @@ class XDReportManager
             if (($blob_start == $start_date) && ($blob_end == $end_date)) {
                 $image_data_header = substr($blob_elements[1], 0, 8);
 
-                if ($image_data_header == "\x89PNG\x0d\x0a\x1a\x0a") {
+                if ($image_data_header === "\x89PNG\x0d\x0a\x1a\x0a") {
 
                     // Cached blob is still usable (contains raw png data)
                     return $blob_elements[1];
@@ -1404,7 +1393,7 @@ class XDReportManager
             $module = $query_params['controller_module'];
             $operation = $query_params['operation'];
 
-            if( isset($supportedControllers[$module]) && $supportedControllers[$module]['function'] == $operation ) {
+            if( isset($supportedControllers[$module]) && $supportedControllers[$module]['function'] === $operation ) {
                 $c = new $supportedControllers[$module]['class']($callargs);
                 $response = $c->$operation($this->_user);
             }
@@ -1420,7 +1409,7 @@ class XDReportManager
             // No controller specified - this must be a chart generated with an ealier verson
             // of the XDMoD software. Use the presence of format=hc_jsonstore to determine which
             // controller processes the chart
-            if( isset($query_params['format']) && $query_params['format'] == 'hc_jsonstore') {
+            if( isset($query_params['format']) && $query_params['format'] === 'hc_jsonstore') {
                 $c = new \DataWarehouse\Access\MetricExplorer($callargs);
                 $response = $c->get_data($this->_user);
             } else {
@@ -1429,8 +1418,6 @@ class XDReportManager
             }
             return $response['results'];
         }
-
-        throw new \Exception("Unsupported controller in report generator");
     }
 
     public function generateChartBlob(
@@ -1508,7 +1495,6 @@ class XDReportManager
             "render_for_report" => "y",
             "start_date" => "$start_date",
             "end_date" => "$end_date",
-            "format" => 'png_inline',
             "scale" => 1,
             "width" => 800,
             "height" => 600,
@@ -1545,7 +1531,6 @@ class XDReportManager
             case 'volatile':
             case 'cached':
                 return $raw_png_data;
-                break;
 
             case 'report':
                 $pdo->execute(
@@ -1603,7 +1588,7 @@ class XDReportManager
         $rp = new \Reports\ClassicReport($settings);
         $rp->writeReport($template_path . '/' . $report_id . '.doc');
 
-        if (strtolower($report_format) == 'pdf') {
+        if (strtolower($report_format) === 'pdf') {
             exec('HOME=' . $template_path . ' libreoffice --headless --convert-to pdf ' . $template_path . '/' .  $report_id . '.doc --outdir ' . $template_path);
         }
 
@@ -1620,9 +1605,9 @@ class XDReportManager
         $additional_config = array()
     ) {
 
-        $frequency = (!empty($frequency)) ? ' '.$frequency : $frequency;
+        $frequency = (empty($frequency)) ? $frequency : ' '.$frequency;
 
-        $subject_suffix = (APPLICATION_ENV == 'dev') ? '[Dev]' : '';
+        $subject_suffix = (APPLICATION_ENV === 'dev') ? '[Dev]' : '';
 
         $destination_email_address = $this->getReportUserEmailAddress($report_id);
 
@@ -1644,9 +1629,9 @@ class XDReportManager
 
                 $frequency = trim($frequency);
                 $frequency
-                    = !empty($frequency)
-                    ? ' ' . $frequency
-                    : $frequency;
+                    = $frequency === '' || $frequency === '0'
+                    ? $frequency
+                    : ' ' . $frequency;
 
                 $templateType = 'custom_report';
                 break;
@@ -1718,7 +1703,7 @@ class XDReportManager
                 $chart['drill_details'] = ORGANIZATION_NAME_ABBREV;
             }
 
-            if (strtolower($entry['timeframe_type']) == 'user defined') {
+            if (strtolower($entry['timeframe_type']) === 'user defined') {
                 list($start_date, $end_date)
                     = explode(' to ', $entry['comments']);
             }

@@ -163,7 +163,7 @@ EOT
 
         foreach ($aggregationUnits as $aggUnit) {
             $tpg = TimePeriodGenerator::getGeneratorForUnit($aggUnit);
-            $tpg->generateMainTable(DB::factory('datawarehouse'), new \DateTime('2000-01-01'), new \DateTime('2038-01-18'));
+            $tpg->generateMainTable(DB::factory('datawarehouse'));
         }
 
         passthru(BIN_DIR . '/acl-config', $aclstatus);

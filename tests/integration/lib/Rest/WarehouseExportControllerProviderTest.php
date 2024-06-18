@@ -132,7 +132,7 @@ class WarehouseExportControllerProviderTest extends TokenAuthTest
      *
      * @return stdClass
      */
-    private static function getSchema($schema)
+    private function getSchema($schema)
     {
         if (!array_key_exists($schema, self::$schemaCache)) {
             static::$schemaCache[$schema] = parent::getTestFiles()->loadJsonFile(
@@ -169,7 +169,7 @@ class WarehouseExportControllerProviderTest extends TokenAuthTest
         // CHECK_MODE_COERCE_TYPES to allow these values.
         self::$schemaValidator->validate(
             $normalizedContent,
-            self::getSchema($schema),
+            $this->getSchema($schema),
             Constraint::CHECK_MODE_COERCE_TYPES
         );
 
@@ -235,7 +235,8 @@ class WarehouseExportControllerProviderTest extends TokenAuthTest
                 }
 
                 $counts = [28, 16, 16];
-                for ($i = 0; $i < count($counts); $i++) {
+                $counter = count($counts);
+                for ($i = 0; $i < $counter; $i++) {
                     $this->assertCount(
                         $counts[$i],
                         $body['data'][$i]['fields'],

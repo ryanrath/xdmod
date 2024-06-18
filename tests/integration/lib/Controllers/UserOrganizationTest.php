@@ -130,13 +130,13 @@ class UserOrganizationTest extends BaseUserAdminTest
         );
 
         // If the user had center related roles we have a few more things to check.
-        if (count($userCenterRoles) > 0) {
+        if ($userCenterRoles !== []) {
             $currentUserAcls = array_keys($this->retrieveUserProperties($userId, array('acls')));
             $missingAcls = array_diff($originalAcls, $currentUserAcls);
 
             // They should have had their center related role revoked, so they should have at least
             // one acl missing.
-            $this->assertTrue(count($missingAcls) > 0);
+            $this->assertTrue($missingAcls !== []);
             $this->assertTrue(count($missingAcls) === count($userCenterRoles));
 
             $userAcls = array_reduce(

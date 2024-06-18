@@ -56,7 +56,6 @@ class RealmManager
     /**
      * Get an array of all the batch exportable realms for a user.
      *
-     * @param \XDUser $user
      * @return \Models\Realm[]
      */
     public function getRealmsForUser(XDUser $user)

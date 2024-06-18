@@ -32,8 +32,6 @@ class PersonControllerProvider extends BaseControllerProvider
     }
 
     /**
-     * @param Request $request
-     * @param Application $app
      * @param $id
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      * @throws \Exception

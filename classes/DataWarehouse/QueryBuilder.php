@@ -14,9 +14,9 @@ use XDUser;
  */
 class QueryBuilder
 {
-    private static $_self = NULL;
+    private static $_self;
 
-    public static $_realms = null;
+    public static $_realms;
 
     public static $_datasetTypes = array(
         array(
@@ -115,8 +115,8 @@ class QueryBuilder
         $statistic        = $this->getStatisticFromRequest($request);
         $group_by         = $this->getGroupByFromRequest($request);
         $query_group      = $this->getQueryGroupFromRequest($request);
-        $rp_usage_regex   = '/rp_(?P<rp_id>[0-9]+)_usage/';
-        $rp_summary_regex = '/rp_(?P<rp_id>[0-9]+)_summary/';
+        $rp_usage_regex   = '/rp_(?P<rp_id>\d+)_usage/';
+        $rp_summary_regex = '/rp_(?P<rp_id>\d+)_summary/';
 
         if (preg_match($rp_usage_regex, $query_group, $matches) > 0) {
             $request['provider'] = $matches['rp_id'];

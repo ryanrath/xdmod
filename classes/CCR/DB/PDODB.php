@@ -30,21 +30,21 @@ class PDODB implements iDatabase
 
     // Database connection parameters. Be aware that these are accessed directly
     // throughout the ETLv1 code and in the ETLv2 pdoIngester.php
-    public $_db_engine = null;
-    public $_db_host = null;
-    public $_db_port = null;
-    public $_db_name = null;
-    public $_db_username = null;
-    public $_db_password = null;
+    public $_db_engine;
+    public $_db_host;
+    public $_db_port;
+    public $_db_name;
+    public $_db_username;
+    public $_db_password;
 
     // Optional extra parameters to be added to the DSN
-    public $dsn_extra = null;
+    public $dsn_extra;
 
     // Generated DSN
-    protected $dsn = null;
+    protected $dsn;
 
     // Handle to the PDO instance
-    protected $_dbh = null;
+    protected $_dbh;
 
     protected static $debug_mode = false;
     protected static $queries = array();
@@ -380,7 +380,7 @@ class PDODB implements iDatabase
         PDODB::$params[] = PDODB::protectParams($params);
     }
 
-    private static function protectParams($params)
+    private function protectParams($params)
     {
         foreach ($params as $key => $value) {
             if (is_string($key) && strtolower($key) === 'password') {

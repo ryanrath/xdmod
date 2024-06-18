@@ -23,12 +23,12 @@ class WebServerLogFile extends aStructuredFile implements iStructuredFile
 {
     const CACHE_SIZE = 1000;
 
-    private $web_parser = null;
+    private $web_parser;
 
-    private $ua_parser = null;
+    private $ua_parser;
     private $ua_parser_cache = array();
 
-    private $geoip_lookup = null;
+    private $geoip_lookup;
     private $geoip_cache = array();
 
     /**
@@ -53,7 +53,7 @@ class WebServerLogFile extends aStructuredFile implements iStructuredFile
         // version >2.1.1 (see note in composer.json).
         $this->web_parser->addPattern('%u', '(?P<user>(?:-|[\w\-\.@]+))');
 
-        if (isset($options->log_format)) {
+        if ($options->log_format !== null) {
             // Replace `%r` with `%m %U %H` so the request method, URL, and
             // protocol can be parsed separately.
             $options->log_format = str_replace(
@@ -66,7 +66,7 @@ class WebServerLogFile extends aStructuredFile implements iStructuredFile
 
         $this->ua_parser = \UAParser\Parser::create();
 
-        if (isset($options->geoip_file)) {
+        if ($options->geoip_file !== null) {
             $this->geoip_lookup = new \GeoIp2\Database\Reader($options->geoip_file);
         }
     }

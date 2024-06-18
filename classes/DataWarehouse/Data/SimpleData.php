@@ -14,6 +14,7 @@ namespace DataWarehouse\Data;
  */
 class SimpleData extends \Common\Identity
 {
+    public $values;
     // ----------- instance variables ------------- //
 
     // SimpleData type may be one of 'dim', 'met', or 'time'
@@ -69,7 +70,7 @@ class SimpleData extends \Common\Identity
     // Helper function for debugging 
     // JMS April 2015
     public function __toString() {
-        $st = isset($this->_statistic) ? $this->getStatistic()->getId() : null;
+        $st = $this->_statistic !== null ? $this->getStatistic()->getId() : null;
 
         return "Data Name: {$this->getName()}\n"
             . "Statistic: {$st}\n"
@@ -115,17 +116,9 @@ class SimpleData extends \Common\Identity
 
             for ($i = $limit; $i < $valuesCount; $i++) {
                 if ($isMin) {
-                    if ($otherSum == 0) {
-                        $otherSum = $this->_values[$i];
-                    } else {
-                        $otherSum = min($otherSum,  $this->_values[$i]);
-                    }
+                    $otherSum = $otherSum == 0 ? $this->_values[$i] : min($otherSum,  $this->_values[$i]);
                 } elseif ($isMax) {
-                    if ($otherSum == 0) {
-                        $otherSum = $this->_values[$i];
-                    } else {
-                        $otherSum = max($otherSum,  $this->_values[$i]);
-                    }
+                    $otherSum = $otherSum == 0 ? $this->_values[$i] : max($otherSum,  $this->_values[$i]);
                 } else {
                     $otherSum += $this->_values[$i];
                 }
@@ -183,7 +176,7 @@ class SimpleData extends \Common\Identity
 
     public function getCount($force_recount = false)
     {
-        if (!isset($this->_valuesCount) || $force_recount === true) {
+        if ($this->_valuesCount === null || $force_recount === true) {
             $this->_valuesCount = count($this->_values);
         }
 
@@ -192,7 +185,7 @@ class SimpleData extends \Common\Identity
 
     public function getErrorCount($force_recount = false)
     {
-        if (!isset($this->_errorsCount) || $force_recount === true) {
+        if ($this->_errorsCount === null || $force_recount === true) {
             $this->_errorsCount = count($this->_errors);
         }
 

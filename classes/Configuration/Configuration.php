@@ -90,26 +90,26 @@ class Configuration extends Loggable implements iConfiguration
     * @var string Configuration file name
     */
 
-    protected $filename = null;
+    protected $filename;
 
     /**
     * @var string The base directory for any paths that are not fully qualified
     */
 
-    protected $baseDir = null;
+    protected $baseDir;
 
     /**
      * @var stdClass The parsed configuration file prior to manipulation
      */
 
-    protected $parsedConfig = null;
+    protected $parsedConfig;
 
     /**
      * @var stdClass The configuration constructed from the parsed file after processing any
      * transformers and performing manipulations.
      */
 
-    protected $transformedConfig = null;
+    protected $transformedConfig;
 
     /**
      * @var array(stdclass) An associative array where keys are section names and values the data
@@ -129,7 +129,7 @@ class Configuration extends Loggable implements iConfiguration
      * @var string Directory to look for local configuration files (e.g. sub-configs)
      */
 
-    protected $localConfigDir = null;
+    protected $localConfigDir;
 
 
     /**
@@ -167,7 +167,7 @@ class Configuration extends Loggable implements iConfiguration
      * variables can be added via the command line, configuration files, or ETL actions themselves.
      */
 
-    protected $variableStore = null;
+    protected $variableStore;
 
     /**
      * @var boolean TRUE if the configuration has already been initialized.
@@ -180,7 +180,7 @@ class Configuration extends Loggable implements iConfiguration
      * instantiated)
      */
 
-    protected $calledClassName = null;
+    protected $calledClassName;
 
     /**
      * @var boolean Enable or disable the object cache to improve performance. Enabling the object
@@ -248,7 +248,7 @@ class Configuration extends Loggable implements iConfiguration
 
         if ( empty($filename) ) {
             $msg = sprintf("%s: Configuration filename cannot be empty", $calledClass);
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->error($msg);
             }
             throw new Exception($msg);
@@ -317,7 +317,7 @@ class Configuration extends Loggable implements iConfiguration
             $instance->getLastModifiedTimes() != $cachedInstance->getLastModifiedTimes()
         );
 
-        if ( $staleCachedObject && null !== $logger ) {
+        if ( $staleCachedObject && $logger instanceof \Psr\Log\LoggerInterface ) {
             $logger->debug(
                 sprintf(
                     'Updating stale cached object %s (%s) (time differences: %s)',
@@ -348,7 +348,7 @@ class Configuration extends Loggable implements iConfiguration
             } else {
                 self::$objectCache[$cacheKey] = $instance;
             }
-            if ( null !== $logger ) {
+            if ( $logger instanceof \Psr\Log\LoggerInterface ) {
                 $logger->debug(
                     sprintf(
                         'Stored object %s (%s) in %s cache with key %s in %fs',
@@ -525,7 +525,7 @@ class Configuration extends Loggable implements iConfiguration
     public function initialize($force = false)
     {
         if ( $this->initialized && ! $force ) {
-            return;
+            return null;
         }
 
         $this->logger->debug("Loading" . ( $this->isLocalConfig ? " local" : "" ) . " configuration file " . $this->filename);
@@ -572,7 +572,7 @@ class Configuration extends Loggable implements iConfiguration
                 try {
                     $localConfigObj = $this->processLocalConfig($file);
                 } catch ( Exception $e ) {
-                    throw new Exception(sprintf("Processing local file %s: %s", $file, $e->getMessage()));
+                    throw new Exception(sprintf("Processing local file %s: %s", $file, $e->getMessage()), $e->getCode(), $e);
                 }
 
                 $this->merge($localConfigObj);
@@ -815,8 +815,8 @@ class Configuration extends Loggable implements iConfiguration
 
             if ( $overwrite || false == $myData ) {
                 $this->addSection($sectionName, $localConfigData);
-            } elseif ( is_array($myData) ) {
-                array_push($myData, $localConfigData);
+            } elseif (is_array($myData)) {
+                $myData[] = $localConfigData;
                 $this->addSection($sectionName, $myData);
             }
         }
@@ -863,7 +863,7 @@ class Configuration extends Loggable implements iConfiguration
                      */
                     foreach($incomingValue as $value) {
                         if (!in_array($value, $existingValue)) {
-                            array_push($existingValue, $value);
+                            $existingValue[] = $value;
                         }
                     }
                 } elseif (is_scalar($existingValue) && is_scalar($incomingValue)) {
@@ -938,7 +938,7 @@ class Configuration extends Loggable implements iConfiguration
 
     private function recursivelySubstituteVariables($traversable)
     {
-        foreach ( $traversable as $property => &$value ) {
+        foreach ( $traversable as &$value ) {
             if ( is_string($value) ) {
                 $value = $this->variableStore->substitute($value);
             } elseif ( is_array($value) || $value instanceof \stdClass || $value instanceof \Traversable ) {
@@ -999,7 +999,7 @@ class Configuration extends Loggable implements iConfiguration
                 try {
                     $stop = ( ! $transformer->transform($transformKey, $value, $obj, $this, Log::ERR) );
                 } catch ( Exception $e ) {
-                    throw new Exception(sprintf("%s: %s", $this->filename, $e->getMessage()));
+                    throw new Exception(sprintf("%s: %s", $this->filename, $e->getMessage()), $e->getCode(), $e);
                 }
 
                 if ( null === $transformKey && null === $value ) {
@@ -1044,7 +1044,7 @@ class Configuration extends Loggable implements iConfiguration
                 // Arrays may contain objects or scalars. We are not handling the case
                 // where an object may be deeply nested in an array.
 
-                foreach ( $value as $index => &$element ) {
+                foreach ( $value as &$element ) {
                     if ( is_object($element) ) {
                         $element = $this->processKeyTransformers($element);
                     }
@@ -1210,15 +1210,13 @@ class Configuration extends Loggable implements iConfiguration
     {
         $className = '';
 
-        if ( is_object($transformer) && $transformer instanceof iConfigFileKeyTransformer ) {
+        if ( $transformer instanceof iConfigFileKeyTransformer ) {
             $className = get_class($transformer);
         } elseif ( is_string($transformer) ) {
             $className = $transformer;
         } else {
             $msg = 'Transformer is not an object or a string';
-            if ( is_object($transformer) ) {
-                $msg = sprintf("Transformer '%s' does not implement iConfigFileKeyTransformer", get_class($transformer));
-            }
+            $msg = sprintf("Transformer '%s' does not implement iConfigFileKeyTransformer", get_class($transformer));
             $this->logAndThrowException($msg);
         }
 
@@ -1250,15 +1248,13 @@ class Configuration extends Loggable implements iConfiguration
     {
         $className = null;
 
-        if ( is_object($transformer) && $transformer instanceof iConfigFileKeyTransformer ) {
+        if ( $transformer instanceof iConfigFileKeyTransformer ) {
             $className = get_class($transformer);
         } elseif ( is_string($transformer) ) {
             $className = $transformer;
         } else {
             $msg = 'Transformer is not an object or a string';
-            if ( is_object($transformer) ) {
-                $msg = sprintf("Transformer '%s' does not implement iConfigFileKeyTransformer", get_class($transformer));
-            }
+            $msg = sprintf("Transformer '%s' does not implement iConfigFileKeyTransformer", get_class($transformer));
             $this->logAndThrowException($msg);
         }
 

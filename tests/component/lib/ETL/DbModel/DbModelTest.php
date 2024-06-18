@@ -19,19 +19,16 @@ use ETL\Configuration\EtlConfiguration;
 class DbModelTest extends \ComponentTests\ETL\BaseEtlTest
 {
     const TMPDIR_PREFIX = 'xdmod-dbmodel-test';
-    private static $tmpDir = null;
-    private static $etlConfig = null;
-    private static $etlOverseerOptions = null;
-    private static $endpoint = null;
-    private static $testArtifactInputPath = null;
-    private static $testArtifactOutputPath = null;
+    private static $tmpDir;
+    private static $etlConfig;
+    private static $etlOverseerOptions;
+    private static $endpoint;
+    private static $testArtifactInputPath;
+    private static $testArtifactOutputPath;
 
     /**
      * Set up machinery that we will need for these tests.
-     *
-     * @return Nothing
      */
-
     public static function setupBeforeClass(): void
     {
         self::$testArtifactInputPath = realpath(BASE_DIR . '/tests/artifacts/xdmod/etlv2/configuration/input/');
@@ -47,10 +44,7 @@ class DbModelTest extends \ComponentTests\ETL\BaseEtlTest
 
     /**
      * Clean up after our tests.
-     *
-     * @return Nothing
      */
-
     public static function tearDownAfterClass(): void
     {
         self::$endpoint->getHandle()->execute('DROP TABLE IF EXISTS `test`.`modify_table_test`');

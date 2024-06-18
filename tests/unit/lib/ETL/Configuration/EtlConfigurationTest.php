@@ -24,7 +24,7 @@ class EtlConfigurationTest extends BaseTest
 
     const TMPDIR = '/tmp/xdmod-etl-configuration-test';
 
-    private static $defaultModuleName = null;
+    private static $defaultModuleName;
 
     private $testFiles;
 
@@ -226,7 +226,6 @@ class EtlConfigurationTest extends BaseTest
      *
      * @dataProvider provideTestModuleConfiguration
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testModuleConfiguration(array $options)
@@ -296,7 +295,6 @@ class EtlConfigurationTest extends BaseTest
     /**
      * @dataProvider  provideTestToAssocArray
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testToAssocArray(array $options)
@@ -348,7 +346,6 @@ class EtlConfigurationTest extends BaseTest
      *
      * @dataProvider provideTestLocalConfigReadOrder
      *
-     * @param array $options
      *
      * @throws \Exception
      */

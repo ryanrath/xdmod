@@ -9,7 +9,7 @@ namespace DataWarehouse;
  */
 class VisualizationBuilder
 {
-    private static $_self = NULL;
+    private static $_self;
 
     public static $plot_action_formats = array(
         'session_variable',

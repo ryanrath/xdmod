@@ -109,7 +109,7 @@ class Console
     {
         $prompt = $query;
 
-        if (count($options) > 0) {
+        if ($options !== []) {
             if ($default != '' && !in_array(strtolower($default), $options)) {
                 throw new \Exception('Default value is not an option');
             }
@@ -139,7 +139,7 @@ class Console
             return $default;
         }
 
-        if (count($options) > 0) {
+        if ($options !== []) {
             $response = strtolower($response);
             if (!in_array($response, $options)) {
                 $this->displayBlankLine();
@@ -185,7 +185,7 @@ class Console
         $second = preg_replace('/\r?\n$/', '', `stty -echo; head -n1; stty echo`);
         echo "\n";
 
-        if ($first != $second) {
+        if ($first !== $second) {
             $this->displayBlankLine();
             $this->displayMessage('Entries did not match, please try again.');
             $this->displayBlankLine();

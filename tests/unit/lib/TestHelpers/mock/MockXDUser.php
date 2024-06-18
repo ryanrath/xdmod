@@ -4,7 +4,7 @@ namespace UnitTests\TestHelpers\mock;
 
 class MockXDUser
 {
-    private $_profile = null;
+    private $_profile;
 
     public function __construct()
     {

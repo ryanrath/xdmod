@@ -24,7 +24,7 @@ class LockFile extends Loggable
      * @var integer|null
      */
 
-    protected $pid = null;
+    protected $pid;
 
     /**
      * Directory where lock files are stored, read from the configuration file
@@ -32,7 +32,7 @@ class LockFile extends Loggable
      * @var string|null
      */
 
-    protected $lockDir = null;
+    protected $lockDir;
 
     /**
      * Prefix for lock files. This is set to a reasonable default initially, but can be
@@ -50,7 +50,7 @@ class LockFile extends Loggable
      * @var resource|null
      */
 
-    protected $lockFileHandle = null;
+    protected $lockFileHandle;
 
     /**
      * Path to the current lockfile
@@ -58,7 +58,7 @@ class LockFile extends Loggable
      * @var string|null
      */
 
-    protected $lockFile = null;
+    protected $lockFile;
 
     /** -----------------------------------------------------------------------------------------
      * Set the provided logger or instantiate a null logger if one was not provided.  The
@@ -151,7 +151,7 @@ class LockFile extends Loggable
         // Cleanup any lockfiles not associated with a running process
 
         while ( ($file = readdir($dh) ) !== false ) {
-            if ( '.' == $file || '..' == $file ) {
+            if ( '.' === $file || '..' === $file ) {
                 continue;
             } elseif ( '' != $this->lockFilePrefix && 0 !== strpos($file, $this->lockFilePrefix) ) {
                 // If set, the file must match the prefix

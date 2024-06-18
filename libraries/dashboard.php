@@ -34,17 +34,13 @@ SQL;
 
     $whereClause = implode(" AND\n", $whereClauses);
 
-    if (count($whereClauses) > 0) {
-        $queryParts = array(
-            $query,
-            'WHERE',
-            $whereClause
-        );
-    } else {
-        $queryParts = array(
-            $query
-        );
-    }
+    $queryParts = $whereClauses !== [] ? array(
+        $query,
+        'WHERE',
+        $whereClause
+    ) : array(
+        $query
+    );
     return array(
         implode(
             "\n",

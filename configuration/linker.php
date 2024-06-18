@@ -15,7 +15,7 @@ if (isset($linkerConfig['include_dirs'])) {
         $include_path .= ":$baseDir/$includeDirPath";
     }
 
-    ini_alter('include_path', $include_path);
+    ini_set('include_path', $include_path);
 }
 
 // Register a custom autoloader for XDMoD components.
@@ -123,7 +123,7 @@ function handle_uncaught_exception($exception)
     $logger->err(array( 'message' => 'Message: '.$exception->getMessage()));
     $logger->err(array( 'message' => 'Origin: '.$exception->getFile().' (line '.$exception->getLine().')'));
 
-    $stringTrace = (get_class($exception) == 'UniqueException') ? $exception->getVerboseTrace() : $exception->getTraceAsString();
+    $stringTrace = ($exception instanceof \UniqueException) ? $exception->getVerboseTrace() : $exception->getTraceAsString();
 
     $logger->err(array('message' => "Trace:\n".$stringTrace."\n-------------------------------------------------------"));
 
@@ -141,10 +141,8 @@ function handle_uncaught_exception($exception)
             $headers = $exception->getHeaders();
         }
 
-        if ($uncheckedExceptionHttpCode !== null) {
-            if (array_key_exists($uncheckedExceptionHttpCode, HttpCodeMessages::$messages)) {
-                $httpCode = $uncheckedExceptionHttpCode;
-            }
+        if ($uncheckedExceptionHttpCode !== null && array_key_exists($uncheckedExceptionHttpCode, HttpCodeMessages::$messages)) {
+            $httpCode = $uncheckedExceptionHttpCode;
         }
     }
 

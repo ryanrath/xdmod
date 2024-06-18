@@ -56,6 +56,7 @@ EOMSG
             $this->logger,
             ['variable-overrides' => ['STORAGE_LOG_DIRECTORY' => $dir]]
         );
+        return null;
     }
 
     /**

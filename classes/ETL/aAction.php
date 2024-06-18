@@ -24,20 +24,20 @@ abstract class aAction extends aEtlObject
      * @var aOptions object with configuration information for this action
      */
 
-    protected $options = null;
+    protected $options;
 
     /**
      * @var EtlConfiguration Object containing a representation of the parsed configuration file.
      */
 
-    protected $etlConfig = null;
+    protected $etlConfig;
 
     /**
      * @var EtlOverseerOptions Object containing the options for this ingestion run. This is private
      *   so that we can enforce updating of the variable map.
      */
 
-    private $etlOverseerOptions = null;
+    private $etlOverseerOptions;
 
     /**
      * @var array An associative array where the key is the restriction name and the value is the overriden
@@ -52,19 +52,19 @@ abstract class aAction extends aEtlObject
      *   not include ${}, only the name of the variable.
      */
 
-    protected $variableStore = null;
+    protected $variableStore;
 
     /**
      * @var string Path to the JSON configuration file containing the action definition.
      */
 
-    protected $definitionFile = null;
+    protected $definitionFile;
 
     /**
      * @var stdClass A class representing the parsed definition file.
      */
 
-    protected $parsedDefinitionFile = null;
+    protected $parsedDefinitionFile;
 
     /**
      * @var boolean True if this action supports chunking of date ranges. Ingestors may support this
@@ -78,14 +78,14 @@ abstract class aAction extends aEtlObject
      *   actions utilize a start/end date.
      */
 
-    protected $currentStartDate = null;
+    protected $currentStartDate;
 
     /**
      * @var string The current end date that this action is working with. Note that not all actions
      *   utilize a start/end date.
      */
 
-    protected $currentEndDate = null;
+    protected $currentEndDate;
 
     /*
      * NOTE: If we want to support additional endpoint names, these should be implemented as an array of endpoints. -smg
@@ -96,39 +96,39 @@ abstract class aAction extends aEtlObject
      *   endopint. For example, a database handle or PDO object.
      */
 
-    protected $utilityHandle = null;
+    protected $utilityHandle;
 
     /**
      * @var iDataEndpoint The utility data endpoint, must implement iDataEndpoint.
      */
 
-    protected $utilityEndpoint = null;
+    protected $utilityEndpoint;
 
     /**
      * @var iDataEndpoint The utility data endpoint, must implement iDataEndpoint.
      */
 
-    protected $sourceEndpoint = null;
+    protected $sourceEndpoint;
 
     /**
      * @var mixed An object or resource representing the connection to the underlying utility
      *   endopint. For example, a database handle or PDO object.
      */
 
-    protected $sourceHandle = null;
+    protected $sourceHandle;
 
     /**
      * @var iDataEndpoint The utility data endpoint, must implement iDataEndpoint.
      */
 
-    protected $destinationEndpoint = null;
+    protected $destinationEndpoint;
 
     /**
      * @var mixed An object or resource representing the connection to the underlying utility
      *   endopint. For example, a database handle or PDO object.
      */
 
-    protected $destinationHandle = null;
+    protected $destinationHandle;
 
     /** -----------------------------------------------------------------------------------------
      * @see iAction::__construct()
@@ -148,10 +148,10 @@ abstract class aAction extends aEtlObject
         $this->etlConfig = $etlConfig;
         $this->logger->info("Create action " . $this);
 
-        $variableInitializer = ( isset($this->options->variables) ? $this->options->variables : null );
+        $variableInitializer = ( $this->options->variables );
         $this->variableStore = new VariableStore($variableInitializer, $logger);
 
-        if ( isset($this->options->definition_file) ) {
+        if ( $this->options->definition_file !== null ) {
 
             // Set up the path to the definition file for this action
 
@@ -210,13 +210,13 @@ abstract class aAction extends aEtlObject
 
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
-        if ( null === $etlOverseerOptions ) {
+        if ( !$etlOverseerOptions instanceof \ETL\EtlOverseerOptions ) {
             $this->logAndThrowException("ETL Overseer options not set");
         }
 
         parent::initialize();
 
-        if ( null !== $etlOverseerOptions ) {
+        if ( $etlOverseerOptions instanceof \ETL\EtlOverseerOptions ) {
             $this->setEtlOverseerOptions($etlOverseerOptions);
         }
 
@@ -341,12 +341,12 @@ abstract class aAction extends aEtlObject
     {
         $this->overseerRestrictionOverrides = array();
 
-        if ( isset($this->options->include_only_resource_codes) && is_array($this->options->include_only_resource_codes) ) {
+        if ( $this->options->include_only_resource_codes !== null && is_array($this->options->include_only_resource_codes) ) {
             $this->overseerRestrictionOverrides[EtlOverseerOptions::RESTRICT_INCLUDE_ONLY_RESOURCES] = $this->options->include_only_resource_codes;
 
         }
 
-        if ( isset($this->options->exclude_resource_codes) && is_array($this->options->exclude_resource_codes) ) {
+        if ( $this->options->exclude_resource_codes !== null && is_array($this->options->exclude_resource_codes) ) {
             $this->overseerRestrictionOverrides[EtlOverseerOptions::RESTRICT_EXCLUDE_RESOURCES] = $this->options->exclude_resource_codes;
         }
 
@@ -365,7 +365,7 @@ abstract class aAction extends aEtlObject
         $this->variableStore->HIERARCHY_BOTTOM_LEVEL_INFO = HIERARCHY_BOTTOM_LEVEL_INFO;
 
         if ( null === $this->etlOverseerOptions ) {
-            return;
+            return null;
         }
 
         // Set up any variables associated with the Overseer that should be available for

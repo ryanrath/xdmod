@@ -43,7 +43,6 @@ class DashboardControllerProviderTest extends BaseUserAdminTest
      *
      * @dataProvider provideTestGetStatistics
      *
-     * @param array $options
      * @throws \Exception
      */
     public function testGetStatistics(array $options)
@@ -134,7 +133,7 @@ class DashboardControllerProviderTest extends BaseUserAdminTest
                         $expectedValue = (float)$value[0];
                         $actualValue = (float)$actualData[$fieldName][0];
 
-                        $this->assertEquals($expectedValue, $actualValue, "Failed equivalency for: $fieldName", 1.0e-8);
+                        $this->assertEquals($expectedValue, $actualValue, "Failed equivalency for: $fieldName");
                     } else {
                         $this->assertEquals($value, $actualData[$fieldName]);
                     }

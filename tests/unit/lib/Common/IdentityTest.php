@@ -18,7 +18,9 @@ class IdentityTest extends \PHPUnit\Framework\TestCase
     {
         $this->_identity = new \Common\Identity('identity_name');
         $this->_identity1 = new \Common\Identity('');
-        set_error_handler(array($this, 'errorHandler'));
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+            return $this->errorHandler($errno, $errstr, $errfile, $errline);
+        });
     }
 
     public function errorHandler($errno, $errstr, $errfile, $errline)

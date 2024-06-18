@@ -23,7 +23,7 @@ use CCR\DB;
 class DataWarehouse
 {
 
-    private static $db = null;
+    private static $db;
 
     /*
 	 * @function connect()
@@ -157,13 +157,7 @@ class DataWarehouse
         self::connect();
         $results = self::$db->query($query);
 
-        $results_b = array();
-
         $charge_allocation_map = array();
-
-        // =================================================================================================
-
-        $rct = 0;
 
         // Consolidation Phase (eliminating redundant records based on a common charge number)
         // The redundancies are also due to the same charge number across multiple resources (each of which has a unique allocation id)
@@ -309,7 +303,7 @@ class DataWarehouse
             unset($c['allocation_ids']);
 
             // Sort the resources (associated with a user) by (ascending) resource name
-            foreach ($user_pool as $p => &$v) {
+            foreach ($user_pool as &$v) {
 
                 $v['resources'] = array_values($v['resources']);
 

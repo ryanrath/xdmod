@@ -37,7 +37,7 @@ class JsonPointer
      * @var \CCR\Loggable
      */
 
-    private static $loggable = null;
+    private static $loggable;
 
     /** -----------------------------------------------------------------------------------------
      * This is a singleton class.
@@ -191,7 +191,7 @@ class JsonPointer
 
         if ( is_array($json) && isset($json[$pointerPart]) ) {
 
-            if ( count($pointerParts) === 0 ) {
+            if ( $pointerParts === [] ) {
                 return $json[$pointerPart];
             }
 
@@ -201,7 +201,7 @@ class JsonPointer
 
         } elseif ( is_object($json) && in_array($pointerPart, array_keys(get_object_vars($json))) ) {
 
-            if ( count($pointerParts) === 0 ) {
+            if ( $pointerParts === [] ) {
                 return $json->{$pointerPart};
             }
 
@@ -213,7 +213,7 @@ class JsonPointer
 
             $pointerPart = '_empty_';
 
-            if ( count($pointerParts) === 0 ) {
+            if ( $pointerParts === [] ) {
                 return $json->{$pointerPart};
             }
 

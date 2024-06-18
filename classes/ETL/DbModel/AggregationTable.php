@@ -185,7 +185,7 @@ class AggregationTable extends Table
         }
 
         foreach ( $triggerJson as $def ) {
-            foreach ( $def as $key => &$value ) {
+            foreach ( $def as &$value ) {
                 $value = $variableStore->substitute($value);
             }
             unset($value); // Sever the reference with the last element
@@ -227,7 +227,7 @@ class AggregationTable extends Table
             case 'query':
                 $this->properties[$property] = null;
                 if ( null !== $value ) {
-                    $query = ( is_object($value) && $value instanceof Query
+                    $query = ( $value instanceof Query
                                ? $value
                                : new Query($value, $this->systemQuoteChar, $this->logger) );
                     $this->properties[$property] = $query;

@@ -122,16 +122,12 @@ class RequestLogger
 
         # If we're using basic auth, than the username value should be included in the headers.
         if ($useBasicAuth) {
-            $username = array_key_exists(Authentication::_DEFAULT_USER, $headers)
-                ? $headers[Authentication::_DEFAULT_USER]
-                : null;
+            $username = $headers[Authentication::_DEFAULT_USER] ?? null;
         }
 
         # If $username is still not set ( because we're not using basic auth ) than check for it in the request parameters.
         if (!isset($username)) {
-            $username = array_key_exists(Authentication::_DEFAULT_USER, $_REQUEST)
-                ? $_REQUEST[Authentication::_DEFAULT_USER]
-                : null;
+            $username = $_REQUEST[Authentication::_DEFAULT_USER] ?? null;
         }
 
         # Now that we have th username, find where they've hid the token value.
@@ -139,7 +135,7 @@ class RequestLogger
         $tokenSources = array($_REQUEST, $_COOKIE, $headers);
         foreach ($tokenProperties as $tokenProperty) {
             foreach ($tokenSources as $tokenSource) {
-                $token = array_key_exists($tokenProperty, $tokenSource) ? $tokenSource[$tokenProperty] : null;
+                $token = $tokenSource[$tokenProperty] ?? null;
                 if (isset($token)) {
                     break;
                 }

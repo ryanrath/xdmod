@@ -259,7 +259,7 @@ class Lsf extends Shredder
 
         $firstField = trim($firstField, '\'"');
 
-        if ($firstField != 'JOB_FINISH') {
+        if ($firstField !== 'JOB_FINISH') {
             $this->logger->debug('Skipping non-JOB_FINISH line');
             return;
         }

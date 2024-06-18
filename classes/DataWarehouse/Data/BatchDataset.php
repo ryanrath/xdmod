@@ -26,11 +26,6 @@ class BatchDataset extends Loggable implements Iterator
     private $query;
 
     /**
-     * @var \CCR\DB\iDatabase
-     */
-    private $dbh;
-
-    /**
      * Statement handle for data set query.
      * @var \PDOStatement
      */
@@ -84,9 +79,6 @@ class BatchDataset extends Loggable implements Iterator
     private $offset;
 
     /**
-     * @param RawQuery $query
-     * @param XDUser $user
-     * @param LoggerInterface $logger
      * @param array|null $fieldAliases
      * @param int|null $limit
      * @param int $offset
@@ -102,7 +94,6 @@ class BatchDataset extends Loggable implements Iterator
         parent::__construct($logger);
 
         $this->query = $query;
-        $this->dbh = DB::factory($query->_db_profile);
 
         try {
             $this->hashSalt = xd_utilities\getConfiguration(
@@ -125,10 +116,10 @@ class BatchDataset extends Loggable implements Iterator
                 $fieldAliases,
                 $validFieldAliases
             );
-            if (count($invalidFieldAliases) > 0) {
+            if ($invalidFieldAliases !== []) {
                 throw new Exception(
                     "Invalid fields specified: '"
-                    . join("', '", $invalidFieldAliases)
+                    . implode("', '", $invalidFieldAliases)
                     . "'."
                 );
             }

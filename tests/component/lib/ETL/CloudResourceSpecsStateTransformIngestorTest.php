@@ -111,17 +111,6 @@ class CloudResourceSpecsStateTransformIngestorTest extends \PHPUnit\Framework\Te
         "end_day_id" => 1
     );
 
-    private $resource_spec_zero = array(
-        "resource_id" => 0,
-        "host_id" => 0,
-        "vcpus" => 0,
-        "memory_mb" => 0,
-        "start_date_ts" => 0,
-        "end_date_ts" => 0,
-        "start_day_id" => 0,
-        "end_day_id" => 0
-    );
-
     private $resource_spec_vcpu_changed = array(
         "resource_id" => 8,
         "host_id" => 7,

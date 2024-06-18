@@ -12,7 +12,7 @@ use DataWarehouse\Query\AggregateQuery;
 class TimeseriesQueryTest extends \PHPUnit\Framework\TestCase
 {
 
-    protected static $logger = null;
+    protected static $logger;
 
     public static function setupBeforeClass(): void
     {

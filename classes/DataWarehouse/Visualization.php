@@ -15,8 +15,9 @@ abstract class Visualization
         $r = ($color & 0x00ff0000) >> 16;
         $g = ($color & 0x0000ff00) >> 8;
         $b = $color & 0x000000ff;
-        if ($color > 0xffffff)
+        if ($color > 0xffffff) {
             $a = max(0, min(255, $a + $steps));
+        }
         $r = max(0, min(255, $r + $steps));
         $g = max(0, min(255, $g + $steps));
         $b = max(0, min(255, $b + $steps));
@@ -46,7 +47,7 @@ abstract class Visualization
             $increment = 310.0 / ($count - $ret_count);
             for ($i = $ret_count; $i < $count; $i++)
             {
-                $value = $value + $increment;
+                $value += $increment;
                 $rgb = self::HSVtoRGB(array(
                     $value / 360.0,
                     rand(80, 90) / 100.0,

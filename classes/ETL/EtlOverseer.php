@@ -34,7 +34,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
     private $sectionActions = array();
 
     // Overseer options for this invocation
-    private $etlOverseerOptions = null;
+    private $etlOverseerOptions;
 
     /* ------------------------------------------------------------------------------------------
      * @see iEtlOverseer::__construct()
@@ -174,7 +174,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
                 // If this action specifies resource codes we will need to load the mapping between codes
                 // and ids. This is done on demand so it will not break bootstrapping processes.
 
-                if ( isset($action->getOptions()->include_only_resource_codes) || isset($action->getOptions()->exclude_resource_codes) ) {
+                if ( $action->getOptions()->include_only_resource_codes !== null || $action->getOptions()->exclude_resource_codes !== null ) {
                     $this->queryResourceCodeToIdMap($etlConfig);
 
                     // Verify that specified resource codes are valid
@@ -300,7 +300,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
             }
         }
 
-        if ( count($missing) > 0 ) {
+        if ( $missing !== [] ) {
             $this->logAndThrowException(
                 sprintf("Unknown resource code(s) specified: '%s'", implode("','", $missing))
             );
@@ -363,7 +363,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
                 }
             }
 
-            if ( count($missing) > 0 ) {
+            if ( $missing !== [] ) {
                 $this->logAndThrowException(
                     sprintf("Unknown sections: %s", implode(", ", $missing))
                 );
@@ -375,7 +375,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
         // to be done first.
 
         if ( ! $this->verifiedDataEndpoints ) {
-            $leaveConnected = ( $this->etlOverseerOptions->isDryrun() ? false : true );
+            $leaveConnected = ( !(bool) $this->etlOverseerOptions->isDryrun() );
             $this->verifyDataEndpoints($etlConfig, $leaveConnected);
         }
 
@@ -472,7 +472,7 @@ class EtlOverseer extends \CCR\Loggable implements iEtlOverseer
         try {
             $actionObj->execute($this->etlOverseerOptions);
         } catch ( Exception $e ) {
-            if ( isset($actionObj->getOptions()->stop_on_exception)
+            if ( $actionObj->getOptions()->stop_on_exception !== null
                  && true == $actionObj->getOptions()->stop_on_exception ) {
                 $msg = "Stopping ETL due to exception in " . $actionObj;
                 $this->logger->warning($msg);

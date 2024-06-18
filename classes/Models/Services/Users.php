@@ -126,8 +126,8 @@ SQLF;
             $params[':filter'] = $searchFragment;
         }
 
-        $query = count($whereClauses) > 0
-            ? implode("\n", array($sql, $additionalJoins, 'WHERE ', join(" AND \n", $whereClauses)))
+        $query = $whereClauses !== []
+            ? implode("\n", array($sql, $additionalJoins, 'WHERE ', implode(" AND \n", $whereClauses)))
             : implode("\n", array($sql, $additionalJoins));
 
         return $db->query($query, $params);
@@ -333,7 +333,6 @@ SQL;
      * records are found in the database for the provided user. An array
      * containing `$user->getOrganizationID()` is returned.
      *
-     * @param XDUser $user
      * @return mixed
      * @throws Exception if there is a problem retrieving a db connection
      * @throws Exception if there is a problem executing the sql statement.
@@ -364,7 +363,6 @@ SQL;
      * Promote the provided $user to 'Center Staff' of the center identified by
      * $centerId.
      *
-     * @param XDUser $user
      * @param $centerId
      * @throws Exception if there is a problem retrieving a db connection
      * @throws Exception if there is a problem executing the sql statement.
@@ -389,7 +387,6 @@ SQL;
      * Demote the provided $user from having a relation ( via Center Staff ) to
      * the center identified by $centerId.
      *
-     * @param XDUser $user
      * @param $centerId
      * @throws Exception if there is a problem retrieving a db connection
      * @throws Exception if there is a problem executing the sql statement.
@@ -401,7 +398,7 @@ SQL;
 
         // If this user has no more center staff centers then remove the center
         // staff acl.
-        if (count(array_diff(array_values($currentCenters), array((string)$centerId))) === 0) {
+        if (array_diff(array_values($currentCenters), array((string)$centerId)) === []) {
             // Remove the center staff acl from the user.
             $user->setRoles(array_diff($user->getAcls(true), array(ROLE_ID_CENTER_STAFF)));
 

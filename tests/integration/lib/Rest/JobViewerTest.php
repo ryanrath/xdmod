@@ -7,6 +7,7 @@ use IntegrationTests\TestHarness\XdmodTestHelper;
 
 class JobViewerTest extends BaseTest
 {
+    public $xdmodhelper;
     const ENDPOINT = 'rest/v0.1/warehouse/';
 
     public function setup(): void
@@ -15,7 +16,7 @@ class JobViewerTest extends BaseTest
         $this->xdmodhelper = new XdmodTestHelper($xdmodConfig);
     }
 
-    private static function getDimensions() {
+    private function getDimensions() {
         return array(
             'nsfdirectorate',
             'parentscience',
@@ -66,7 +67,7 @@ class JobViewerTest extends BaseTest
             $dimids[] = $dimension['id'];
         }
 
-        $this->assertEquals(self::getDimensions(), $dimids);
+        $this->assertEquals($this->getDimensions(), $dimids);
 
         $this->xdmodhelper->logout();
     }
@@ -77,7 +78,7 @@ class JobViewerTest extends BaseTest
         $xdmodhelper->authenticate('cd');
 
         $testCases = array();
-        foreach (self::getDimensions() as $dimension) {
+        foreach ($this->getDimensions() as $dimension) {
             $testCases[] = array($xdmodhelper, $dimension);
         }
         return $testCases;

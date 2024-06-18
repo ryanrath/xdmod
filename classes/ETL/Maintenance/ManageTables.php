@@ -25,9 +25,6 @@ use Psr\Log\LoggerInterface;
 
 class ManageTables extends aRdbmsDestinationAction implements iAction
 {
-    // List of ETL Table objects generated from the definition files
-    private $etlTableDefinitions = array();
-
     /* ------------------------------------------------------------------------------------------
      * @see aAction::__construct()
      * ------------------------------------------------------------------------------------------
@@ -70,7 +67,7 @@ class ManageTables extends aRdbmsDestinationAction implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         parent::initialize($etlOverseerOptions);

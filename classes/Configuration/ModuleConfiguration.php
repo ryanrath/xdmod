@@ -111,7 +111,7 @@ class ModuleConfiguration extends XdmodConfiguration
      *
      * @var \stdClass
      */
-    protected $annotatedConfig = null;
+    protected $annotatedConfig;
 
     public function __construct($filename, $baseDir = null, LoggerInterface $logger = null, array $options = array())
     {
@@ -148,11 +148,9 @@ class ModuleConfiguration extends XdmodConfiguration
 
         return $this;
     } // interpretData
-
     /**
      * @see Configuration::merge()
      *
-     * @param Configuration $localConfigObj
      * @param bool $overwrite
      * @return Configuration
      */
@@ -175,8 +173,8 @@ class ModuleConfiguration extends XdmodConfiguration
 
             if ( $overwrite || false == $myData ) {
                 $this->addSection($sectionName, $localConfigData);
-            } elseif ( is_array($myData) ) {
-                array_push($myData, $localConfigData);
+            } elseif (is_array($myData)) {
+                $myData[] = $localConfigData;
                 $this->addSection($sectionName, $myData);
             }
         }
@@ -221,7 +219,7 @@ class ModuleConfiguration extends XdmodConfiguration
      */
     protected function processAnnotated()
     {
-        if (count(get_object_vars($this->annotatedConfig)) === 0) {
+        if (get_object_vars($this->annotatedConfig) === []) {
             $transformedCopy = unserialize(serialize($this->transformedConfig));
 
             $this->annotatedConfig = $this->recursivelyAnnotate(
@@ -232,13 +230,10 @@ class ModuleConfiguration extends XdmodConfiguration
             );
         }
     } // processAnnotated
-
     /**
      * Provides the ability to recursively annotate $source with the properties contained in
      * $annotations.
      *
-     * @param stdClass $source
-     * @param array $annotations
      * @return stdClass the annotated $source
      * @throws Exception
      */
@@ -251,9 +246,9 @@ class ModuleConfiguration extends XdmodConfiguration
                 $sourceValue = $source->$name;
 
                 if(is_array($sourceValue) && is_array($value)) {
-                    foreach($value as $key => $incomingValue) {
+                    foreach($value as $incomingValue) {
                         if (!in_array($incomingValue, $sourceValue)) {
-                            array_push($sourceValue, $incomingValue);
+                            $sourceValue[] = $incomingValue;
                         }
                     }
                 } else {
@@ -276,23 +271,6 @@ class ModuleConfiguration extends XdmodConfiguration
         }
 
         return $source;
-    } // recursivelyAnnotate
-
-    /**
-     * Helper function that determines whether or not $array contains an object. It is assumed that
-     * array contents are homogeneous.
-     *
-     * @param array $array
-     * @return bool
-     */
-    private function hasObjects(array $array)
-    {
-        foreach($array as $k => $v) {
-            if (is_object($v)) {
-                return true;
-            }
-        }
-        return false;
     } // hasObjects
 
     /**
@@ -319,7 +297,6 @@ class ModuleConfiguration extends XdmodConfiguration
      * provided $metadata. Once the filtering is complete, the keys that were used to filter $source
      * will be removed.
      *
-     * @param array $metadata
      * @param stdClass|null $source
      * @param bool $stripMetadata
      * @return mixed
@@ -343,11 +320,9 @@ class ModuleConfiguration extends XdmodConfiguration
 
         return $result;
     } // filterByMetaData
-
     /**
      * This function will recursively filter $source based on the provided $metadata.
      *
-     * @param array $metadata
      * @param $source
      * @return mixed|null
      */
@@ -359,10 +334,10 @@ class ModuleConfiguration extends XdmodConfiguration
         $similarKeys = array_intersect($metaDataKeys, $sourceProperties);
 
         $processChildren = false;
-        if (!empty($similarKeys)) {
+        if ($similarKeys !== []) {
             foreach($similarKeys as $similarKey) {
                 $intersection = array_intersect($metadata[$similarKey], $source->$similarKey);
-                $processChildren = !empty($intersection);
+                $processChildren = $intersection !== [];
                 if (!$processChildren) {
                     return null;
                 }
@@ -371,22 +346,20 @@ class ModuleConfiguration extends XdmodConfiguration
             return null;
         }
 
-        if ($processChildren) {
-            foreach($source as $property => &$value) {
-                if (is_object($value)) {
-                    $newValue = $this->performRecursiveFilter($metadata, $value);
-                    if ($newValue !== null) {
-                        $source->$property = $newValue;
-                    } else {
-                        unset($source->$property);
-                    }
-                } elseif (is_array($value)) {
-                    foreach($value as $k => $v) {
-                        if (is_object($v)) {
-                            $newValue = $this->performRecursiveFilter($metadata, $v);
-                            if ($newValue === null) {
-                                unset($value[$k]);
-                            }
+        foreach($source as $property => &$value) {
+            if (is_object($value)) {
+                $newValue = $this->performRecursiveFilter($metadata, $value);
+                if ($newValue !== null) {
+                    $source->$property = $newValue;
+                } else {
+                    unset($source->$property);
+                }
+            } elseif (is_array($value)) {
+                foreach($value as $k => $v) {
+                    if (is_object($v)) {
+                        $newValue = $this->performRecursiveFilter($metadata, $v);
+                        if ($newValue === null) {
+                            unset($value[$k]);
                         }
                     }
                 }
@@ -395,12 +368,10 @@ class ModuleConfiguration extends XdmodConfiguration
 
         return $source;
     } // performRecursiveFilter
-
     /**
      * Recursively strip the provided $properties from $source.
      *
      * @param $source
-     * @param array $properties
      * @return mixed
      */
     protected function recursiveStripProperties($source, array $properties)
@@ -412,11 +383,11 @@ class ModuleConfiguration extends XdmodConfiguration
             unset($source->$removeProperty);
         }
 
-        foreach ($source as $property => $value) {
+        foreach ($source as $value) {
             if (is_object($value)) {
                 $this->recursiveStripProperties($value, $properties);
             } elseif (is_array($value)) {
-                foreach ($value as $k => $v) {
+                foreach ($value as $v) {
                     if (is_object($v)) {
                         $this->recursiveStripProperties($v, $properties);
                     }

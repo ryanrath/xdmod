@@ -21,7 +21,7 @@ abstract class BaseEtlTest extends \PHPUnit\Framework\TestCase
     /**
      * @var LoggerInterface
      */
-    protected static $logger = null;
+    protected static $logger;
 
     /**
      * Create a logger object for use when running ETL tests.

@@ -12,9 +12,7 @@ class ReportThumbnailsTest extends \PHPUnit\Framework\TestCase
     {
         foreach (array('cd', 'cs') as $user) {
             self::$helpers[$user] = new XdmodTestHelper();
-            if ($user != 'pub') {
-                self::$helpers[$user]->authenticate($user);
-            }
+            self::$helpers[$user]->authenticate($user);
         }
     }
 
@@ -28,7 +26,7 @@ class ReportThumbnailsTest extends \PHPUnit\Framework\TestCase
     public function testCdReport()
     {
         $response = self::$helpers['cd']->get('rest/v1/dashboard/rolereport', null);
-        $this->assertEquals(8, sizeof($response[0]['data']['queue']));
+        $this->assertEquals(8, count($response[0]['data']['queue']));
 
         // delete report
         $data = array(
@@ -42,7 +40,7 @@ class ReportThumbnailsTest extends \PHPUnit\Framework\TestCase
     public function testCsReport()
     {
         $response = self::$helpers['cs']->get('rest/v1/dashboard/rolereport', null);
-        $this->assertEquals(4, sizeof($response[0]['data']['queue']));
+        $this->assertEquals(4, count($response[0]['data']['queue']));
 
         // delete report
         $data = array(

@@ -4,6 +4,8 @@ namespace UnitTests\DataWarehouse\Visualization;
 
 class ColorGeneratorTest extends \PHPUnit\Framework\TestCase
 {
+    public $expected;
+    public $inputdata;
     public function setup(): void
     {
         // Cut and pasted from the colors1.json file.

@@ -18,7 +18,7 @@ class ConfigurationTest extends \PHPUnit\Framework\TestCase
     const TEST_ARTIFACT_INPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/input";
     const TEST_ARTIFACT_OUTPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/output";
 
-    protected static $logger = null;
+    protected static $logger;
 
     public static function setupBeforeClass(): void
     {

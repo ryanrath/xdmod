@@ -34,7 +34,7 @@ class FilterListBuilder extends Loggable
      *
      * @var array|null
      */
-    private static $rolesDimensionNames = null;
+    private static $rolesDimensionNames;
 
     /**
      * Build filter lists for all realms' dimensions.
@@ -45,7 +45,7 @@ class FilterListBuilder extends Loggable
         $realmNames = \Realm\Realm::getRealmNames();
 
         // Generate lists for each realm's dimensions.
-        foreach ($realmNames as $realmId => $realmName) {
+        foreach (array_keys($realmNames) as $realmId) {
             $this->buildRealmLists($realmId);
         }
     }
@@ -165,7 +165,7 @@ class FilterListBuilder extends Loggable
         // dimension in the realm that's associated with roles.
         $realmGroupBys = $currentRealm->getGroupByNames();
 
-        foreach ($realmGroupBys as $realmGroupById => $realmGroupByNames) {
+        foreach (array_keys($realmGroupBys) as $realmGroupById) {
             // If this dimension is the given dimension, skip it.
             $dimensionNameComparison = strcasecmp($dimensionId, $realmGroupById);
             if ($dimensionNameComparison === 0) {
@@ -359,9 +359,7 @@ class FilterListBuilder extends Loggable
         try {
             $columnDescriptionResults = $db->query($sql);
         } catch (\PDOException $e) {
-            throw new \Exception(
-                sprintf("Error inspecting dimension column '%s': %s", $sql, $e->getMessage())
-            );
+            throw new \Exception(sprintf("Error inspecting dimension column '%s': %s", $sql, $e->getMessage()), $e->getCode(), $e);
         }
         if (empty($columnDescriptionResults)) {
             $realmName = $realmQuery->getRealmName();

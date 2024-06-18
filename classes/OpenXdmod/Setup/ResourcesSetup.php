@@ -115,8 +115,6 @@ class ResourcesSetup extends SubMenuSetupItem
 
     /**
      * Add a resource to the current list.
-     *
-     * @param array $resource
      */
     public function addResource(array $resource)
     {

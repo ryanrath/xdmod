@@ -4,10 +4,11 @@ namespace IntegrationTests\TestHarness;
 
 class XdmodTestHelper
 {
+    public $responseHeaders;
     private $config;
     private $siteurl;
-    private $headers;
-    private $decodeTextAsJson;
+    private $headers = array();
+    private $decodeTextAsJson = false;
     private $cookie;
     private $verbose;
     private $curl;
@@ -19,8 +20,6 @@ class XdmodTestHelper
         $this->config = json_decode(file_get_contents(__DIR__ . '/../../../ci/testing.json'), true);
 
         $this->siteurl = $this->config['url'];
-        $this->headers = array();
-        $this->decodeTextAsJson = false;
 
         $this->cookiefile = tempnam(sys_get_temp_dir(), "xdmodtestcookies.");
 
@@ -43,7 +42,7 @@ class XdmodTestHelper
     private function resetCurlSession()
     {
         // Close existing session to write cookies to file.
-        if (isset($this->curl)) {
+        if ($this->curl !== null) {
             curl_close($this->curl);
         }
 
@@ -53,7 +52,9 @@ class XdmodTestHelper
         curl_setopt($this->curl, CURLOPT_FOLLOWLOCATION, true);
 
         # Enable header information in the response data
-        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, array($this, 'processResponseHeader'));
+        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($curl, $headerline) {
+            return $this->processResponseHeader($curl);
+        });
 
         # Disable ssl certificate checks (needed when using self-signed certificates).
         curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, false); //NOSONAR
@@ -62,12 +63,12 @@ class XdmodTestHelper
         curl_setopt($this->curl, CURLOPT_COOKIEFILE, $this->cookiefile);
         curl_setopt($this->curl, CURLOPT_COOKIEJAR, $this->cookiefile);
 
-        if (isset($this->cookie)) {
+        if ($this->cookie !== null) {
             curl_setopt($this->curl, CURLOPT_COOKIE, $this->cookie);
         }
     }
 
-    private function processResponseHeader($curl, $headerline)
+    private function processResponseHeader($headerline)
     {
         $tokens = explode(':', $headerline);
         if (count($tokens) == 2) {
@@ -111,10 +112,8 @@ class XdmodTestHelper
     {
         if ($value !== null) {
             $this->headers[$name] = $value;
-        } else {
-            if (isset($this->headers[$name])) {
-                unset($this->headers[$name]);
-            }
+        } elseif (isset($this->headers[$name])) {
+            unset($this->headers[$name]);
         }
     }
 
@@ -195,11 +194,7 @@ class XdmodTestHelper
         $result = $this->get($nextlocation, null, true);
 
         list($action, $authSettings) = $this->getHTMLFormData($result[0]);
-        if ($includeDefault) {
-            $finalSettings = array_merge($authSettings, $parameters);
-        } else {
-            $finalSettings = $parameters;
-        }
+        $finalSettings = $includeDefault ? array_merge($authSettings, $parameters) : $parameters;
 
 
         $providerInfo = parse_url($result[1]['url']);
@@ -316,16 +311,12 @@ class XdmodTestHelper
 
     public function get($path, $params = null, $isurl = false)
     {
-        if ($isurl) {
-            $url = $path;
-        } else {
-            $url = $this->siteurl . $path;
-        }
+        $url = $isurl ? $path : $this->siteurl . $path;
 
         if ($params !== null) {
             $url .= "?" . http_build_query($params);
         }
-        if (isset($this->verbose)) {
+        if ($this->verbose !== null) {
             echo "$url\n";
         }
         curl_setopt($this->curl, CURLOPT_URL, $url);
@@ -337,16 +328,12 @@ class XdmodTestHelper
 
     public function post($path, $params, $data, $isurl = false)
     {
-        if ($isurl) {
-            $url = $path;
-        } else {
-            $url = $this->siteurl . $path;
-        }
+        $url = $isurl ? $path : $this->siteurl . $path;
 
         if ($params !== null) {
             $url .= "?" . http_build_query($params);
         }
-        if (isset($this->verbose)) {
+        if ($this->verbose !== null) {
             echo "$url\n";
         }
         curl_setopt($this->curl, CURLOPT_URL, $url);
@@ -363,16 +350,12 @@ class XdmodTestHelper
 
     public function put($path, $params, $data, $isurl = false)
     {
-        if ($isurl) {
-            $url = $path;
-        } else {
-            $url = $this->siteurl . $path;
-        }
+        $url = $isurl ? $path : $this->siteurl . $path;
 
         if ($params !== null) {
             $url .= "?" . http_build_query($params);
         }
-        if (isset($this->verbose)) {
+        if ($this->verbose !== null) {
             echo "$url\n";
         }
         curl_setopt($this->curl, CURLOPT_URL, $url);
@@ -397,7 +380,7 @@ class XdmodTestHelper
         if ($params !== null) {
             $url .= "?" . http_build_query($params);
         }
-        if (isset($this->verbose)) {
+        if ($this->verbose !== null) {
             echo "$url\n";
         }
         curl_setopt($this->curl, CURLOPT_URL, $url);

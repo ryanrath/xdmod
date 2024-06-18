@@ -277,13 +277,13 @@ class Config
      *
      * @see normalizeFileMaps
      */
-    private static function normalizeFileMap(array $map)
+    private function normalizeFileMap(array $map)
     {
         // Convert numeric arrays to be associative.
         if (!(bool)count(array_filter(array_keys($map), 'is_string'))) {
             $assocMap = array();
 
-            foreach ($map as $index => $value) {
+            foreach ($map as $value) {
                 if (is_array($value)) {
                     $assocMap = array_merge($assocMap, $value);
                 } else {
@@ -297,7 +297,7 @@ class Config
         $normalizedMap = array();
 
         foreach ($map as $src => $dest) {
-            $normalizedMap[$src] = static::normalizeFileMapDestination($src, $dest);
+            $normalizedMap[$src] = $this->normalizeFileMapDestination($src, $dest);
         }
 
         return $normalizedMap;
@@ -313,7 +313,7 @@ class Config
      *
      * @see normalizeFileMaps
      */
-    private static function normalizeFileMapDestination($src, $dest)
+    private function normalizeFileMapDestination($src, $dest)
     {
         if ($dest === true) {
             return $src;

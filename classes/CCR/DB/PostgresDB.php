@@ -22,7 +22,7 @@ class PostgresDB extends PDODB implements iDatabase
     // @see iDatabase::__construct()
     // ------------------------------------------------------------------------------------------
 
-    public function __construct($db_host, $db_port, $db_name, $db_username, $db_password, $dsn_extra = null)
+    public function __construct($db_host, $db_port, $db_name, $db_username, $db_password)
     {
         if ( null == $db_host || null === $db_name || null === $db_username ) {
             $msg = "Database engine " . __CLASS__ . " requires (host, database, username)";

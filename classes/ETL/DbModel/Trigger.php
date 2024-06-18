@@ -133,6 +133,7 @@ class Trigger extends SchemaEntity implements iEntity
             $this->logCompareFailure('definer', $this->definer, $cmp->definer, $this->name);
             return -1;
         }
+        return null;
 
     }  // compare()
 

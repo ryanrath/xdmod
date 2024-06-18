@@ -15,7 +15,7 @@ class XDSamlAuthentication
      *
      * @var \SimpleSAML_Auth_Simple
      */
-    protected $_as = null;
+    protected $_as;
 
     /**
      * The selected auth source name (used for logout)
@@ -23,13 +23,13 @@ class XDSamlAuthentication
      * @var string
      */
 
-    protected $authSourceName = null;
+    protected $authSourceName;
     /**
      * Enumerated potential auth sources
      *
      * @var array
      */
-    protected $_sources = null;
+    protected $_sources;
 
     const BASE_ADMIN_EMAIL = <<<EML
 
@@ -51,7 +51,7 @@ EML;
     /**
      * @var LoggerInterface
      */
-    private $logger = null;
+    private $logger;
 
     public function __construct()
     {
@@ -72,7 +72,7 @@ EML;
             } catch (Exception $e) {
                 $authSource = null;
             }
-            if (!is_null($authSource) && array_search($authSource, $this->_sources) !== false) {
+            if (!is_null($authSource) && in_array($authSource, $this->_sources)) {
                 $this->authSourceName = $authSource;
                 $this->_as = new \SimpleSAML\Auth\Simple($authSource);
             } else {
@@ -154,7 +154,7 @@ EML;
                     $samlAttrs
                 );
             } catch (Exception $e) {
-                throw new Exception('An account is currently configured with this information, please contact an administrator.');
+                throw new Exception('An account is currently configured with this information, please contact an administrator.', $e->getCode(), $e);
             }
 
             $newUser->setUserType(SSO_USER_TYPE);
@@ -238,12 +238,7 @@ EML;
                 'en' => 'Single Sign On'
             );
         }
-        if (!empty($idp['icon'])) {
-            $icon = $idp['icon'];
-        }
-        else {
-            $icon = "";
-        }
+        $icon = empty($idp['icon']) ? "" : $idp['icon'];
         return array(
             'organization' => $orgDisplay,
             'icon' => $icon

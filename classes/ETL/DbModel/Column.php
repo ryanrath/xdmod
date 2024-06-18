@@ -109,11 +109,7 @@ class Column extends NamedEntity implements iEntity
                 }
                 // Normalize property values to lowercase to match MySQL behavior but handle enum
                 // properly by only lowercasing the "enum" itself and not the possible values.
-                if ( 0 === stripos($value, 'enum') ) {
-                    $value = strtolower(substr($value, 0, 4)) . substr($value, 4);
-                } else {
-                    $value = strtolower($value);
-                }
+                $value = 0 === stripos($value, 'enum') ? strtolower(substr($value, 0, 4)) . substr($value, 4) : strtolower($value);
                 break;
 
             default:
@@ -204,7 +200,7 @@ class Column extends NamedEntity implements iEntity
                     (null === $srcDefault && null === $srcExtra)
                     || ('current_timestamp' === strtolower($srcDefault) && 'on update current_timestamp' === strtolower($srcExtra))
                 )
-                && ('current_timestamp' != strtolower($destDefault) || null === $destExtra)
+                && ('current_timestamp' !== strtolower($destDefault) || null === $destExtra)
             ) {
                 $this->logCompareFailure('timestamp', "$srcDefault $srcExtra", "$destDefault $destExtra", $this->name);
                 return -1;
@@ -224,9 +220,9 @@ class Column extends NamedEntity implements iEntity
                     // Default has changed from NULL to something
                     $this->logCompareFailure('timestamp default', $srcDefault, $destDefault, $this->name);
                     return -1;
-                } elseif ( strtolower($srcDefault) != strtolower($destDefault)
-                            && ( ("0" == "$srcDefault" && '0000-00-00 00:00:00' != $destDefault)
-                                 || ("0" != "$srcDefault" && $srcDefault . ' 00:00:00' != $destDefault) ) )
+                } elseif ( strtolower($srcDefault) !== strtolower($destDefault)
+                            && ( ("0" === "$srcDefault" && '0000-00-00 00:00:00' != $destDefault)
+                                 || ("0" !== "$srcDefault" && $srcDefault . ' 00:00:00' != $destDefault) ) )
                 {
                     // Note the casting of 0 to "0" above is necessary because php considers 0 == "0000-01-01" to be true.
                     // Default has changed
@@ -243,9 +239,9 @@ class Column extends NamedEntity implements iEntity
                 if ( $srcExtra != $destExtra ) {
                     $this->logCompareFailure('timestamp extra', $srcExtra, $destExtra, $this->name);
                     return -1;
-                } elseif ( strtolower($srcDefault) != strtolower($destDefault)
-                            && ( ("0" == "$srcDefault" && '0000-00-00 00:00:00' != $destDefault)
-                                 || ("0" != "$srcDefault" && $srcDefault . ' 00:00:00' != $destDefault)) )
+                } elseif ( strtolower($srcDefault) !== strtolower($destDefault)
+                            && ( ("0" === "$srcDefault" && '0000-00-00 00:00:00' != $destDefault)
+                                 || ("0" !== "$srcDefault" && $srcDefault . ' 00:00:00' != $destDefault)) )
                 {
                     // Note the casting of 0 to "0" above is necessary because php considers 0 == "0000-01-01" to be true.
                     $this->logCompareFailure('timestamp default', $srcDefault, $destDefault, $this->name);
@@ -257,14 +253,11 @@ class Column extends NamedEntity implements iEntity
             // automatically updated to the current timestamp. The default is 0 unless the column is
             // defined with the NULL attribute, in which case the default is NULL.
 
-            if ( null === $srcDefault && null !== $srcExtra ) {
-                if ( null === $destExtra
-                     || $srcExtra != $destExtra
-                     || (null !== $destDefault && '0000-00-00 00:00:00' != $destDefault) )
-                {
-                    $this->logCompareFailure('timestamp', "$srcDefault $srcExtra", "$destDefault $destExtra", $this->name);
-                    return -1;
-                }
+            if (null === $srcDefault && null !== $srcExtra && (null === $destExtra
+                 || $srcExtra != $destExtra
+                 || (null !== $destDefault && '0000-00-00 00:00:00' != $destDefault))) {
+                $this->logCompareFailure('timestamp', "$srcDefault $srcExtra", "$destDefault $destExtra", $this->name);
+                return -1;
             }
 
         } else {
@@ -291,7 +284,7 @@ class Column extends NamedEntity implements iEntity
             $myType = implode(',', preg_split('/\s*,\s*/', trim($myType, "() \t\n\r\0\x0B")));
             $cmpType = substr($cmp->type, 4);
             $cmpType = implode(',', preg_split('/\s*,\s*/', trim($cmpType, "() \t\n\r\0\x0B")));
-            if ( $myType != $cmpType ) {
+            if ( $myType !== $cmpType ) {
                 $this->logCompareFailure('type enum', $myType, $cmpType, $this->name);
                 return -1;
             }
@@ -393,15 +386,15 @@ class Column extends NamedEntity implements iEntity
                  ( "timestamp" == $this->type && in_array(strtolower($this->default), $currentTimestampAliases) ) ||
                  ( "datetime" === $this->type && in_array(strtolower($this->default), $currentTimestampAliases) ) ||
                  is_numeric($this->default) ||
-                 "b'" == substr($this->default, 0, 2) ||
-                 "x'" == substr(strtolower($this->default), 0, 2)
+                 "b'" === substr($this->default, 0, 2) ||
+                 "x'" === substr(strtolower($this->default), 0, 2)
             ) {
                 $parts[] = "DEFAULT " . $this->default;
             } elseif ( ($this->nullable && null === $this->default) ) {
                 $parts[] = "DEFAULT NULL";
             } elseif (is_bool($this->default)) {
                 $parts[] = "DEFAULT " . ($this->default ? "TRUE" : "FALSE");
-            } elseif ( "'" == substr($this->default, 0, 1) && "'" == substr($this->default, -1) ) {
+            } elseif ( "'" === substr($this->default, 0, 1) && "'" === substr($this->default, -1) ) {
                 $parts[] = "DEFAULT " . addslashes($this->default);
             }
             else {

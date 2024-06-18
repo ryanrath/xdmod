@@ -1,6 +1,6 @@
 <?php
 
-require_once 'common.php';
+require_once __DIR__ . '/common.php';
 
 use DataWarehouse\Access\MetricExplorer;
 use DataWarehouse\Query\TimeAggregationUnit;
@@ -77,9 +77,9 @@ try {
 
     // find requested dataset.
     $data_description = null;
-    foreach ($all_data_series as $data_description_index => $data_series) {
+    foreach ($all_data_series as $data_series) {
         // NOTE: this only works if the id's are not floats.
-        if ("{$data_series->id}" == "$datasetid") {
+        if ("{$data_series->id}" === "$datasetid") {
             $data_description = $data_series;
             break;
         }
@@ -149,7 +149,7 @@ try {
         $ret = array();
 
         // As a small optimization only compute the total count the first time (ie when the offset is 0)
-        if($offset === null or $offset == 0) {
+        if($offset === null || $offset == 0) {
             $privquery = new $query_classname(
                 $data_description->realm,
                 'day',

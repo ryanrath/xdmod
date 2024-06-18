@@ -116,13 +116,11 @@ class Authentication
         return $user;
 
     }//authenticateUser
-
     /**
      * This function will attempt to retrieve the currently logged in users'
      * authentication information from the provided Request object. If a
      * Request object is not provided than an empty array is returned.
      *
-     * @param Request $request
      * @return array of the form array(
      *         'username' => <user_name>,
      *         'password' => <password>,
@@ -196,8 +194,7 @@ class Authentication
         if (!isset($_SESSION['xdInit'])) {
 
             // Session died (token no longer valid);
-            $msg = 'Token invalid or expired. '
-                . 'You must authenticate before using this call.';
+            $msg = 'Token invalid or expired. You must authenticate before using this call.';
             throw new \SessionExpiredException($msg);
         }
 

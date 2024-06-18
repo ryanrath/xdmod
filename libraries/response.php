@@ -35,10 +35,8 @@ function buildError($error)
         $response['message'] = $error->getMessage();
         $response['code']    = $error->getCode();
 
-        if ($error instanceof \XDException) {
-            if (!empty($error->errorData)) {
-                $response['errorData'] = $error->errorData;
-            }
+        if ($error instanceof \XDException && !empty($error->errorData)) {
+            $response['errorData'] = $error->errorData;
         }
 
         if (xd_utilities\getConfiguration('general', 'debug_mode') == 'on') {

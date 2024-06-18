@@ -286,14 +286,14 @@ class XDUserTest extends BaseTest
         $user->saveUser();
 
         $newAcls = $user->getAcls(true);
-        $this->assertTrue(count($originalAcls) > 0);
+        $this->assertTrue($originalAcls !== []);
         $this->assertTrue(in_array($newAcl->getName(), $newAcls));
 
         $user->removeAcl($newAcl);
         $user->saveUser();
 
         $acls = $user->getAcls(true);
-        $this->assertTrue(count($originalAcls) > 0);
+        $this->assertTrue($originalAcls !== []);
         $this->assertFalse(in_array($newAcl->getName(), $acls));
     }
 
@@ -314,7 +314,7 @@ class XDUserTest extends BaseTest
         $user->saveUser();
 
         $newAcls = $user->getAcls(true);
-        $this->assertTrue(count($originalAcls) > 0);
+        $this->assertTrue($originalAcls !== []);
         $this->assertTrue(in_array($existingAcl->getName(), $newAcls));
         $this->assertEquals($originalAcls, $newAcls);
     }
@@ -337,7 +337,7 @@ class XDUserTest extends BaseTest
         $user->saveUser();
 
         $newAcls = $user->getAcls(true);
-        $this->assertTrue(count($originalAcls) > 0);
+        $this->assertTrue($originalAcls !== []);
         $this->assertTrue(in_array($existingAcl->getName(), $newAcls));
         $this->assertEquals($originalAcls, $newAcls);
     }
@@ -463,7 +463,7 @@ class XDUserTest extends BaseTest
     public function testCreateUserWithoutUserTypeShouldFail()
     {
         $this->expectException(Exception::class);
-        $user = self::getUser(null, 'test', 'a', 'user');
+        $user = $this->getUser(null, 'test', 'a', 'user');
 
         $this->assertEquals('0', $user->getUserID());
 
@@ -477,7 +477,7 @@ class XDUserTest extends BaseTest
      */
     public function testCreateUser()
     {
-        $user = self::getUser(null, 'test', 'a', 'user');
+        $user = $this->getUser(null, 'test', 'a', 'user');
 
         $this->assertEquals('0', $user->getUserID());
 
@@ -492,7 +492,7 @@ class XDUserTest extends BaseTest
     {
         $this->expectExceptionMessage("At least one role must be associated with this user");
         $this->expectException(Exception::class);
-        $user = self::getUser(null, 'test', 'a', 'user', array());
+        $user = $this->getUser(null, 'test', 'a', 'user', array());
         $this->assertEquals('0', $user->getUserID());
 
         $user->setUserType(SSO_USER_TYPE);
@@ -510,7 +510,7 @@ class XDUserTest extends BaseTest
     {
         $this->expectException(Exception::class);
         $username = array_keys(self::$users)[count(self::$users) - 1];
-        $anotherUser = self::getUser(null, 'test', 'a', 'user', array(ROLE_ID_USER), ROLE_ID_USER, null, $username);
+        $anotherUser = $this->getUser(null, 'test', 'a', 'user', array(ROLE_ID_USER), ROLE_ID_USER, null, $username);
         $anotherUser->setUserType(SSO_USER_TYPE);
         $anotherUser->saveUser();
     }
@@ -534,7 +534,7 @@ class XDUserTest extends BaseTest
     {
         $this->expectExceptionMessageMatches("/User \"([\w\d.]+)\" not found/");
         $this->expectException(Exception::class);
-        $user = self::getUser(null, 'Test', 'A', 'User', array('usr'));
+        $user = $this->getUser(null, 'Test', 'A', 'User', array('usr'));
         $user->setUserType(self::DEFAULT_USER_TYPE);
         $user->saveUser();
         $userName = $user->getUsername();
@@ -597,7 +597,7 @@ class XDUserTest extends BaseTest
         $results = array(array());
         foreach ($data as $element) {
             foreach ($results as $combination) {
-                array_push($results, array_merge(array($element), $combination));
+                $results[] = array_merge(array($element), $combination);
             }
         }
         return $results;
@@ -672,7 +672,7 @@ class XDUserTest extends BaseTest
                 continue;
             }
 
-            $user = self::getUser(null, 'Test', 'Acl', 'User', $aclCombination);
+            $user = $this->getUser(null, 'Test', 'Acl', 'User', $aclCombination);
             $user->setUserType(self::DEFAULT_USER_TYPE);
 
             // Save 'um so that we get an id + the db records we need.
@@ -859,7 +859,7 @@ class XDUserTest extends BaseTest
      */
     public function testGetFormalRoleName($roleName, $expected)
     {
-        $user = self::getUser(null, 'test', 'a', 'user');
+        $user = $this->getUser(null, 'test', 'a', 'user');
 
         $actual = $user->_getFormalRoleName($roleName);
         $this->assertEquals($expected, $actual);
@@ -882,7 +882,7 @@ class XDUserTest extends BaseTest
     public function testGetFormalRoleNameNull()
     {
         $expected = 'Public';
-        $user = self::getUser(null, 'test', 'a', 'user');
+        $user = $this->getUser(null, 'test', 'a', 'user');
         $actual = $user->_getFormalRoleName(null);
         $this->assertEquals($expected, $actual);
     }
@@ -890,7 +890,7 @@ class XDUserTest extends BaseTest
     public function testGetFormalRoleNameEmptyString()
     {
         $expected = 'Public';
-        $user = self::getUser(null, 'test', 'a', 'user');
+        $user = $this->getUser(null, 'test', 'a', 'user');
         $actual = $user->_getFormalRoleName('');
         $this->assertEquals($expected, $actual);
     }
@@ -922,9 +922,9 @@ class XDUserTest extends BaseTest
      * @return XDUser
      * @throws Exception if there was a problem instantiating the XDUser object.
      */
-    private static function getUser($password, $firstName, $middleName, $lastName, array $acls = null, $primaryRole = null, $email = null, $username = null)
+    private function getUser($password, $firstName, $middleName, $lastName, array $acls = null, $primaryRole = null, $email = null, $username = null)
     {
-        $newUserName = isset($username) ? $username : self::getUserName(self::DEFAULT_TEST_USER_NAME);
+        $newUserName = isset($username) ? $username : $this->getUserName(self::DEFAULT_TEST_USER_NAME);
 
         $user = UserHelper::getUser($newUserName, $password, $firstName, $middleName, $lastName, $acls, $primaryRole, $email);
 
@@ -932,7 +932,7 @@ class XDUserTest extends BaseTest
         return $user;
     }
 
-    private static function getUserName($username)
+    private function getUserName($username)
     {
         return sprintf("%s%s", $username, uniqid("", true));
     }

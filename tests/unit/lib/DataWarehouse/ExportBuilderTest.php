@@ -4,15 +4,15 @@ namespace UnitTests\DataWarehouse;
 
 class ExportBuilderTest extends \PHPUnit\Framework\TestCase
 {
+    public $_dummydata = array(array(
+        'headers' => array('Column1', 'Column2'),
+        'duration' => array( 'start' => '2014-01-01', 'end' => '2015-01-01'),
+        'title' =>  array('title' => 'Title'),
+        'title2' => array('parameters' => array('param1=value1') ),
+        'rows' => array(array('Column1' => 'value1', 'Column2' => 'value2'))
+    ));
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        $this->_dummydata = array(array(
-            'headers' => array('Column1', 'Column2'),
-            'duration' => array( 'start' => '2014-01-01', 'end' => '2015-01-01'),
-            'title' =>  array('title' => 'Title'),
-            'title2' => array('parameters' => array('param1=value1') ),
-            'rows' => array(array('Column1' => 'value1', 'Column2' => 'value2'))
-        ));
         parent::__construct($name, $data, $dataName);
     }
 

@@ -63,7 +63,7 @@ class RestFacade
 
         // Get optional parameters from the options.
         $params = array_key_exists('params', $options) ? $options['params'] : array();
-        $content = array_key_exists('content', $options) ? $options['content'] : null;
+        $content = $options['content'] ?? null;
         $cookies = array_key_exists('cookies', $options) ? $options['cookies'] : $_COOKIE;
         $files = array_key_exists('files', $options) ? $options['files'] : $_FILES;
         $server = array_key_exists('server', $options) ? $options['server'] : $_SERVER;

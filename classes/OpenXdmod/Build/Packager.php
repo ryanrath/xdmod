@@ -138,10 +138,8 @@ class Packager
         $config = Config::createFromConfigFile($configFile);
 
         $destDir = $srcDir . '/open_xdmod/build';
-        if (!is_dir($destDir)) {
-            if (!mkdir($destDir)) {
-                throw new Exception("Failed to create directory '$destDir'");
-            }
+        if (!is_dir($destDir) && !mkdir($destDir)) {
+            throw new Exception("Failed to create directory '$destDir'");
         }
 
         $packageName = $config->getName() . '-' . $config->getVersion();
@@ -179,8 +177,6 @@ class Packager
 
     /**
      * Set the logger.
-     *
-     * @param LoggerInterface $logger
      */
     public function setLogger(LoggerInterface $logger)
     {
@@ -234,7 +230,7 @@ class Packager
      */
     private function getTmpDir()
     {
-        if (!isset($this->tmpDir) || !is_dir($this->tmpDir)) {
+        if ($this->tmpDir === null || !is_dir($this->tmpDir)) {
             $this->tmpDir = $this->createTmpDir();
         }
 
@@ -266,7 +262,7 @@ class Packager
      */
     private function getSourceFileList()
     {
-        if (!isset($this->sourceFileList)) {
+        if ($this->sourceFileList === null) {
             $this->sourceFileList = $this->createSourceFileList();
         }
 
@@ -744,7 +740,7 @@ class Packager
             $regexIter = new RegexIterator($fileIterator, $pattern);
             $includePatternFiles = iterator_to_array($regexIter);
 
-            if (count($includePatternFiles) === 0) {
+            if ($includePatternFiles === []) {
                 $this->logger->warning("No files match include pattern '$pattern'");
             }
 
@@ -830,7 +826,7 @@ class Packager
             $regexIter = new RegexIterator($fileIterator, $pattern);
             $excludePatternFiles = iterator_to_array($regexIter);
 
-            if (count($excludePatternFiles) === 0) {
+            if ($excludePatternFiles === []) {
                 $this->logger->debug("No files match exclude pattern '$pattern'");
             }
 
@@ -876,7 +872,7 @@ class Packager
      */
     private function isFilePathExcluded($filePath)
     {
-        if (array_search($filePath, $this->config->getFileExcludePaths()) !== false) {
+        if (in_array($filePath, $this->config->getFileExcludePaths())) {
             return true;
         }
 
@@ -920,16 +916,6 @@ class Packager
 
             $srcFile  = "$srcDir/$file";
             $destFile = "$destDir/$file";
-
-            if ($this->isFilePathExcluded($srcFile)) {
-                continue;
-            }
-
-            if (is_file($srcFile)) {
-                $this->copyFile($srcFile, $destFile);
-            } elseif (is_dir($srcFile)) {
-                $this->copyDir($srcFile, $destFile);
-            }
         }
     }
 

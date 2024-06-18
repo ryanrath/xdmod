@@ -3,12 +3,12 @@
    require_once(dirname(__FILE__).'/../../../configuration/linker.php');
 
    use CCR\DB;
-   
+
    \xd_security\start_session();
    xd_security\enforceUserRequirements(array(STATUS_LOGGED_IN, STATUS_MANAGER_ROLE), 'xdDashboardUser');
 
    // ======================================================================
-   
+
 function getAbsoluteURL()
 {
     $protocol = 'http://';
@@ -17,9 +17,9 @@ function getAbsoluteURL()
     }
     return $protocol.$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
 }
-   
+
    // ======================================================================
-      
+
    if (isset($_REQUEST['uid'])) {
 
       $user_to_login_as = $_REQUEST['uid'];
@@ -34,7 +34,7 @@ function getAbsoluteURL()
       $user->postLogin();
 
       $redirect_url = str_replace('internal_dashboard/controllers/pseudo_login.php', '', getAbsoluteURL());
-   
+
       header("Location: $redirect_url");
 
       exit;
@@ -76,20 +76,20 @@ function getAbsoluteURL()
       foreach ($result as $r) {
 
          $bgColor = ($rIndex++ % 2 == 0) ? '#eef' : '#fff';
-         
+
          $formal_name = $r['last_name'].', '.$r['first_name'];
          $username = $r['username'];
-         
+
          if (strpos($username, ';') !== false) {
-         
+
             list($xsede_username, $dummy) = explode(';', $username);
             $username = $xsede_username." (XSEDE)";
-         
+
          }
-         
+
          $user_id = $r['id'];
          $login_link = "<a target=\"_blank\" href=\"?uid=$user_id\">Login as this user</a>";
-         
+
          print "<tr bgcolor=\"$bgColor\"><td width=200>";
          print implode('</td><td width=200>', array($formal_name, $username, $login_link));
          print "</td></tr>\n";

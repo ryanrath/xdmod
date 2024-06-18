@@ -71,7 +71,7 @@ class XdmodConfiguration extends Configuration
         // by the following `if/elseif` statement.
         if (!$this->isLocalConfig) {
             if (is_array($this->transformedConfig)) {
-                foreach($this->transformedConfig as $key => &$value) {
+                foreach($this->transformedConfig as &$value) {
                     if (is_object($value)) {
                         $this->handleExtendsFor($value);
                     }
@@ -82,13 +82,11 @@ class XdmodConfiguration extends Configuration
             }
         }
     } // processExtends
-
     /**
      * This function will handle the `extends` keyword for the provided $source object. This will
      * result in merging properties from the `extends` target into the object that defined the
      * `extends` property. After the processing is done the `extends` property will be removed.
      *
-     * @param stdClass $source
      * @throws Exception
      */
     protected function handleExtendsFor(stdClass $source)

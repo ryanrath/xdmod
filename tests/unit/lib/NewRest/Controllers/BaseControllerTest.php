@@ -32,8 +32,8 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
             $exception = $e;
         }
 
-        $exceptionClass = $exception !== null ? get_class($exception) : null;
-        $message = $exception !== null ? $exception->getMessage() : null;
+        $exceptionClass = $exception instanceof \Exception ? get_class($exception) : null;
+        $message = $exception instanceof \Exception ? $exception->getMessage() : null;
 
         $this->assertEquals($exceptionClass, $expectedException);
         $this->assertEquals($message, $expectedMessage);
@@ -85,7 +85,7 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
         $mgr = $this->createUser(array('mgr', 'usr'));
         $cd = $this->createUser(array('cd', 'usr'));
         $pi = $this->createUser(array('pi', 'usr'));
-        $usr = $this->createUser(array('usr'), 'usr');
+        $usr = $this->createUser(array('usr'));
         $sab = $this->createUser(array('usr', 'sab'));
         $pub = $this->createUser(array('pub'));
 
@@ -93,8 +93,7 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
         $unauthorizedException = 'Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException';
 
         $notAuthorized = BaseControllerProvider::EXCEPTION_MESSAGE;
-
-        $tests = array(
+        return array(
             array($mgr, null, null, null),
             array($mgr, ROLE_ID_MANAGER, null, null),
 
@@ -129,7 +128,6 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
             array($pub, ROLE_ID_PRINCIPAL_INVESTIGATOR, $unauthorizedException, $notAuthorized)
 
         );
-        return $tests;
     }
 
     /**
@@ -162,8 +160,7 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
         $stub->method('isPublicUser')->willReturnCallback(function () use ($roles) {
             return in_array(ROLE_ID_PUBLIC, $roles);
         });
-        $stub->method('hasAcl')->willReturnCallback(function () use ($roles) {
-            $args = func_get_args();
+        $stub->method('hasAcl')->willReturnCallback(function (...$args) use ($roles) {
             if (count($args) >= 1) {
                 $arg = $args[0];
                 return in_array($arg, $roles);
@@ -176,14 +173,13 @@ class BaseControllerTest extends \PHPUnit\Framework\TestCase
             'is_public_user' => in_array(ROLE_ID_PUBLIC, $roles)
         )));
         $stub->method('hasAcls')->willreturnCallback(
-            function () use ($roles) {
-                $args = func_get_args();
+            function (...$args) use ($roles) {
                 if (count($args) >= 1 && is_array($args[0])) {
                     $requested = $args[0];
                     $total = 0;
                     foreach ($requested as $value) {
                         $found = in_array($value, $roles);
-                        $total += $found === true
+                        $total += $found
                             ? 1
                             : 0;
                     }

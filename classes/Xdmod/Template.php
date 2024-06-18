@@ -143,13 +143,9 @@ class Template
     {
         $dir = static::getTemplateDir();
 
-
-        $path
-            = $pkg === null
-            ? sprintf('%s/%s.template', $dir, $templateName)
-            : sprintf('%s/%s/%s.template', $dir, $pkg, $templateName);
-
-        return $path;
+        return $pkg === null
+        ? sprintf('%s/%s.template', $dir, $templateName)
+        : sprintf('%s/%s/%s.template', $dir, $pkg, $templateName);
     }
 
     /**

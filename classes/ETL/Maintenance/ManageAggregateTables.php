@@ -24,6 +24,7 @@ use ETL\DbModel\AggregationTable;
 
 class ManageAggregateTables extends ManageTables
 {
+    public $etlDestinationTable;
     /* ------------------------------------------------------------------------------------------
      * Override aRdbmsDestinationAction::createDestinationTableObjects() because there are
      * multiple definition files referenced by this action and we will be generating a
@@ -49,7 +50,7 @@ class ManageAggregateTables extends ManageTables
             );
 
             // If the etlDestinationTable is set, it will not be generated in aRdbmsDestinationAction
-            if (! isset($tableConfig->table_definition)) {
+            if (!property_exists($tableConfig, 'table_definition') || $tableConfig->table_definition === null) {
                 $this->logAndThrowException("Definition file does not contain a 'table_definition' key");
             }
 
@@ -80,7 +81,7 @@ class ManageAggregateTables extends ManageTables
 
             $this->etlDestinationTable->schema = $this->destinationEndpoint->getSchema();
 
-            if (isset($this->options->table_prefix) &&
+            if ($this->options->table_prefix !== null &&
                 $this->options->table_prefix != $this->etlDestinationTable->table_prefix) {
                 $msg =
                    "Overriding table prefix from " .

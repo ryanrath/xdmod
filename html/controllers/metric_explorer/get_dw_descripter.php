@@ -3,7 +3,7 @@
 use Models\Services\Acls;
 use Models\Services\Realms;
 
-@require_once('common.php');
+@require_once(__DIR__ . '/common.php');
 
 // To enable API Token
 $user = \Models\Services\Tokens::authenticateToken();
@@ -87,7 +87,7 @@ foreach ($roles as $activeRole) {
                     );
 
                     $stats = array_diff($permittedStatistics, $seenstats);
-                    if (empty($stats)) {
+                    if ($stats === []) {
                         continue;
                     }
 

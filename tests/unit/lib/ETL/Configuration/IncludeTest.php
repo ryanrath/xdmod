@@ -20,8 +20,8 @@ class IncludeTest extends \PHPUnit\Framework\TestCase
     const TEST_ARTIFACT_INPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/input";
     const TEST_ARTIFACT_OUTPUT_PATH = "./../artifacts/xdmod/etlv2/configuration/output";
 
-    protected static $transformer = null;
-    protected static $config = null;
+    protected static $transformer;
+    protected static $config;
 
     public static function setupBeforeClass(): void
     {

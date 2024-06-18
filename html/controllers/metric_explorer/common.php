@@ -31,9 +31,7 @@ function getAggregationUnit()
 function getTimeseries()
 {
     return
-        isset($_REQUEST['timeseries'])
-        ? $_REQUEST['timeseries'] == 'true' || $_REQUEST['timeseries'] === 'y'
-        : false;
+        isset($_REQUEST['timeseries']) && ($_REQUEST['timeseries'] == 'true' || $_REQUEST['timeseries'] === 'y');
 }
 
 function getInline()
@@ -166,10 +164,8 @@ function getGlobalFilters()
 function getShowContextMenu()
 {
     return
-        isset($_REQUEST['showContextMenu'])
-        ? $_REQUEST['showContextMenu'] == 'true'
-            || $_REQUEST['showContextMenu'] === 'y'
-        : false;
+        isset($_REQUEST['showContextMenu']) && ($_REQUEST['showContextMenu'] == 'true'
+            || $_REQUEST['showContextMenu'] === 'y');
 }
 
 function getXAxis()
@@ -182,12 +178,7 @@ function getXAxis()
         $ret = new stdClass;
 
         foreach ($_REQUEST['x_axis'] as $k => $x) {
-            if (is_array($x)) {
-                $ret->{$k} = (object)$x;
-            }
-            else {
-                $ret->{$k} = $x;
-            }
+            $ret->{$k} = is_array($x) ? (object)$x : $x;
         }
 
         return  $ret;
@@ -206,12 +197,7 @@ function getYAxis()
         $ret = new stdClass;
 
         foreach ($_REQUEST['y_axis'] as $k => $x) {
-            if (is_array($x)) {
-                $ret->{$k} = (object)$x;
-            }
-            else {
-                $ret->{$k} = $x;
-            }
+            $ret->{$k} = is_array($x) ? (object)$x : $x;
         }
 
         return $ret;
@@ -230,12 +216,7 @@ function getLegend()
         $ret = new stdClass;
 
         foreach($_REQUEST['legend'] as $k => $x) {
-            if (is_array($x)) {
-                $ret->{$k} = (object)$x;
-            }
-            else {
-                $ret->{$k} = $x;
-            }
+            $ret->{$k} = is_array($x) ? (object)$x : $x;
         }
 
         return  $ret;

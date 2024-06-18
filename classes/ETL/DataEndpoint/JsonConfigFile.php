@@ -48,7 +48,6 @@ class JsonConfigFile extends JsonFile
 
     protected function discoverRecordFieldNames()
     {
-        return;
     }
 
     /**

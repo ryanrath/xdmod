@@ -60,23 +60,6 @@ class RealmManagerTest extends BaseTest
     }
 
     /**
-     * Convert a realm model object to an array.
-     *
-     * Only includes the relevant properties from the realm that are used by
-     * the realm manager class.
-     *
-     * @param \Models\Realm $realm
-     * @return array
-     */
-    private function convertRealmToArray(Realm $realm)
-    {
-        return [
-            'name' => $realm->getName(),
-            'display' => $realm->getDisplay()
-        ];
-    }
-
-    /**
      * Test which realms may be exported.
      *
      * @covers ::getRealms

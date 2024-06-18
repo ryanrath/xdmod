@@ -193,9 +193,9 @@ class IngestorTest extends \PHPUnit\Framework\TestCase
         foreach ( explode(PHP_EOL, trim($result['stdout'])) as $line ) {
             if ( false !== strpos($line, '[notice]') ) {
                 $matches = array();
-                if ( preg_match('/xdmod.structured-file.read-people-([0-9])/', $line, $matches) ) {
+                if ( preg_match('/xdmod.structured-file.read-people-(\d)/', $line, $matches) ) {
                     $number = $matches[1];
-                    if ( preg_match('/records_loaded:\s*([0-9]+)/', $line, $matches) ) {
+                    if ( preg_match('/records_loaded:\s*(\d+)/', $line, $matches) ) {
                         $recordsLoaded[$number] = $matches[1];
                     }
                 }
@@ -287,10 +287,7 @@ class IngestorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Clean up tables created during the tests
-     *
-     * @return Nothing
      */
-
     public static function tearDownAfterClass(): void
     {
         $dbh = DB::factory('database');

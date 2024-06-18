@@ -1,18 +1,18 @@
 <?php
 
-require_once('common.php');
+require_once(__DIR__ . '/common.php');
 
 $returnData = array();
 
 try
 {
-	
+
 	$user = \xd_security\getLoggedInUser();
-	
+
 	$userProfile = $user->getProfile();
 	$userProfile->setValue('filters',$_REQUEST['filters']);
 	$userProfile->save();
-	
+
 }
 catch(SessionExpiredException $see)
 {

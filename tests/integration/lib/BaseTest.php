@@ -92,7 +92,7 @@ use InvalidArgumentException;
  */
 abstract class BaseTest extends \PHPUnit\Framework\TestCase
 {
-    const DATE_REGEX = '/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/';
+    const DATE_REGEX = '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/';
 
     protected static $XDMOD_REALMS;
     protected static $ROLES;
@@ -366,7 +366,7 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
                 $missingKeys[] = $requiredKey;
             }
         }
-        if (!empty($missingKeys)) {
+        if ($missingKeys !== []) {
             throw new Exception(
                 "$arrayName is missing required keys: '"
                 . implode("', '", $missingKeys)
@@ -525,11 +525,7 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
         }
         // Set the role for running the tests.
         if (!isset($runAs)) {
-            if (array_key_exists('run_as', $options)) {
-                $runAs = $options['run_as'];
-            } else {
-                $runAs = 'usr';
-            }
+            $runAs = array_key_exists('run_as', $options) ? $options['run_as'] : 'usr';
         }
         // Determine whether API token authorization is used on this endpoint.
         $tokenAuth = (
@@ -558,13 +554,10 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
             if ($tokenAuth) {
                 $testData[] = 'valid_token';
             }
-            array_push(
-                $testData,
-                $input,
-                $this->validateMissingRequiredParameterResponse(
-                    $param,
-                    $errorBodyValidator
-                )
+            $testData[] = $input;
+            $testData[] = $this->validateMissingRequiredParameterResponse(
+                $param,
+                $errorBodyValidator
             );
             $tests[] = $testData;
         }
@@ -593,14 +586,11 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
                             if ($tokenAuth) {
                                 $testData[] = 'valid_token';
                             }
-                            array_push(
-                                $testData,
-                                $input,
-                                $this->validateInvalidParameterResponse(
-                                    $param,
-                                    $type,
-                                    $errorBodyValidator
-                                )
+                            $testData[] = $input;
+                            $testData[] = $this->validateInvalidParameterResponse(
+                                $param,
+                                $type,
+                                $errorBodyValidator
                             );
                             $tests[] = $testData;
                         }
@@ -718,8 +708,7 @@ abstract class BaseTest extends \PHPUnit\Framework\TestCase
             'status_code' => $statusCode,
             'body_validator' => $this->validateErrorResponseBody(
                 (
-                    'An error was encountered while attempting to process the'
-                    . ' requested authorization procedure.'
+                    'An error was encountered while attempting to process the requested authorization procedure.'
                 ),
                 0,
                 $bodyValidator

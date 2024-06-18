@@ -13,14 +13,14 @@ class XDAdmin
      *
      * @var \CCR\DB\iDatabase
      */
-    private $moddb = null;
+    private $moddb;
 
     /**
      * modw database.
      *
      * @var \CCR\DB\iDatabase
      */
-    private $modw = null;
+    private $modw;
 
     /**
      * Default constructor.
@@ -162,9 +162,9 @@ SQL;
     public function enumerateInstitutions($nameFilter = NULL)
     {
         $filter
-            = !empty($nameFilter)
-            ? "WHERE name LIKE " . $this->modw->quote("%$nameFilter%")
-            : '';
+            = empty($nameFilter)
+            ? ''
+            : "WHERE name LIKE " . $this->modw->quote("%$nameFilter%");
 
         $query = "SELECT o.id, o.name FROM modw.organization o $filter ORDER BY o.name ASC";
 

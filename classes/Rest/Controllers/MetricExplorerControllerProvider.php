@@ -23,14 +23,11 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
     const _QUERIES_STORE = 'queries_store';
 
 # ==============================================================================
-
     /**
      * This function is responsible for the setting up of any routes that this
      * ControllerProvider is going to be managing. It *must* be overridden by
      * a child class.
      *
-     * @param Application $app
-     * @param ControllerCollection $controller
      * @return null
      */
     public function setupRoutes(Application $app, ControllerCollection $controller)
@@ -67,8 +64,6 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
     /**
      * Retrieve all of the queries that the requesting user has currently saved.
      *
-     * @param Request $request
-     * @param Application $app
      * @return JsonResponse
      */
     public function getQueries(Request $request, Application $app)
@@ -118,8 +113,6 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
     /**
      * Retrieve a query's information by unique id for the requesting user.
      *
-     * @param Request $request
-     * @param Application $app
      * @param $id
      * @return JsonResponse
      */
@@ -171,8 +164,6 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
     /**
      * Create a new query to be stored in the requesting users User Profile.
      *
-     * @param Request $request
-     * @param Application $app
      * @return JsonResponse
      */
     public function createQuery(Request $request, Application $app)
@@ -229,8 +220,6 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
      *   - config
      *   - timestamp
      *
-     * @param Request $request
-     * @param Application $app
      * @param $id
      * @return JsonResponse
      */
@@ -312,8 +301,6 @@ class MetricExplorerControllerProvider extends BaseControllerProvider
     /**
      * Delete the query identified by the provided form-param 'id'.
      *
-     * @param Request $request
-     * @param Application $app
      * @param $id of the query to be deleted.
      * @return JsonResponse
      */

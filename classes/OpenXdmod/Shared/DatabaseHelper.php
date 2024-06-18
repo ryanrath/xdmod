@@ -31,7 +31,7 @@ class DatabaseHelper
         array $databases,
         Console $console = null
     ) {
-        if ($console === null) {
+        if (!$console instanceof \OpenXdmod\Setup\Console) {
             $console = Console::factory();
         }
 
@@ -125,7 +125,6 @@ class DatabaseHelper
     /**
      * Import database files.
      *
-     * @param array $settings
      * @param string $db The database name.
      */
     private static function mysqlImportData(array $settings, $db)

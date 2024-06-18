@@ -85,7 +85,7 @@ class DataWarehouseInitializer
      *
      * @var array
      */
-    protected $enabledRealms = null;
+    protected $enabledRealms;
 
     /**
      * @param iDatabase $hpcdbDb The HPcDB database.
@@ -423,11 +423,6 @@ class DataWarehouseInitializer
      */
     public function initializeAggregation($startDate = null, $endDate = null)
     {
-        /**
-         * This is staying around until xsede can be updated to not require this to be changed.
-         * As this is called from supremm aggregation still.
-         */
-        return;
     }
 
     /**

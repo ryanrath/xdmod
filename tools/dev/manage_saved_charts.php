@@ -295,7 +295,7 @@ if ( isset($scriptOptions['operation']) ) {
 
             $destParts = explode(',', $scriptOptions['destination']);
             $destChartId = array_shift($destParts);
-            $destSeriesId = ( count($destParts) > 0 ? array_shift($destParts) : null );
+            $destSeriesId = ( $destParts !== [] ? array_shift($destParts) : null );
 
             // Validate the chart
 
@@ -352,11 +352,11 @@ if ( isset($scriptOptions['operation']) ) {
 
             $sourceParts = explode(',', $scriptOptions['source']);
             $sourceChartId = array_shift($sourceParts);
-            $sourceSeriesId = ( count($sourceParts) > 0 ? array_shift($sourceParts) : null );
+            $sourceSeriesId = ( $sourceParts !== [] ? array_shift($sourceParts) : null );
 
             $destParts = explode(',', $scriptOptions['destination']);
             $destChartId = array_shift($destParts);
-            $destSeriesId = ( count($destParts) > 0 ? array_shift($destParts) : null );
+            $destSeriesId = ( $destParts !== [] ? array_shift($destParts) : null );
 
             // Validate the chart
 
@@ -408,7 +408,7 @@ if ( isset($scriptOptions['operation']) ) {
                 }
             );
 
-            if ( $scriptOptions['verbose'] && count($filtersToAdd) > 0 ) {
+            if ( $scriptOptions['verbose'] && $filtersToAdd !== [] ) {
                 $filterNames = array_reduce(
                     $filtersToAdd,
                     function ($carry, array $filter) {

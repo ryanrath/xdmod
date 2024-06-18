@@ -219,12 +219,12 @@ class HostListParser
         $this->logger->debug("Expanding range '$range'");
 
         // Check for a single number.
-        if (preg_match('/^[0-9]+$/', $range)) {
+        if (preg_match('/^\d+$/', $range)) {
             return array($prefix . $range);
         }
 
         // Split low-high.
-        if (!preg_match('/^([0-9]+)-([0-9]+)$/', $range, $matches)) {
+        if (!preg_match('/^(\d+)-(\d+)$/', $range, $matches)) {
             throw new Exception("Bad range '$range'");
         }
 

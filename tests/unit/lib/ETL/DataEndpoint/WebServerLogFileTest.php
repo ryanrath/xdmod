@@ -15,7 +15,7 @@ class WebServerLogFileTest extends TestCase
     /**
      * @var LoggerInterface
      */
-    private static $logger = null;
+    private static $logger;
 
     public static function setUpBeforeClass(): void
     {
@@ -71,43 +71,40 @@ class WebServerLogFileTest extends TestCase
         ];
         $tests = [];
         foreach ($logFormats as $logFormat) {
-            array_push(
-                $tests,
+            $tests[] = [
+                'test.log',
+                $logFormat,
                 [
-                    'test.log',
-                    $logFormat,
                     [
-                        [
-                            'host' => '127.0.0.0',
-                            'logname' => '-',
-                            'user' => 'testuser1',
-                            'stamp' => 1625127426,
-                            'time' => '01/Jul/2021:03:17:06 -0500',
-                            'requestMethod' => 'GET',
-                            'URL' => '/pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys?foo=bar',
-                            'requestProtocol' => 'HTTP/1.1',
-                            'status' => '200',
-                            'responseBytes' => '381',
-                            'HeaderReferer' => 'https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions',
-                            'HeaderUserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
-                            'ua_family' => 'Chrome',
-                            'ua_major' => '91',
-                            'ua_minor' => '0',
-                            'ua_patch' => '4472',
-                            'ua_os_family' => 'Windows',
-                            'ua_os_major' => '10',
-                            'ua_os_minor' => null,
-                            'ua_os_patch' => null,
-                            'ua_device_family' => 'Other',
-                            'ua_device_brand' => null,
-                            'ua_device_model' => null,
-                            'geo_city_name' => 'NA',
-                            'geo_subdivision' => 'NA',
-                            'geo_country' => 'NA'
-                        ]
+                        'host' => '127.0.0.0',
+                        'logname' => '-',
+                        'user' => 'testuser1',
+                        'stamp' => 1625127426,
+                        'time' => '01/Jul/2021:03:17:06 -0500',
+                        'requestMethod' => 'GET',
+                        'URL' => '/pun/sys/dashboard/apps/icon/jupyter_quantum_chem/sys/sys?foo=bar',
+                        'requestProtocol' => 'HTTP/1.1',
+                        'status' => '200',
+                        'responseBytes' => '381',
+                        'HeaderReferer' => 'https://ondemand.ccr.buffalo.edu/pun/sys/dashboard/batch_connect/sessions',
+                        'HeaderUserAgent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36',
+                        'ua_family' => 'Chrome',
+                        'ua_major' => '91',
+                        'ua_minor' => '0',
+                        'ua_patch' => '4472',
+                        'ua_os_family' => 'Windows',
+                        'ua_os_major' => '10',
+                        'ua_os_minor' => null,
+                        'ua_os_patch' => null,
+                        'ua_device_family' => 'Other',
+                        'ua_device_brand' => null,
+                        'ua_device_model' => null,
+                        'geo_city_name' => 'NA',
+                        'geo_subdivision' => 'NA',
+                        'geo_country' => 'NA'
                     ]
                 ]
-            );
+            ];
         }
         return $tests;
     }

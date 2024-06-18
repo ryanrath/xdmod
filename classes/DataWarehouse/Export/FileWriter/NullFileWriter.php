@@ -15,7 +15,6 @@ class NullFileWriter extends aFileWriter
      * Don't open the file or do anything.
      *
      * @param string $file
-     * @param LoggerInterface $logger
      */
     public function __construct($file, LoggerInterface $logger)
     {
@@ -31,8 +30,6 @@ class NullFileWriter extends aFileWriter
 
     /**
      * Don't write anything.
-     *
-     * @param array $record
      */
     public function writeRecord(array $record)
     {

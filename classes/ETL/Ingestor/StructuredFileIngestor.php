@@ -34,7 +34,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
      * ------------------------------------------------------------------------------------------
      */
 
-    protected $customInsertValuesComponents = null;
+    protected $customInsertValuesComponents;
 
     /** -----------------------------------------------------------------------------------------
      * @see iAction::__construct()
@@ -56,7 +56,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
     public function initialize(EtlOverseerOptions $etlOverseerOptions = null)
     {
         if ( $this->isInitialized() ) {
-            return;
+            return null;
         }
 
         $this->initialized = false;
@@ -248,7 +248,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
 
         $invalidSourceValues = array();
 
-        foreach ( $this->destinationFieldMappings as $etlTableKey => $destFieldToSourceFieldMap ) {
+        foreach ( array_keys($this->destinationFieldMappings) as $etlTableKey ) {
             $parameters = $this->generateParametersFromSourceRecord(
                 $firstRecord,
                 $destinationFieldIdToSourceFieldMap[$etlTableKey],
@@ -302,7 +302,7 @@ class StructuredFileIngestor extends aIngestor implements iAction
 
             // The same source record may be used in multiple tables.
 
-            foreach ( $this->destinationFieldMappings as $etlTableKey => $destFieldToSourceFieldMap ) {
+            foreach ( array_keys($this->destinationFieldMappings) as $etlTableKey ) {
 
                 $parameters = $this->generateParametersFromSourceRecord(
                     $sourceRecord,

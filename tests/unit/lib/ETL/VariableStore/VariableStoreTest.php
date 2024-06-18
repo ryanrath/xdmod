@@ -70,7 +70,7 @@ class VariableStoreTest extends \PHPUnit\Framework\TestCase
         $this->assertNotEquals('new value', $store->variable1, 'Do not overwrite by default');
         $this->assertEquals('value3', $store->variable3, 'Adding values via add()');
         $this->assertNull($store->variable_not_set, 'Undefined variable');
-        $this->assertTrue(isset($store->variable1), 'Testing isset()');
+        $this->assertTrue(property_exists($store, 'variable1') && $store->variable1 !== null, 'Testing isset()');
         $this->assertFalse(isset($store->variable_not_set), 'Testing isset()');
 
         // Clear a varaible

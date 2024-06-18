@@ -280,7 +280,7 @@ class Query extends Entity implements iEntity
 
     public function addJoin($config)
     {
-        $item = ( is_object($config) && $config instanceof Join
+        $item = ( $config instanceof Join
                   ? $config
                   : new Join($config, $this->systemQuoteChar, $this->logger) );
 
@@ -305,9 +305,9 @@ class Query extends Entity implements iEntity
 
     public function addOverseerRestriction($restriction, $template)
     {
-        if ( ! is_string($restriction) || "" == $restriction ) {
+        if ( ! is_string($restriction) || "" === $restriction ) {
             $this->logAndThrowException("Overseer restriction key must be a non-empty string");
-        } elseif ( ! is_string($template) || "" == $template ) {
+        } elseif ( ! is_string($template) || "" === $template ) {
             $this->logAndThrowException("Overseer restriction template must be a non-empty string");
         }
 
@@ -344,9 +344,9 @@ class Query extends Entity implements iEntity
 
     public function addOverseerRestrictionValue($restriction, $value)
     {
-        if ( ! is_string($restriction) || "" == $restriction ) {
+        if ( ! is_string($restriction) || "" === $restriction ) {
             $this->logAndThrowException("Overseer restriction key must be a non-empty string");
-        } elseif ( ! is_string($value) || "" == $value ) {
+        } elseif ( ! is_string($value) || "" === $value ) {
             $this->logAndThrowException("Overseer restriction template must be a non-empty string");
         }
 
@@ -392,7 +392,6 @@ class Query extends Entity implements iEntity
         // Use the records to generate the SELECT columns
 
         $columnList = array();
-        $thisObj = $this;
         foreach ( $this->records as $columnName => $formula ) {
             // Do not quote the source field names because we may have functions in the query, but
             // do quote the destination names.
@@ -411,8 +410,9 @@ class Query extends Entity implements iEntity
 
         $joinList = array();
         $joinList[] = "FROM " . $myJoins[0]->getSql($includeSchema);
+        $counter = count($myJoins);
 
-        for ($i = 1; $i < count($myJoins); $i++) {
+        for ($i = 1; $i < $counter; $i++) {
             if ( null === $myJoins[$i]->on ) {
                 $this->logger->debug(
                     sprintf("Join clause for table '%s' does not provide ON condition", $myJoins[$i]->name)
@@ -445,7 +445,7 @@ class Query extends Entity implements iEntity
         $sql = "SELECT" .( null !== $this->query_hint ? " " . $this->query_hint : "" ) . "\n" .
             implode(",\n", $columnList) . "\n" .
             implode("\n", $joinList) .
-            ( count($whereConditions) > 0 ? "\nWHERE " . implode("\nAND ", $whereConditions) : "" ) .
+            ( $whereConditions !== [] ? "\nWHERE " . implode("\nAND ", $whereConditions) : "" ) .
             ( count($this->groupby) > 0 ? "\nGROUP BY " . implode(", ", $this->groupby) : "" ) .
             ( count($this->orderby) > 0 ? "\nORDER BY " . implode(", ", $this->orderby) : "" );
 
@@ -511,7 +511,7 @@ class Query extends Entity implements iEntity
                 if ( null !== $value ) {
                     foreach ( $value as $item ) {
                         $this->properties[$property][] =
-                            ( is_object($item) && $item instanceof Join
+                            ( $item instanceof Join
                               ? $item
                               : new Join($item, $this->systemQuoteChar, $this->logger) );
                     }

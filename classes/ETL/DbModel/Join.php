@@ -105,7 +105,7 @@ class Join extends SchemaEntity implements iEntity
 
         // Allow subqueries and keywords such as DUAL (e.g., SELECT 'a' FROM DUAL) to be included
         // and not quoted.
-        $quoteName = ( 0 !== strpos($this->name, '(') && 'DUAL' != strtoupper($this->name));
+        $quoteName = ( 0 !== strpos($this->name, '(') && 'DUAL' !== strtoupper($this->name));
 
         $parts[] = ( null !== $this->schema && $includeSchema ? $this->getFullName() : $this->getName($quoteName) );
         if ( null !== $this->alias ) {

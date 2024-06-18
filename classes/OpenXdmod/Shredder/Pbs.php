@@ -222,7 +222,7 @@ class Pbs extends Shredder
 
             $key = strtolower(str_replace('.', '_', $key));
 
-            if ($key == 'exec_host') {
+            if ($key === 'exec_host') {
                 $data = $this->parseExecHost($value);
 
                 // The first node in the host list is used for the host
@@ -376,7 +376,7 @@ class Pbs extends Shredder
         $nodeCount = 0;
         $cpuCount = 0;
 
-        foreach ($nodeCpus as $node => $cpus) {
+        foreach ($nodeCpus as $cpus) {
             $nodeCount++;
             $cpuCount += $cpus;
         }
@@ -445,37 +445,26 @@ class Pbs extends Shredder
         switch ($unit) {
             case 'b':
                 return (int)floor($quantity);
-                break;
             case 'kb':
                 return (int)floor($quantity * 1024);
-                break;
             case 'mb':
                 return (int)floor($quantity * 1024 * 1024);
-                break;
             case 'gb':
                 return (int)floor($quantity * 1024 * 1024 * 1024);
-                break;
             case 'tb':
                 return (int)floor($quantity * 1024 * 1024 * 1024 * 1024);
-                break;
             case 'w':
                 return (int)floor($quantity * 8);
-                break;
             case 'kw':
                 return (int)floor($quantity * 8 * 1024);
-                break;
             case 'mw':
                 return (int)floor($quantity * 8 * 1024 * 1024);
-                break;
             case 'gw':
                 return (int)floor($quantity * 8 * 1024 * 1024 * 1024);
-                break;
             case 'tw':
                 return (int)floor($quantity * 8 * 1024 * 1024 * 1024 * 1024);
-                break;
             default:
                 throw new Exception("Unknown memory unit: '$unit'");
-                break;
         }
     }
 

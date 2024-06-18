@@ -1,6 +1,6 @@
 <?php
 
-require_once('../../../configuration/linker.php');
+require_once(__DIR__ . '/../../../configuration/linker.php');
 \xd_response\useDynamicJavascriptHeaders();
 
 ?>

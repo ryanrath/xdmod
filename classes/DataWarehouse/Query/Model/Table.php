@@ -38,12 +38,7 @@ class Table extends \Common\Identity
 
     public function getQualifiedName($show_alias = false, $show_join_hint = false)
     {
-        $ret = '';
-        if ($this->_schema  == '') {
-            $ret = $this->getName();
-        } else {
-            $ret = $this->_schema.'.'.$this->getName();
-        }
+        $ret = $this->_schema  == '' ? $this->getName() : $this->_schema.'.'.$this->getName();
         if ($this->getAlias() != '' && $show_alias == true) {
             $ret .= ' '.$this->getAlias();
         }
