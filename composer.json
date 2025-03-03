@@ -30,7 +30,10 @@
         "kassner/log-parser": "~1.5",
         "geoip2/geoip2": "~2.0",
         "ua-parser/uap-php": "^3.9",
-        "mongodb/mongodb": "^1.14"
+        "mongodb/mongodb": "^1.14",
+        "cytoscape/cytoscape": "^3.16",
+        "cytoscape/cytoscape-dagre": "^2.3",
+        "dagre/dagrejs": "^0.7.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
@@ -185,6 +188,65 @@
                     "installer-name": "plotly"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "cytoscape/cytoscape",
+                "type": "vanilla-plugin",
+                "version": "3.16.1",
+                "license": "MIT",
+                "homepage": "https://github.com/cytoscape/cytoscape.js",
+                "dist": {
+                    "type": "file",
+                    "url": "https://raw.githubusercontent.com/cytoscape/cytoscape.js/refs/tags/v3.16.1/dist/cytoscape.min.js"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                },
+                "extra": {
+                    "installer-name": "cytoscape"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "cytoscape/cytoscape-dagre",
+                "type": "vanilla-plugin",
+                "version": "2.3.2",
+                "license": "MIT",
+                "homepage": "https://github.com/cytoscape/cytoscape.js-dagre",
+                "dist": {
+                    "type": "file",
+                    "url": "https://raw.githubusercontent.com/cytoscape/cytoscape.js-dagre/refs/tags/v2.3.2/cytoscape-dagre.js"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                },
+                "extra": {
+                    "installer-name": "cytoscape-dagre"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "dagre/dagrejs",
+                "type": "vanilla-plugin",
+                "version": "0.7.5",
+                "homepage": "https://github.com/dagrejs/dagre",
+                "dist": {
+                    "type": "file",
+                    "url": "https://dagrejs.github.io/project/dagre/v0.7.5/dagre.min.js"
+                }
+            },
+            "require": {
+                "composer/installers": "~1.0"
+            },
+            "extra": {
+                "installer-name": "dagrejs"
+            }
         }
     ],
     "extra": {
@@ -195,7 +257,10 @@
                 "moment/moment-timezone-min-file",
                 "jquery/jquery-min-file",
                 "tildeio/rsvpjs-min-file",
-                "plotly/plotly"
+                "plotly/plotly",
+                "cytoscape/cytoscape",
+                "cytoscape/cytoscape-dagre",
+                "dagre/dagrejs"
             ],
             "external_libraries/{$name}": [
                 "zendframework/zendframework-minimal"
