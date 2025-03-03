@@ -74,7 +74,7 @@ use Psr\Log\LoggerInterface;
 use stdClass;
 use Traversable;
 
-class Configuration extends Loggable implements iConfiguration
+class Configuration extends Loggable implements iConfiguration, \JsonSerializable
 {
     // NOTE: Any properties that need to be accessed in a transformer defined in a subclass cannot be
     // private.
@@ -1420,5 +1420,10 @@ class Configuration extends Loggable implements iConfiguration
     public function __sleep()
     {
         return array_keys(get_object_vars($this));
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toAssocArray();
     }
 }  // class Configuration
