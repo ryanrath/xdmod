@@ -80,7 +80,7 @@ class MetricExplorer extends BasePage{
         await this.page.click(this.newChart.modalDialog.ok());
         await expect(this.page.locator(this.newChart.modalDialog.box)).toBeHidden();
         await expect(this.page.locator(this.newChart.modalDialog.noDataMessage)).toBeVisible();
-        await expect(this.page.locator(this.mask)).toHaveCount(0);
+        await this.expectMaskToBeHidden();
     }
 
     /**
@@ -106,7 +106,7 @@ class MetricExplorer extends BasePage{
         await this.endDateLocator.click();
         await this.page.fill(this.endDate, end);
         await this.page.click(this.toolbar.buttonByName('Refresh'));
-        await expect(this.page.locator(this.mask)).toHaveCount(0);
+        await this.expectMaskToBeHidden();
     }
 
     /**
@@ -605,7 +605,7 @@ class MetricExplorer extends BasePage{
         await this.page.click(this.optionsAggregate);
         await this.clickLogo();
         await expect(this.page.locator(this.optionsAggregate)).toBeHidden();
-        await expect(this.page.locator(this.mask)).toHaveCount(0);
+        await this.expectMaskToBeHidden();
     }
 
     /**

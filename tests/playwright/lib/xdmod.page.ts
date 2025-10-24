@@ -1,4 +1,3 @@
-import {expect} from '@playwright/test';
 import {BasePage} from "./base.page";
 import selectors from "./xdmod.selectors";
 
@@ -11,7 +10,7 @@ class XDMoD extends BasePage{
 
         await tabLocator.click();
         await panel.waitFor({state:'visible'});
-        await expect(this.page.locator(this.selectors.mask)).toHaveCount(0);
+        await this.expectMaskToBeHidden();
     }
 }
 export default XDMoD;
