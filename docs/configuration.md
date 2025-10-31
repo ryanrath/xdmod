@@ -217,16 +217,20 @@ for SSL configuration information.
 The `ServerName` setting should be updated to match the server name in the SSL
 certificate.
 
+The `ServerAlias` setting can be commented out or deleted in standard stand alone installations. We have included it as 
+part of the default template because we've found it to be userful in containerized deployments.
+
 The name and port of the server must match with the `site_address`
 configuration setting in `portal_settings.ini`.
 
 The template configuration file also configures the webserver to send the `Strict-Transport-Security` HTTP Header
-to indicate to  web browsers that the Open XDMoD instance should only be accessed using HTTPS.
+to indicate to web browsers that the Open XDMoD instance should only be accessed using HTTPS.
 
 ```apache
 <VirtualHost *:443>
     # The ServerName and ServerAdmin parameters should be updated.
     ServerName localhost
+    ServerAlias xdmod
     ServerAdmin postmaster@localhost
 
     # Production Open XDMoD instances should use HTTPS
