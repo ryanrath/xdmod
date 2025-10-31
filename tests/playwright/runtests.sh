@@ -2,14 +2,6 @@
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $BASEDIR/../ci/runtest-include.sh
 
-SHMSIZEK=`df -k /dev/shm | grep shm | awk '{print $2}'`
-if (( $SHMSIZEK < 2000000 )); then
-    echo "***************************************************************"
-    echo "Shared memory is less than 2G, tests may fail randomly"
-    echo "If you are using Docker use the option of --shm-size 2g"
-    echo "***************************************************************"
-fi
-
 set -e
 #ensure that playwright installed
 npm update
