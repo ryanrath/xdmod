@@ -24,6 +24,7 @@ services:
         stdin_open: true
         tty: true
         ipc: host
+        init: true
         links:
             - xdmod
         depends_on:
