@@ -2,6 +2,7 @@
 
 namespace CCR\Controller;
 
+use CCR\Log;
 use CCR\Security\Helpers\Tokens;
 use CCR\DB;
 use DataWarehouse\Data\RawStatisticsConfiguration;
@@ -336,7 +337,7 @@ class WarehouseExportController extends BaseController
         $requestIds = [];
 
         try {
-            $requestIds = @json_decode($request->getContent());
+            $requestIds = @json_decode($request->get('ids'));
 
             if ($requestIds === null) {
                 throw new Exception('Failed to decode JSON');
