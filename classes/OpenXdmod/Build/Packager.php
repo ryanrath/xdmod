@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use Xdmod\Template;
 
 /**
  * Open XDMoD package creation class.
@@ -309,6 +310,7 @@ class Packager
      */
     private function addEnvFile()
     {
+        $this->logger->debug(sprintf('Adding .env template'));
         $fileName = '.env';
         $envTemplate = new Template('env');
         $envTemplate->apply([
@@ -318,7 +320,7 @@ class Packager
         $destFile = implode(DIRECTORY_SEPARATOR, array($this->getPackageDir(),$fileName));
 
         $this->logger->info(sprintf('Saving .env template to %s', $destFile));
-        $this->saveTemplate($envTemplate, BASE_DIR . '/.env');
+        $envTemplate->saveTo($destFile);
     }
 
     /**
