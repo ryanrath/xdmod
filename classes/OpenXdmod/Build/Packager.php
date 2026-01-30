@@ -310,12 +310,15 @@ class Packager
     private function addEnvFile()
     {
         $fileName = '.env';
-        $srcFile = implode(DIRECTORY_SEPARATOR, array($this->srcDir, $fileName));
+        $envTemplate = new Template('env');
+        $envTemplate->apply([
+            'app_secret' => hash('sha512', time()),
+            'log_dir' => LOG_DIR
+        ]);
         $destFile = implode(DIRECTORY_SEPARATOR, array($this->getPackageDir(),$fileName));
 
-        $this->logger->info(sprintf('Copying %s to %s', $srcFile, $destFile));
-
-        $this->copyFile($srcFile, $destFile);
+        $this->logger->info(sprintf('Saving .env template to %s', $destFile));
+        $this->saveTemplate($envTemplate, BASE_DIR . '/.env');
     }
 
     /**
