@@ -133,7 +133,7 @@ class FilterListBuilder extends Loggable
             $appendToList = false;
         }
 
-        if($appendToList && $this->doesLastModifiedColumnExist($schema, $tableName) && !strtotime($journalHelper->getLastModified())) {
+        if($appendToList && $this->doesLastModifiedColumnExist($schema, $tableName) && $journalHelper->getLastModified() === null) {
             $appendToList = false;
         }
 
