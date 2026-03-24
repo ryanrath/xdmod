@@ -96,7 +96,7 @@ class FilterListBuilder extends Loggable
 
         $result = $db->execute($doesFieldExist, [":schema" => $schema, ":tableName" => $table, ":column" => $column]);
 
-        return ($result > 0) ? true : false;
+        return ($result > 0);
     }
 
     /**
