@@ -128,6 +128,7 @@ EOT
 
         $this->saveIniConfig($settings, 'portal_settings');
 
+        //  we don't actually need any of the contents of .env but it does need to exist.
         file_put_contents(BASE_DIR . '/.env', '');
 
         // Make sure that we keep .env up to date.
