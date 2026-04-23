@@ -71,7 +71,7 @@ function configurePortalSettings()
 
     grep -ie "auth_referer=.+" /etc/xdmod/portal_settings.ini
     exit_code=$?
-    if [ $exit_code -eq 1 ]; then
+    if [[ $exit_code -eq 1 ]]; then
         log "xdmod" "Updating auth_referer in portal_settings.ini"
         # Add the auth_referer property to portal_settings.ini
         sed -i "s|auth_referer=|auth_referer=$host|g" /etc/xdmod/portal_settings.ini
