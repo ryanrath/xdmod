@@ -111,7 +111,7 @@ SQL;
      *
      * @throws \Exception if there is a problem w/ authenticating the token for this request.
      */
-    public function authenticate(Request $request, $strict = true): ?XDUser
+    public function authenticate(Request $request, $throwExceptionOnFailure = true): ?XDUser
     {
         $token = null;
         // Try to extract the token from the header.
@@ -127,7 +127,7 @@ SQL;
         // If we still haven't found a token, then authentication fails.
         if (empty($token)) {
             // if we're being strict about things, throw an exception
-            if ($strict) {
+            if ($throwExceptionOnFailure) {
                 self::throwUnauthorized(self::MISSING_TOKEN_MESSAGE);
             }
 
