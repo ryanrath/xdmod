@@ -21,7 +21,6 @@ class MailerController extends \CCR\Controller\BaseController
     #[Route('/internal_dashboard/controllers/mailer.php', name: 'legacy_dashboard_mailer_index', methods: ['POST'])]
     public function index(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $this->authorize($request, ['mgr']);
 
         $operation = $this->getStringParam($request, 'operation');
