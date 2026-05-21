@@ -66,7 +66,6 @@ class SummaryController extends BaseController
     #[Route('{prefix}summary/configs', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getConfig(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $this->authorize($request, ['mgr']);
 
         $config = XdmodConfiguration::assocArrayFactory(
@@ -120,7 +119,6 @@ class SummaryController extends BaseController
     #[Route('{prefix}summary/portlets', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getPortlets(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $this->authorize($request, ['mgr']);
 
         $config = XdmodConfiguration::assocArrayFactory(
