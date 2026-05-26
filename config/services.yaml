@@ -47,3 +47,5 @@ services:
         tags:
             - kernel.event_listener:
                   priority: 1000
+    ccr_line_formatter:
+        class: CCR\CCRLineFormatter
