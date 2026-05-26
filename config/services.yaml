@@ -43,3 +43,7 @@ services:
         tags:
             - container.env_var_loader
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: null
+    CCR\EventListeners\ExceptionListener:
+        tags:
+            - kernel.event_listener:
+                  priority: 1000
