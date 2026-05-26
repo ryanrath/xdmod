@@ -48,6 +48,7 @@ when@prod:
                 path: '%log_dir%/exceptions.log'
                 level: warning
                 channels: ['!event']
+                formatter: ccr_line_formatter
             console:
                 type: console
                 process_psr_3_messages: false
