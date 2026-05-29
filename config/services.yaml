@@ -25,8 +25,10 @@ services:
         namespace: CCR\
         resource: ../classes/CCR/
     CCR\EventListeners\RouteBasedExceptionListener:
+        arguments:
+            $logger: '@monolog.logger'
         tags:
-            - { name: kernel.event_listener, event: kernel.exception }
+            - { name: kernel.event_listener, event: kernel.exception, priority: 1000 }
     CCR\DB\iDatabase:
         factory:
             - CCR\DB
@@ -36,6 +38,13 @@ services:
             $options:
                 username_parameter: username
                 password_parameter: password
+    CCR\Controller\ErrorController:
+        tags:
+            - controller.service_arguments
+        arguments:
+            - '@http_kernel'
+            - error_controller
+            - '@error_renderer'
     CCR\EnvVar\ReCaptchaEnvVarLoader:
         tags:
             - container.env_var_loader
@@ -43,9 +52,5 @@ services:
         tags:
             - container.env_var_loader
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: null
-    CCR\EventListeners\ExceptionListener:
-        tags:
-            - kernel.event_listener:
-                  priority: 1000
     ccr_line_formatter:
         class: CCR\CCRLineFormatter

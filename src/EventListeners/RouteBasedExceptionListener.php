@@ -1,6 +1,7 @@
 <?php
 namespace CCR\EventListeners;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,12 +18,23 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
  */
 class RouteBasedExceptionListener
 {
+    public function __construct(
+        private LoggerInterface $logger
+    )
+    {
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
         $route   = $request->attributes->get('_route');
 
         $exception = $event->getThrowable();
+
+        $this->logger->error('RouteBasedExceptionListener', [
+            'route' => $route,
+            'exception' => $exception
+        ]);
 
         // Support Legacy format for the Internal Dashboard controller endpoints
         if (str_starts_with($route, 'ccr_internaldashboard')) {
