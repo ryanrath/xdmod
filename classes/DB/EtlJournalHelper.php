@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB;
 
@@ -53,12 +53,13 @@ class EtlJournalHelper
      *
      * @param string $schema The name of the database that contains the table
      *                       that will be written to.
-     * @param string $table  The name of the table that will be written to.
+     * @param string $table The name of the table that will be written to.
      * @param string $database The name of the configuration section that
      *                       contains the database credentials
      * @param string $last_modified_column The name of the column in the
      *                       target table that contains a timestamp of when
      *                       the row was updated
+     * @throws \Exception if there is a problem instantiating the source of dwdb.
      */
     public function __construct($schema, $table, $database = 'datawarehouse', $last_modified_column = 'last_modified') {
 
@@ -84,6 +85,7 @@ class EtlJournalHelper
      * @return string posix timestamp of the row in the source table that
      *          had been successfully ingested previously or null if there is
      *          no previous run logged.
+     * @throws \Exception if there is a problem instantiating the DateTimeImmutable for formatting the return value.
      */
     public function getLastModified() {
 
@@ -123,7 +125,7 @@ class EtlJournalHelper
         return $lastModifiedStr;
     }
 
-    /*
+    /**
      * Record the successful ingestion of the source table with timestamps
      * form a the previous call to getLastModified. You MUST only call this
      * function on a successful ETL run. DO NOT call in an exception handler
