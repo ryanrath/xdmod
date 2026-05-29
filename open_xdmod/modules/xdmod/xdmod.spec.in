@@ -30,6 +30,7 @@ XDMoD presents resource utilization over set time periods and provides
 detailed interactive charts, graphs, and tables.
 
 %define xdmod_export_dir %{_var}/spool/%{name}/export
+%define xdmod_cache_dir %{_datadir}/%{name}
 
 %prep
 %setup -q -n %{name}-%{version}__PRERELEASE__
@@ -63,9 +64,6 @@ for file in exceptions.log query.log; do
     chown apache:xdmod %{_localstatedir}/log/%{name}/$file
     chmod 0660 %{_localstatedir}/log/%{name}/$file
 done
-
-# Ensure the var directory is owned by apache so it can be written to.
-chown apache:xdmod %{_datadir}/%{name}/var
 
 if [ "$1" -ge 2 ]; then
     echo "Run xdmod-upgrade to complete the Open XDMoD upgrade process."

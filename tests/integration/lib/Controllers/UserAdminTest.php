@@ -927,6 +927,18 @@ class UserAdminTest extends BaseUserAdminTest
             // The url we're after is the last one ( the most recent ).
             $resetUrl = array_pop($resetUrls);
 
+            // If we have a port in the url then strip it out. This request is coming from the server so no ports required.
+            if (strpos($resetUrl,':') !== false) {
+                $parsed = parse_url($resetUrl);
+                $resetUrl = sprintf(
+                    '%s://%s%s?%s',
+                    $parsed['scheme'],
+                    $parsed['host'],
+                    $parsed['path'],
+                    $parsed['query']
+                );
+            }
+
             // Now request the password reset page as
             $response = $publicHelper->get($resetUrl, null, true);
             $this->assertEquals(200, $response[1]['http_code'], "Unable to retrieve the password reset page.");

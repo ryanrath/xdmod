@@ -68,8 +68,11 @@ test.describe('Usage', async () => {
                 await expect(page.locator(usg.selectors.chartByTitle('CPU Hours: Per Job', true))).toBeVisible();
 
                 ///Check to make sure that the 'Std Err' display menu items are disabled.
-                await expect(page.locator(usg.selectors.toolbarButtonByText('Display'))).toBeVisible();
-                await page.locator(usg.selectors.toolbarButtonByText('Display')).click();
+                const displayButton = page.locator(usg.selectors.toolbarButtonByText('Display'));
+                await expect(displayButton).toBeVisible();
+                await displayButton.click();
+                const chartToolbar = page.locator('//div[@id="chart_config_menu_chart_toolbar_tg_usage"]');
+                await expect(chartToolbar).toBeVisible();
                 const menuLabels = ['Std Err Bars', 'Std Err Labels'];
                 for (const menuLabel of menuLabels){
                     await expect(page.locator(usg.selectors.displayMenuItemByText(menuLabel))).toBeVisible();
