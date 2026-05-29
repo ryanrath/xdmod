@@ -36,6 +36,7 @@ class UserVisitController extends BaseController
     #[Route('', methods: ['POST'])]
     public function getUserVisits(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
         list($data,) = $this->getUserVisitData($request);
         return $this->json([
             'success' => true,
@@ -51,6 +52,8 @@ class UserVisitController extends BaseController
     #[Route('/export', methods: ['POST'])]
     public function exportUserVisits(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
+
         list($data, list($timeframe,)) = $this->getUserVisitData($request);
 
         $data = array_map(function($row) {
