@@ -173,6 +173,7 @@ class UserAdminController extends BaseController
     #[Route('{prefix}internal_dashboard/users/create', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function createUser(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
         $this->logger->warning('[start] Creating User');
 
         try {
@@ -868,6 +869,8 @@ class UserAdminController extends BaseController
     #[Route('{prefix}internal_dashboard/users/existing', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function enumExistingUsers(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
+
         $group_filter = $this->getStringParam($request, 'group_filter');
         $role_filter = $this->getStringParam($request, 'role_filter');
         $context_filter = $this->getStringParam($request, 'context_filter', false, '');

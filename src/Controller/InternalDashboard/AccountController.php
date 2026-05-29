@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace CCR\Controller;
+namespace CCR\Controller\InternalDashboard;
 
+use CCR\Controller\BaseController;
 use CCR\DB;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,8 @@ class AccountController extends BaseController
     #[Route("/requests", methods: ["POST"])]
     public function getRequests(Request $request): Response
     {
+        $this->authorize($request, ['mgr'], true);
+
         $pdo = DB::factory('database');
         $md5Only = $this->getBooleanParam($request, 'md5only', false, false);
 
@@ -55,6 +58,8 @@ class AccountController extends BaseController
     #[Route("/{requestId}", methods: ["PUT"])]
     public function updateRequest(Request $request, string $requestId): Response
     {
+        $this->authorize($request, ['mgr'], true);
+
         $comments = $this->getStringParam($request, 'comments', true);
         $pdo = DB::factory('database');
 
@@ -81,6 +86,8 @@ class AccountController extends BaseController
     #[Route("", methods: ["DELETE"])]
     public function deleteRequest(Request $request): Response
     {
+        $this->authorize($request, ['mgr'], true);
+
         $requestIds = $this->getStringParam($request, 'id', true, null, '/^\d+(,\d+)*$/');
         $ids = array_map('intval', explode(',', $requestIds));
 
