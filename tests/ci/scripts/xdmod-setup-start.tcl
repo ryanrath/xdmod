@@ -15,7 +15,7 @@ set timeout 240
 spawn "xdmod-setup"
 
 selectMenuOption 1
-answerQuestion {Site Address} https://localhost/
+answerQuestion {Site Address} https://xdmod:8080/
 provideInput {Email Address:} xdmod@example.com
 provideInput {Chromium Path:} /usr/lib64/chromium-browser/headless_shell
 provideInput {Center Logo Path:} {}

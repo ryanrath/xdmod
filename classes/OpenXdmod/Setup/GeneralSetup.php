@@ -126,6 +126,10 @@ EOT
             array('on', 'off')
         );
 
+        // The default sso auth_referer is an empty string.
+        // To see how this value is used, check out the SimpleSamlPhpAuthenticator::supports function.
+        $settings['sso_auth_referer'] = '';
+
         $this->saveIniConfig($settings, 'portal_settings');
 
         //  we don't actually need any of the contents of .env but it does need to exist.
