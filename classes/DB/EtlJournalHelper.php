@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB;
 
@@ -6,8 +6,34 @@ namespace DB;
  * Helper class for managing the logs of the last_modified times
  * for the ETL process.
  */
+
+use CCR\DB\iDatabase;
+
 class EtlJournalHelper
 {
+    /**
+     * @var mixed|string
+     */
+    private mixed $schema;
+
+    /**
+     * @var mixed|string
+     */
+    private mixed $table;
+
+    private string $lastModifiedColumn;
+    /**
+     * @var iDatabase
+     */
+    private mixed $sourcedb;
+    /**
+     * @var iDatabase
+     */
+    private mixed $dwdb;
+
+    private mixed $lastModifiedTs;
+
+    private mixed $mostRecentTs;
 
     /**
      * Helper class for managing the logs of the last_modified times for ingestion
@@ -43,12 +69,13 @@ class EtlJournalHelper
      *
      * @param string $schema The name of the database that contains the table
      *                       that will be written to.
-     * @param string $table  The name of the table that will be written to.
+     * @param string $table The name of the table that will be written to.
      * @param string $database The name of the configuration section that
      *                       contains the database credentials
      * @param string $last_modified_column The name of the column in the
      *                       target table that contains a timestamp of when
      *                       the row was updated
+     * @throws \Exception if there is a problem instantiating the source of dwdb.
      */
     public function __construct($schema, $table, $database = 'datawarehouse', $last_modified_column = 'last_modified') {
 
@@ -74,8 +101,9 @@ class EtlJournalHelper
      * @return string posix timestamp of the row in the source table that
      *          had been successfully ingested previously or null if there is
      *          no previous run logged.
+     * @throws \Exception if there is a problem instantiating the DateTimeImmutable for formatting the return value.
      */
-    public function getLastModified() {
+    public function getLastModified(): string {
 
         if (get_class($this->sourcedb) == 'CCR\DB\PostgresDB') {
             $srcQuery = 'SELECT FLOOR(EXTRACT(EPOCH FROM ' . $this->lastModifiedColumn . ')) AS most_recent FROM ' . $this->schema . '.' . $this->table . ' ORDER BY ' . $this->lastModifiedColumn . ' DESC LIMIT 1';
@@ -113,7 +141,7 @@ class EtlJournalHelper
         return $lastModifiedStr;
     }
 
-    /*
+    /**
      * Record the successful ingestion of the source table with timestamps
      * form a the previous call to getLastModified. You MUST only call this
      * function on a successful ETL run. DO NOT call in an exception handler
@@ -124,7 +152,7 @@ class EtlJournalHelper
      * @param string $process_start_time The time before the ETL process started in the format date('Y-m-d H:i:s')
      * @param string $process_end_time The time after the ETL process ended in the format date('Y-m-d H:i:s')
      */
-    public function markAsDone($process_start_time, $process_end_time) {
+    public function markAsDone(string $process_start_time, string $process_end_time): void {
 
         $markAsDone = $this->dwdb->prepare(
             'INSERT INTO modw_etl.log (etlProfileName, min_index, max_index, start_ts, end_ts) VALUES (?, ?, ?, UNIX_TIMESTAMP(?), UNIX_TIMESTAMP(?))'
