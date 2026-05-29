@@ -28,6 +28,8 @@ class LogController extends BaseController
     #[Route('/controllers/log.php', name: 'log_index_legacy', methods: ['POST'])]
     public function index(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
+
         $operation = $request->get('operation');
         if (empty($operation)) {
             return $this->json(buildError('operation_not_defined'));
@@ -56,6 +58,7 @@ class LogController extends BaseController
     #[Route('{prefix}internal_dashboard/logs/levels', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getLevels(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
         $levels = [
             ['id' => \CCR\Log::EMERG, 'name' => 'Emergency'],
             ['id' => \CCR\Log::ALERT, 'name' => 'Alert'],
@@ -82,6 +85,8 @@ class LogController extends BaseController
     #[Route('{prefix}internal_dashboard/logs/messages', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getMessages(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
+
         $pdo = DB::factory('logger');
 
         $sql = '
@@ -181,6 +186,8 @@ class LogController extends BaseController
     #[Route('{prefix}internal_dashboard/logs/summary', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getSummary(Request $request): Response
     {
+        $this->authorize($request, ['mgr']);
+
         $ident = $this->getStringParam($request, 'ident', true);
         $summary = \Log\Summary::factory($ident);
         return $this->json([
