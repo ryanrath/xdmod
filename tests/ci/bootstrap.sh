@@ -52,7 +52,7 @@ then
     rpm -qa | grep ^xdmod | xargs yum -y remove || true
     rm -rf /etc/xdmod
 
-    rm -rf /var/lib/mysql
+    rm -rf /var/lib/mysql/*
     mkdir -p /var/lib/mysql
     mkdir -p /var/log/mariadb
     mkdir -p /var/run/mariadb

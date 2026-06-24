@@ -17,8 +17,8 @@ while getopts h:p:t: flag
 do
     case "${flag}" in
         h) HOSTNAME=${OPTARG};;
-        p) PORT=${PORT:-${OPTARG}};;
-        t) TYPE=${DEFAULT_TYPE:-${OPTARG}};;
+        p) PORT=${OPTARG:-PORT};;
+        t) TYPE=${OPTARG:-DEFAULT_TYPE};;
         *) echo "Invalid argument"; exit 1;
     esac
 done
@@ -130,6 +130,7 @@ function configureSimplesamlPHP()
 EOF
     log "SimpleSamlPHP" "Retrieving the new x509 Cert to be used in SimpleSamlPHP"
     NEW_CERT=`sed -n '2,21p' idp-public-cert.pem | perl -ne 'chomp and print'`
+    log "New CErt" "$NEW_CERT"
 
     log "SimpleSamlPHP" "Copying config file for SimpleSamlPHP remote IDP"
     cat > "$VENDOR_DIR/simplesamlphp/simplesamlphp/metadata/saml20-idp-remote.php" <<EOF
@@ -186,6 +187,26 @@ EOF
     sleep 1
     log "SimpleSamlPHP" "Starting HTTPD"
     httpd -k start
+}
+
+configureOneLoginSaml() {
+
+    NEW_CERT=`sed -n '2,21p' idp-public-cert.pem | perl -ne 'chomp and print'`
+    config_file=/usr/share/xdmod/config/packages/nbgrp_onelogin_saml.yaml
+
+    log "New_Cert" "Updating $config_file"
+    log "New_Cert" "$NEW_CERT"
+
+    sed -i "s|x509cert: ''|x509cert: '$NEW_CERT'|g" /usr/share/xdmod/config/packages/nbgrp_onelogin_saml.yaml
+    #sed -i "s|x509cert: ''|$NEW_COOLNESS|g" /usr/share/xdmod/config/packages/nbgrp_onelogin_saml.yaml
+
+    found=$(grep "$NEW_CERT" "$config_file")
+    EXIT_CODE=$?
+    if [[ $EXIT_CODE != 0 ]]; then
+        log "ERROR" "SSO config not updated"
+        exit $EXIT_CODE
+    fi
+    console cache:clear
 }
 
 localSSO() {
@@ -312,21 +333,24 @@ localSSO() {
 EOF
     log "setup" "Configuring SimpleSamlPHP"
     # Configure SimplesamlPHP, stops / starts httpd as appropriate
-    configureSimplesamlPHP;
+    #configureSimplesamlPHP;
+
+    configureOneLoginSaml
 
     log "xdmod" "Configuring XDMoD"
     configurePortalSettings "https://xdmod:7000"
+
+    console cache:clear
 
     AUD_URL=https://$HOSTNAME/xdmod-sp
 
     # The ACS url is the only one that needs the port specified.
     if [[ -n "$PORT" ]]; then
-            HOSTNAME="${HOSTNAME}:${PORT}"
+        HOSTNAME="${HOSTNAME}:${PORT}"
     fi
 
     log "setup" "Spinning up for $HOSTNAME"
-    ACS_URL=https://$HOSTNAME/simplesaml/module.php/saml/sp/saml2-acs.php/xdmod-sp
-
+    ACS_URL=https://$HOSTNAME/saml/acs
 
     log "setup" "Starting local IDP"
     node app.js  --acs "$ACS_URL" --aud "$AUD_URL" --httpsPrivateKey idp-private-key.pem --httpsCert idp-public-cert.pem  --https true > /var/log/xdmod/samlidp.log 2>&1 &

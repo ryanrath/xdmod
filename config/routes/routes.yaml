@@ -5,7 +5,9 @@ controllers:
         prefix: /rest
         name_prefix: legacy_
     type: attribute
-
+nbgrp_saml:
+    resource: "@NbgrpOneloginSamlBundle/Resources/config/routes.php"
+    type: php
 #legacy_versioned_rest:
 #    resource:
 #        path: ../../src/Controller

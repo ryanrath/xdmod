@@ -91,16 +91,9 @@ class AuthenticationController extends BaseController
     public function idpRedirect(Request $request): Response
     {
         $returnTo = $this->getStringParam($request, 'returnTo', true);
-
         $request->getSession()->set('_security.main.target_path', $returnTo);
 
-        $auth = new \Authentication\SAML\XDSamlAuthentication();
-        $redirectUrl = $auth->getLoginURL($returnTo);
-        if ($redirectUrl === false ) {
-            return $this->json(buildError(new \Exception('SSO not configured.')));
-        }
-
-        return new Response($redirectUrl, Response::HTTP_OK, ['Content-Type' => 'text/plain']);
+        return new Response($this->getParameter('xdmod.portal_settings.sso.auth_referer'), Response::HTTP_OK, ['Content-Type' => 'text/plain']);
     }
 
 

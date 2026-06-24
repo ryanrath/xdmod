@@ -1,8 +1,28 @@
 imports:
     # This imports the contents of our portal_settings.[ini,d] into Symfony Parameters.
-    - { resource: 'portal_settings.php'}
+    - { resource: 'portal_settings.php' }
 parameters:
     log_dir: !php/const LOG_DIR
+    sso:
+        parameters:
+            username:
+                attribute:
+                    - 'itname'
+                    - 'system_username'
+            first_name:
+                attribute: 'firstName'
+                default: 'UNKNOWN'
+            middle_name:
+                attribute: 'middleName'
+            last_name:
+                attribute: 'lastName'
+            organization:
+                attribute: 'orgId'
+            email_address:
+                attribute: 'email'
+            system_username:
+                attribute: 'system_username'
+                default: '$username'
 services:
     _defaults:
         autowire: true
@@ -50,3 +70,5 @@ services:
         tags:
             - container.env_var_loader
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: null
+    saml_user_factory:
+        class: CCR\Security\SSOUserFactory

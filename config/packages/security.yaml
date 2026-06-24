@@ -19,20 +19,24 @@ security:
             provider: all_users
             custom_authenticators:
                 - CCR\Security\Authenticators\FormLoginAuthenticator
-                - CCR\Security\Authenticators\SimpleSamlPhpAuthenticator
             switch_user: true
             logout:
                 path: xdmod_logout
                 invalidate_session: true
             access_denied_handler: CCR\Security\AccessDeniedHandler
             entry_point: CCR\Security\Authenticators\FormLoginAuthenticator
+            saml:
+                user_factory: saml_user_factory
+                check_path: saml_acs
+                login_path: saml_login
+                default_target_path: xdmod_home
+                always_use_default_target_path: true
 
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/saml/login, roles: PUBLIC_ACCESS }
-        - { path: ^/saml/metadata, roles: PUBLIC_ACCESS }
+        - { path: ^/saml/(metadata|login|acs), roles: PUBLIC_ACCESS }
         # - { path: ^/, roles: PUBLIC_ACCESS}
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_US1ER }

@@ -39,7 +39,7 @@ jobs:
           command: |
             docker exec xdmod dnf module reset -y php
             docker exec xdmod dnf module enable -y php:8.2
-            docker exec xdmod dnf install -y php-devel openssl-devel
+            docker exec xdmod dnf install -y php-devel openssl-devel php-intl
             docker exec xdmod dnf update -y php php-common php-opcache php-cli php-gd php-curl php-pear php-zip php-gmp php-pdo php-xml php-mbstring php-mysqlnd php-pecl-apcu php-pecl-json php-pear
             docker exec xdmod pecl uninstall mongodb-1.18.1
             docker exec xdmod pecl install mongodb-1.18.1
@@ -93,14 +93,14 @@ jobs:
           name: Install / Upgrade XDMoD from the newly created RPM
           command: docker exec -e XDMOD_TEST_MODE=<< parameters.install-type >> xdmod /root/xdmod/tests/ci/bootstrap.sh
       - run:
+          name: Setup the SimpleSAML server etc. so we can test SSO
+          command: docker exec xdmod /root/xdmod/tests/ci/samlSetup.sh -t local -h xdmod
+      - run:
           name: Validate that the install / upgrade went as expected
           command: docker exec -w /root/xdmod xdmod /root/xdmod/tests/ci/validate.sh
       - run:
           name: Make sure that the test dependencies are installed
           command: docker exec -w /root/xdmod xdmod composer install
-      - run:
-          name: Setup the SimpleSAML server etc. so we can test SSO
-          command: docker exec xdmod /root/xdmod/tests/ci/samlSetup.sh -t local -h xdmod
       - run:
           name: Make sure that the Test Dependencies are installed
           command: docker exec -w /root/xdmod xdmod composer install --no-progress
@@ -109,7 +109,6 @@ jobs:
             and:
               - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
               - equal: [ "xdmod-time-trigger", << pipeline.schedule.name >> ]
-
           steps:
             - run:
                 name: Installing Code Coverage Dependencies

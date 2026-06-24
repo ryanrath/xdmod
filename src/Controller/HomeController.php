@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace CCR\Controller;
 
-use CCR\Security\Helpers\Tokens;
-use Authentication\SAML\XDSamlAuthentication;
 use CCR\DB;
-use Configuration\Configuration;
 use Exception;
 use Models\Services\Acls;
 use Models\Services\Realms;
@@ -89,15 +86,20 @@ class HomeController extends BaseController
 
         $features = $this->getFeatures();
 
-        $isSSOConfigured = false;
-        $ssoLoginLink = [];
-        try {
-            $auth = new XDSamlAuthentication();
-            $isSSOConfigured = $auth->isSamlConfigured();
-            $ssoLoginLink = $auth->getLoginLink();
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage(), [$e]);
+        $samlSettings = $this->getParameter('nbgrp_onelogin_saml.onelogin_settings');
+        if (array_key_exists('default', $samlSettings)) {
+            $samlSettings = $samlSettings['default'];
         }
+        $isSSOConfigured = $this->isSSOSetup($samlSettings);
+        $ssoIcon = array_key_exists('icon', $samlSettings['organization']['en']) && !empty($samlSettings['organization']['en']['icon'])
+            ? $samlSettings['organization']['en']['icon']
+            : '';
+        $ssoLoginLink = [
+            "organization" => [
+                'en' => $samlSettings['organization']['en']['displayname'],
+                'icon' => $ssoIcon
+            ]
+        ];
 
         try {
             $db = DB::factory('database');
