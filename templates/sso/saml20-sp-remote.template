@@ -1,0 +1,5 @@
+<?php
+$metadata['[:sp_entity_id:]'] = array(
+    'AssertionConsumerService' => '[:public_url:]/simplesaml/module.php/saml/sp/saml2-acs.php/[:sp_id:]',
+    'SingleLogoutService'      => '[:public_url:]/simplesaml/module.php/saml/sp/saml2-logout.php/[:sp_id:]'
+);

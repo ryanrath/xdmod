@@ -1,0 +1,39 @@
+<?php
+$config = array(
+    'xdmod-sp' => array(
+	    'saml:SP',
+	    'host' => '[:public_url:]',
+	    'entityID' => '[:public_url:]/xdmod-sp',
+	    'idp' => 'xdmod-hosted-idp-[:idp_type:]',
+	    'authproc' => array(
+		    10 => array(
+			    'class' => 'core:AttributeMap',
+			    'email' => 'email_address',
+                'preferred_username' => 'username',
+			    'given_name' => 'first_name',
+			    'family_name' => 'last_name',
+			    'organization' => 'organization'
+		    ),
+		    // Ensures that the 'username' property has one or more non-whitespace characters
+            60 => array(
+              'class' => 'authorize:Authorize',
+              'username' => array(
+                '/\S+/'
+              ),
+            ),
+           // Ensures that the 'organization' property has one or more non-whitespace characters
+            61 => array(
+              'class' => 'authorize:Authorize',
+              'organization' => array(
+                 '/\S+/'
+              )
+            )
+	    )
+    ),
+    [:idp-fragment:]
+    'admin'     => array(
+        // The default is to use core:AdminPassword, but it can be replaced with
+        // any authentication source.
+        'core:AdminPassword',
+    )
+);

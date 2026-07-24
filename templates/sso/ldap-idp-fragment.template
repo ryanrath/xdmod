@@ -1,0 +1,10 @@
+'ldap-[:ldap-idp-name:]' => array(
+    'ldap:LDAP',
+    'hostname' => '[:ldap_hostname:]',
+    'port' => [:ldap_host_port:],
+    'enable_tls' => [:ldap_enable_tls:],
+    'attributes' => NULL,
+    'dnpattern' => '[:ldap_dn_pattern:]',
+    'search.username' => '[:ldap_search_username:]',
+    'search.password' => '[:ldap_search_password:]'
+),

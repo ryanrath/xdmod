@@ -1,0 +1,18 @@
+'oidc-[:oidc-idp-name:]' => array(
+    'authoidcoauth2:OIDCOAuth2',
+	'entityID' => '[:public_url:]/xdmod-oidc',
+	'auth_endpoint' => '[:auth_endpoint:]',
+	'auth_path' => '[:auth_path:]',
+	'api_endpoint' => '[:api_endpoint:]',
+	'token_path' => '[:token_path:]',
+	'user_info_path' => '[:user_info_path:]',
+	'key' => '[:idp_client_id:]',
+	'client_id' => '[:idp_client_id:]',
+	'client_secret' => '[:idp_client_secret:]',
+	'secret' => '[:idp_client_secret:]',
+	'scope' => '[:idp_client_scope:]',
+	'response_type' => '[:idp_response_type:]',
+	'use_header_for_auth' => false,
+	'redirect_uri' => '[:public_url:]/simplesaml/module.php/authoidcoauth2/linkback.php',
+	'verify_ssl' => 0
+),
