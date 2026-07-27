@@ -24,7 +24,7 @@ class RouteBasedExceptionListener
     public function __construct(
         private LoggerInterface $logger,
         private Security        $security
-    ){
+    ) {
     }
 
     public function onKernelException(ExceptionEvent $event): void
