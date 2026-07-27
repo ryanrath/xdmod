@@ -28,35 +28,29 @@ class MgrRequired
     const EXPRESSION = '"mgr" in role_names';
 
     public function __construct(
-
         /**
          * Sets the first argument that will be passed to isGranted().
          */
         public string|Expression            $attribute = new Expression(self::EXPRESSION),
-
         /**
          * Sets the second argument passed to isGranted().
          *
          * @var array<string|Expression>|string|Expression|null
          */
         public array|string|Expression|null $subject = null,
-
         /**
          * The message of the exception - has a nice default if not set.
          */
         public ?string                      $message = null,
-
         /**
          * If set, will throw HttpKernel's HttpException with the given $statusCode.
          * If null, Security\Core's AccessDeniedException will be used.
          */
         public ?int                         $statusCode = null,
-
         /**
          * If set, will add the exception code to thrown exception.
          */
         public ?int                         $exceptionCode = null,
-    )
-    {
+    ) {
     }
 }

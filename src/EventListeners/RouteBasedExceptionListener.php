@@ -1,4 +1,5 @@
 <?php
+
 namespace CCR\EventListeners;
 
 use Psr\Log\LoggerInterface;
@@ -22,19 +23,18 @@ class RouteBasedExceptionListener
 {
     public function __construct(
         private LoggerInterface $logger,
-        private Security $security
-    )
-    {
+        private Security        $security
+    ){
     }
 
     public function onKernelException(ExceptionEvent $event): void
     {
         $request = $event->getRequest();
-        $route   = $request->attributes->get('_route');
+        $route = $request->attributes->get('_route');
 
         $exception = $event->getThrowable();
 
-        $this->logger->error('OnKernelException', ['route'=> $route, 'exception' => $exception]);
+        $this->logger->error('OnKernelException', ['route' => $route, 'exception' => $exception]);
         // Support Legacy format for the Internal Dashboard controller endpoints
         if (str_starts_with($route, 'ccr_internaldashboard')) {
             if ($exception instanceof AccessDeniedHttpException || $exception instanceof AccessDeniedException) {
@@ -51,13 +51,13 @@ class RouteBasedExceptionListener
                 if (str_ends_with($route, 'resetusertourviewed')) {
                     $statusCode = Response::HTTP_FORBIDDEN;
                     $content = [
-                        'success'=> false,
+                        'success' => false,
                         'count' => 0,
                         'total' => 0,
-                        'totalCount'=> 0,
+                        'totalCount' => 0,
                         'results' => [],
                         'data' => [],
-                        'message'=> 'An error was encountered while attempting to process the requested authorization procedure.',
+                        'message' => 'An error was encountered while attempting to process the requested authorization procedure.',
                         'code' => 0
                     ];
                 }
@@ -68,7 +68,7 @@ class RouteBasedExceptionListener
                 }
 
                 $event->allowCustomResponseCode();
-                $event->setResponse(new JsonResponse($content, $statusCode ));
+                $event->setResponse(new JsonResponse($content, $statusCode));
 
             } elseif ($exception instanceof UnauthorizedHttpException) {
                 $event->setResponse(new JsonResponse([

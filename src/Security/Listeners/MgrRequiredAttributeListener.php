@@ -2,7 +2,6 @@
 
 namespace CCR\Security\Listeners;
 
-
 use CCR\Security\Attributes\MgrRequired;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -25,8 +24,7 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly AuthorizationCheckerInterface $authChecker,
-        private ?ExpressionLanguage $expressionLanguage = null,
-
+        private ?ExpressionLanguage                    $expressionLanguage = null
     ) {
     }
 
@@ -49,7 +47,7 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
             if ($subjectRef = $attribute->subject) {
                 if (\is_array($subjectRef)) {
                     foreach ($subjectRef as $refKey => $ref) {
-                        $subject[\is_string($refKey) ? $refKey : (string) $ref] = $this->getIsGrantedSubject($ref, $request, $arguments);
+                        $subject[\is_string($refKey) ? $refKey : (string)$ref] = $this->getIsGrantedSubject($ref, $request, $arguments);
                     }
                 } else {
                     $subject = $this->getIsGrantedSubject($subjectRef, $request, $arguments);
@@ -92,7 +90,7 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
 
     private function getIsGrantedString(MgrRequired $isGranted): string
     {
-        $processValue = fn ($value) => \sprintf($value instanceof Expression ? 'new Expression("%s")' : '"%s"', $value);
+        $processValue = fn($value) => \sprintf($value instanceof Expression ? 'new Expression("%s")' : '"%s"', $value);
 
         $argsString = $processValue($isGranted->attribute);
 
@@ -103,10 +101,9 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
                 return \is_string($key) ? \sprintf('"%s" => %s', $key, $value) : $value;
             }, array_keys($subject), $subject);
 
-            $argsString .= ', '.(!\is_array($subject) ? $subject : '['.implode(', ', $subject).']');
+            $argsString .= ', ' . (!\is_array($subject) ? $subject : '[' . implode(', ', $subject) . ']');
         }
 
         return $argsString;
     }
 }
-
