@@ -13,6 +13,8 @@ use Symfony\Component\ExpressionLanguage\Expression;
  * By pairing this Attribute with an accompanying AttributeListener ( @see MgrRequiredAttributeListener ) class attached
  * to the Kernel Controller Event, we are able to provide the "Restrict this route to users w/ the specified ACL".
  *
+ * Note: the implementation of this Attribute and the MgrRequiredAttributeListener was directly copied from the
+ * Symfony `IsGranted` Attribute and the associated `IsGrantedAttributeListener`.
  */
 #[\Attribute(\Attribute::IS_REPEATABLE | \Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 class MgrRequired
