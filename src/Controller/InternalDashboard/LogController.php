@@ -6,6 +6,7 @@ namespace CCR\Controller\InternalDashboard;
 
 use CCR\Controller\BaseController;
 use CCR\DB;
+use CCR\Security\Attributes\MgrRequired;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ class LogController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/controllers/log.php', name: 'log_index_legacy', methods: ['POST'])]
     public function index(Request $request): Response
     {
@@ -53,6 +55,7 @@ class LogController extends BaseController
      * @param Request $request
      * @return Response
      */
+    #[MgrRequired]
     #[Route('{prefix}internal_dashboard/logs/levels', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getLevels(Request $request): Response
     {
@@ -79,6 +82,7 @@ class LogController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('{prefix}internal_dashboard/logs/messages', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getMessages(Request $request): Response
     {
@@ -178,6 +182,7 @@ class LogController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('{prefix}internal_dashboard/logs/summary', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getSummary(Request $request): Response
     {

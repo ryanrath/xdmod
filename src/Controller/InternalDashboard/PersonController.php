@@ -1,7 +1,9 @@
 <?php
 
-namespace CCR\Controller;
+namespace CCR\Controller\InternalDashboard;
 
+use CCR\Controller\BaseController;
+use CCR\Security\Attributes\MgrRequired;
 use Models\Services\Organizations;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,10 +23,10 @@ class PersonController extends BaseController
      * @return Response
      * @throws \Exception
      */
+    #[MgrRequired]
     #[Route('/{id}/organization', requirements: ["id" => "(-)?\d+"], methods: ['GET'])]
     public function getOrganizationForPerson(Request $request, int $id): Response
     {
-        $this->authorize($request, ['mgr']);
 
         return $this->json([
             'success' => true,

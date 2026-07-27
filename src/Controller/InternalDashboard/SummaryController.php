@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CCR\Controller\InternalDashboard;
 
 use CCR\Controller\BaseController;
+use CCR\Security\Attributes\MgrRequired;
 use Configuration\XdmodConfiguration;
 use Exception;
 use Log\Summary;
@@ -25,6 +26,8 @@ class SummaryController extends BaseController
 {
 
     /**
+     * Note: This route is utilized by public users, it must not be set to mgr's only.
+     *
      * @param Request $request
      * @return Response
      * @throws Exception
@@ -40,6 +43,7 @@ class SummaryController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/internal_dashboard/controllers/summary.php')]
     public function index(Request $request): Response
     {
@@ -63,11 +67,10 @@ class SummaryController extends BaseController
     /**
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('{prefix}summary/configs', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getConfig(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->authorize($request, ['mgr']);
 
         $config = XdmodConfiguration::assocArrayFactory(
             'internal_dashboard.json',
@@ -117,11 +120,10 @@ class SummaryController extends BaseController
     /**
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('{prefix}summary/portlets', requirements: ['prefix' => '.*'], methods: ['POST'])]
     public function getPortlets(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->authorize($request, ['mgr']);
 
         $config = XdmodConfiguration::assocArrayFactory(
             'internal_dashboard.json',
@@ -173,6 +175,7 @@ class SummaryController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('{prefix}summary/charts', requirements: ['prefix' => '.*'], methods: ['GET'])]
     public function getCharts(Request $request): Response
     {

@@ -6,6 +6,7 @@ namespace CCR\Controller\InternalDashboard;
 
 use CCR\Controller\BaseController;
 use CCR\DB;
+use CCR\Security\Attributes\MgrRequired;
 use Exception;
 use Models\Services\Users;
 use OpenXdmod\Assets;
@@ -85,6 +86,7 @@ class InternalDashboardController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/controllers/dashboard.php', methods: ['POST'])]
     public function dashboardIndex(Request $request): Response
     {
@@ -110,12 +112,10 @@ class InternalDashboardController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/internal_dashboard/menus', methods: ['POST'])]
     public function getMenus(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->authorize($request, ['mgr']);
-
         $config = \Configuration\XdmodConfiguration::assocArrayFactory(
             'internal_dashboard.json',
             CONFIG_DIR
@@ -133,6 +133,7 @@ class InternalDashboardController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/internal_dashboard/controllers/user.php', methods: ['POST'])]
     public function userController(Request $request): Response
     {
@@ -157,6 +158,7 @@ class InternalDashboardController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route('/internal_dashboard/users/summary')]
     public function getUserSummary(Request $request): Response
     {
@@ -200,12 +202,10 @@ class InternalDashboardController extends BaseController
      * @return Response
      * @throws Exception
      */
+    #[MgrRequired]
     #[Route("/internal_dashboard/controllers/controller.php", name: "legacy_internal_dashboard_controllers", methods: ['POST', 'GET'])]
     public function controllers(Request $request): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->authorize($request, ['mgr']);
-
         $operation = $this->getStringParam($request, 'operation');
         if (empty($operation)) {
             return $this->json(buildError('operation_not_defined'));

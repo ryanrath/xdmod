@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace CCR\Controller\InternalDashboard;
 
 use CCR\Controller\BaseController;
+use CCR\Security\Attributes\MgrRequired;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  *
  */
+#[MgrRequired]
 #[Route('{prefix}internal_dashboard/users/visits', requirements: ['prefix' => '.*'],)]
 class UserVisitController extends BaseController
 {
