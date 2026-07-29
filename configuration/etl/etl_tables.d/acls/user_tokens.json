@@ -23,12 +23,14 @@
             {
                 "name": "created_on",
                 "type": "timestamp",
-                "nullable": false
+                "nullable": false,
+                "default": "CURRENT_TIMESTAMP"
             },
             {
                 "name": "expires_on",
                 "type": "timestamp",
-                "nullable": false
+                "nullable": false,
+                "default": "CURRENT_TIMESTAMP"
             }
         ],
         "indexes": [

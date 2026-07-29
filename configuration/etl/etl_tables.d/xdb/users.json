@@ -45,19 +45,19 @@
                 "name": "time_created",
                 "type": "datetime",
                 "nullable": false,
-                "default": 0
+                "default": "CURRENT_TIMESTAMP"
             },
             {
                 "name": "time_last_updated",
                 "type": "timestamp",
                 "nullable": false,
-                "default": 0
+                "default": "CURRENT_TIMESTAMP"
             },
             {
                 "name": "password_last_updated",
                 "type": "timestamp",
                 "nullable": false,
-                "default": 0
+                "default": "CURRENT_TIMESTAMP"
             },
             {
                 "name": "account_is_active",
@@ -91,7 +91,7 @@
                 "name": "token_expiration",
                 "type": "timestamp",
                 "nullable": false,
-                "default": 0
+                "default": "CURRENT_TIMESTAMP"
             },
             {
                 "name": "user_type",
