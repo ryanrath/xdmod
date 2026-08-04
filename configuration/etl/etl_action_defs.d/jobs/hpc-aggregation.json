@@ -111,7 +111,9 @@
             "systemaccount_id",
             "allocation_id",
             "principalinvestigator_person_id",
-            "qos_id"
+            "qos_id",
+            "processorbucket_id",
+            "gpubucket_id"
         ],
         "joins": [
             {
