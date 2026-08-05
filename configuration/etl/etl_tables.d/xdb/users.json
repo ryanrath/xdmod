@@ -90,8 +90,7 @@
             {
                 "name": "token_expiration",
                 "type": "timestamp",
-                "nullable": false,
-                "default": "CURRENT_TIMESTAMP"
+                "nullable": false
             },
             {
                 "name": "user_type",
