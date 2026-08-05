@@ -14,7 +14,7 @@
             "order_id": "NULL",
             "boardtype_id": 0,
             "initial_allocation": 0,
-            "initial_start_date": "'9999-12-31'",
+            "initial_start_date": "'1970-01-01'",
             "initial_start_date_ts": 0,
             "initial_end_date": "'9999-12-31'",
             "base_allocation": 0,
