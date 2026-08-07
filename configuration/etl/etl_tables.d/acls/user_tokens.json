@@ -24,7 +24,7 @@
                 "name": "created_on",
                 "type": "timestamp",
                 "nullable": false,
-                "default": "1970-01-01 00:00:00"
+                "default": "1971-01-01 00:00:00"
             },
             {
                 "name": "expires_on",
