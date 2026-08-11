@@ -10,7 +10,7 @@
             "request_type_id": 0,
             "grant_number": "''",
             "start_date": "'1970-01-01'",
-            "end_date": "'9999-12-31'",
+            "end_date": "'2037-12-31'",
             "request_origin_id": "rf.request_id"
         },
         "joins": [
