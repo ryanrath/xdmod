@@ -16,16 +16,15 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\RuntimeException;
 
 /**
- * This class' purpose is to listen for the KernelControllerArguments event and if the event has the `MgrRequired`
- * Attribute, proceed to check the specified subject ( the user requesting the controller ) conforms to the requirement
- * provided by `MgrRequired`. If the user does, then they are authorized and processing continues, if they do not, then an
- * `AccessDeniedHttpException` is thrown.
+ * This class' purpose is to listen for the KernelControllerArguments event and if the event has an attribute that
+ * extends `RoleRequired` Attribute, proceed to check the specified subject ( the user requesting the controller )
+ * conforms to the requirement provided by `RoleRequired` attribute. If the user does, then they are authorized and
+ * processing continues, if they do not, then an `AccessDeniedHttpException` is thrown.
  */
 class RoleRequiredAttributeListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly AuthorizationCheckerInterface $authChecker,
-        private LoggerInterface                        $logger,
         private ?ExpressionLanguage                    $expressionLanguage = null,
     )
     {
@@ -37,15 +36,11 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
      */
     public function onKernelControllerArguments(ControllerArgumentsEvent $event): void
     {
-        $logger = $this->logger;
-        $this->logger->error('RoleREquiredAttributeListener');
         // Filter the event's ( routes ) attributes so that we only end up with attributes that extend
         // RoleRequired.
         $attributes = array_filter(
             $event->getAttributes(),
-            function ($key) use ($logger) {
-                $matches = is_subclass_of($key, RoleRequired::class);
-                $logger->error("Checking $key", ['matches' => $matches]);
+            function ($key) {
                 return is_subclass_of($key, RoleRequired::class);
             },
             ARRAY_FILTER_USE_KEY
@@ -53,7 +48,6 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
 
         // If we don't have any RoleRequired attributes we don't care.
         if (empty($attributes)) {
-            $this->logger->error('Empty attributes');
             return;
         }
 
@@ -64,7 +58,6 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
         $attributes = array_shift($attributes);
         foreach ($attributes as $attribute) {
             $subject = null;
-            $this->logger->error('attribute subject', ['subject' => var_export($attribute->subject, true)]);
             if ($subjectRef = $attribute->subject) {
                 if (\is_array($subjectRef)) {
                     foreach ($subjectRef as $refKey => $ref) {
@@ -76,7 +69,6 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
             }
 
             $isGranted = $this->authChecker->isGranted($attribute->attribute, $subject);
-            $this->logger->error('RoleRequiredAttributeListener: before check isGranted', ['subject' => $subject, 'is_granted' => $isGranted]);
             if (!$isGranted) {
                 $message = $attribute->message ?: \sprintf('Access Denied by #[RoleRequired(%s)] on controller', $this->getIsGrantedString($attribute));
 
@@ -86,7 +78,6 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
                 throw new AccessDeniedHttpException($message, code: $attribute->exceptionCode ?? 403);
             }
         }
-        $this->logger->error('End of onKernelControllerArguments');
     }
 
     /**
@@ -108,7 +99,6 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
     private function getIsGrantedSubject(string|Expression $subjectRef, Request $request, array $arguments): mixed
     {
         if ($subjectRef instanceof Expression) {
-            $this->logger->error('SubjetRef is an Expression');
             $this->expressionLanguage ??= new ExpressionLanguage();
 
             return $this->expressionLanguage->evaluate($subjectRef, [
@@ -118,9 +108,8 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
         }
 
         if (!\array_key_exists($subjectRef, $arguments)) {
-            throw new RuntimeException(\sprintf('Could not find the subject "%s" for the #[MgrRequired] attribute. Try adding a "$%s" argument to your controller method.', $subjectRef, $subjectRef));
+            throw new RuntimeException(\sprintf('Could not find the subject "%s" for the #[RoleRequired] attribute. Try adding a "$%s" argument to your controller method.', $subjectRef, $subjectRef));
         }
-        $this->logger->error('subjectRef is not an expression', ['subject_ref' => $subjectRef, 'arguments' => $arguments]);
         return $arguments[$subjectRef];
     }
 
