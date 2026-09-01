@@ -22,8 +22,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class RouteBasedExceptionListener
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private Security        $security
+        private Security $security
     ) {
     }
 
@@ -34,7 +33,6 @@ class RouteBasedExceptionListener
 
         $exception = $event->getThrowable();
 
-        $this->logger->error('OnKernelException', ['route' => $route, 'exception' => $exception]);
         // Support Legacy format for the Internal Dashboard controller endpoints
         if (str_starts_with($route, 'ccr_internaldashboard')) {
             if ($exception instanceof AccessDeniedHttpException || $exception instanceof AccessDeniedException) {
