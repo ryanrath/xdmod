@@ -2,7 +2,8 @@
 
 namespace CCR\Security\Listeners;
 
-use CCR\Security\Attributes\MgrRequired;
+use CCR\Security\Attributes\RoleRequired;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
@@ -20,12 +21,14 @@ use Symfony\Component\Security\Core\Exception\RuntimeException;
  * provided by `MgrRequired`. If the user does, then they are authorized and processing continues, if they do not, then an
  * `AccessDeniedHttpException` is thrown.
  */
-class MgrRequiredAttributeListener implements EventSubscriberInterface
+class RoleRequiredAttributeListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly AuthorizationCheckerInterface $authChecker,
-        private ?ExpressionLanguage                    $expressionLanguage = null
-    ) {
+        private LoggerInterface                        $logger,
+        private ?ExpressionLanguage                    $expressionLanguage = null,
+    )
+    {
     }
 
     /**
@@ -34,16 +37,34 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
      */
     public function onKernelControllerArguments(ControllerArgumentsEvent $event): void
     {
-        /** @var MgrRequired[] $attributes */
-        if (!\is_array($attributes = $event->getAttributes()[MgrRequired::class] ?? null)) {
+        $logger = $this->logger;
+        $this->logger->error('RoleREquiredAttributeListener');
+        // Filter the event's ( routes ) attributes so that we only end up with attributes that extend
+        // RoleRequired.
+        $attributes = array_filter(
+            $event->getAttributes(),
+            function ($key) use ($logger) {
+                $matches = is_subclass_of($key, RoleRequired::class);
+                $logger->error("Checking $key", ['matches' => $matches]);
+                return is_subclass_of($key, RoleRequired::class);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+
+        // If we don't have any RoleRequired attributes we don't care.
+        if (empty($attributes)) {
+            $this->logger->error('Empty attributes');
             return;
         }
 
         $request = $event->getRequest();
         $arguments = $event->getNamedArguments();
+
+        /** @var RoleRequired[] $attributes */
+        $attributes = array_shift($attributes);
         foreach ($attributes as $attribute) {
             $subject = null;
-
+            $this->logger->error('attribute subject', ['subject' => var_export($attribute->subject, true)]);
             if ($subjectRef = $attribute->subject) {
                 if (\is_array($subjectRef)) {
                     foreach ($subjectRef as $refKey => $ref) {
@@ -54,8 +75,10 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
                 }
             }
 
-            if (!$this->authChecker->isGranted($attribute->attribute, $subject)) {
-                $message = $attribute->message ?: \sprintf('Access Denied by #[MgrRequired(%s)] on controller', $this->getIsGrantedString($attribute));
+            $isGranted = $this->authChecker->isGranted($attribute->attribute, $subject);
+            $this->logger->error('RoleRequiredAttributeListener: before check isGranted', ['subject' => $subject, 'is_granted' => $isGranted]);
+            if (!$isGranted) {
+                $message = $attribute->message ?: \sprintf('Access Denied by #[RoleRequired(%s)] on controller', $this->getIsGrantedString($attribute));
 
                 if ($statusCode = $attribute->statusCode) {
                     throw new HttpException($statusCode, $message, code: $attribute->exceptionCode ?? 0);
@@ -63,16 +86,29 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
                 throw new AccessDeniedHttpException($message, code: $attribute->exceptionCode ?? 403);
             }
         }
+        $this->logger->error('End of onKernelControllerArguments');
     }
 
+    /**
+     * Returns the events that this listener subscribes to.
+     *
+     * @return array[]
+     */
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::CONTROLLER_ARGUMENTS => ['onKernelControllerArguments', 30]];
     }
 
+    /**
+     * @param string|Expression $subjectRef
+     * @param Request $request
+     * @param array $arguments
+     * @return mixed
+     */
     private function getIsGrantedSubject(string|Expression $subjectRef, Request $request, array $arguments): mixed
     {
         if ($subjectRef instanceof Expression) {
+            $this->logger->error('SubjetRef is an Expression');
             $this->expressionLanguage ??= new ExpressionLanguage();
 
             return $this->expressionLanguage->evaluate($subjectRef, [
@@ -84,11 +120,17 @@ class MgrRequiredAttributeListener implements EventSubscriberInterface
         if (!\array_key_exists($subjectRef, $arguments)) {
             throw new RuntimeException(\sprintf('Could not find the subject "%s" for the #[MgrRequired] attribute. Try adding a "$%s" argument to your controller method.', $subjectRef, $subjectRef));
         }
-
+        $this->logger->error('subjectRef is not an expression', ['subject_ref' => $subjectRef, 'arguments' => $arguments]);
         return $arguments[$subjectRef];
     }
 
-    private function getIsGrantedString(MgrRequired $isGranted): string
+    /**
+     * Retrieve a string representation of the RoleRequired object in the form "<attribute><subject>"
+     *
+     * @param RoleRequired $isGranted
+     * @return string
+     */
+    private function getIsGrantedString(RoleRequired $isGranted): string
     {
         $processValue = fn($value) => \sprintf($value instanceof Expression ? 'new Expression("%s")' : '"%s"', $value);
 
