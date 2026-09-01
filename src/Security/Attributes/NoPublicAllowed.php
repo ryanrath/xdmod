@@ -11,4 +11,3 @@ class NoPublicAllowed extends \CCR\Security\Attributes\RoleRequired
         parent::__construct(new Expression('is_authenticated() and "pub" not in role_names'), $subject, $message, 401, $exceptionCode);
     }
 }
-

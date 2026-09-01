@@ -26,8 +26,7 @@ class RoleRequiredAttributeListener implements EventSubscriberInterface
     public function __construct(
         private readonly AuthorizationCheckerInterface $authChecker,
         private ?ExpressionLanguage                    $expressionLanguage = null,
-    )
-    {
+    ) {
     }
 
     /**

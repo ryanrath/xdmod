@@ -35,7 +35,6 @@ abstract class RoleRequired
          * If set, will add the exception code to thrown exception.
          */
         public ?int                         $exceptionCode = null,
-    )
-    {
+    ) {
     }
 }
