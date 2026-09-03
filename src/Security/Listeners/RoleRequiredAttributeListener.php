@@ -3,7 +3,6 @@
 namespace CCR\Security\Listeners;
 
 use CCR\Security\Attributes\RoleRequired;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
