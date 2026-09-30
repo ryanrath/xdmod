@@ -210,7 +210,7 @@ EML;
      *
      * @param string $returnTo the URI to redirect to after auth.
      *
-     * @return string|bool login URL or false if no provider is configured
+     * @return the login URL or false if no provider is configured
      */
     public function getLoginURL($returnTo)
     {
