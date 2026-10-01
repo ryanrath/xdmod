@@ -56,7 +56,7 @@ function configurePortalSettings()
 
         # Make sure that the cache is reset so that `auth_referer` shows up in Symfony at runtime.
         log "xdmod" "Clearing Symfony cache"
-        console cache:clear
+        xdmod-admin --console cache:clear
     else
         log "xdmod" "portal_settings already has an auth_referer, skipping"
     fi
