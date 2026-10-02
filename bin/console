@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+use CCR\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+/**
+ * This file was initially created by the `symfony/console` composer package. It has been updated to use XDMoD's
+ * specific Kernel implmentation.
+ *
+ * The file itself provides a way to interact with the many command line features that Symfony's packages make available
+ * to users when installed.
+ *
+ * It is also used by `symfony/flex` to hook into the composer package lifecycle, detect when a new symfony package is
+ * required or updated and run the Symfony commands: `cache:clear` and `assets:install`.
+ */
+return function (array $context) {
+    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+
+    return new Application($kernel);
+};
