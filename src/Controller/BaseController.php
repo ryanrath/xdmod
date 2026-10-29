@@ -65,8 +65,8 @@ class BaseController extends AbstractController
         Environment                $twig,
         Tokens                     $tokenHelper,
         ContainerBagInterface      $parameters,
-        protected IniConfiguration $portalSettings)
-    {
+        protected IniConfiguration $portalSettings
+    ) {
         $this->logger = $logger;
         $this->twig = $twig;
         $this->tokenHelper = $tokenHelper;

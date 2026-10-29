@@ -36,10 +36,8 @@ class IniConfiguration
     public function __construct(
         #[Autowire(value: CONFIG_PORTAL_SETTINGS)]
         protected string          $iniFilePath,
-
         protected LoggerInterface $logger = new NullLogger(),
-    )
-    {
+    ) {
         $this->dotDPath = sprintf('%s/%s.d', dirname($this->iniFilePath), basename($this->iniFilePath, '.ini'));
 
         $this->load();
@@ -123,4 +121,3 @@ class IniConfiguration
         return $this->iniData[$section][$key] ?? $default;
     }
 }
-

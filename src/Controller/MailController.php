@@ -213,7 +213,7 @@ MSG;
         // Original sender's e-mail must be in the "fromAddress" field for the XDMoD Request Tracker to function
         $subject = sprintf(
             '[%s] A visitor has signed up',
-            $this->portalSettings->get('general','title')
+            $this->portalSettings->get('general', 'title')
         );
         $toAddress = $this->portalSettings->get('general', 'contact_page_recipient');
         $fromAddress = $this->getEmailParam($request, 'email');
