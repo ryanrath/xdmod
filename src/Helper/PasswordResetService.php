@@ -37,9 +37,9 @@ class PasswordResetService
     {
         $rid = $user->generateRID();
 
-        $title = $this->portalSettings->get('general', 'title');
+        $title = $this->portalSettings->getConfigurationOption('general', 'title');
         $subject = sprintf('%s: Password Reset', $title);
-        $siteAddress = $this->portalSettings->get('general', 'site_address');
+        $siteAddress = $this->portalSettings->getConfigurationOption('general', 'site_address');
         if (!string_ends_with($siteAddress, '/')) {
             $siteAddress = "$siteAddress/";
         }

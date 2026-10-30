@@ -94,8 +94,8 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
             return false;
         }
 
-        $authReferrer = $this->portalSettings->get('sso', 'auth_referer');
-        $generalSiteAddress = $this->portalSettings->get('general', 'site_address');
+        $authReferrer = $this->portalSettings->getConfigurationOption('sso', 'auth_referer');
+        $generalSiteAddress = $this->portalSettings->getConfigurationOption('general', 'site_address');
         if (empty($authReferrer) && !empty($generalSiteAddress)) {
             $authReferrer = sprintf(
                 '%s/simplesaml/module.php/authoauth2/linkback.php',

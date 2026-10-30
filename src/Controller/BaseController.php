@@ -676,8 +676,12 @@ class BaseController extends AbstractController
      */
     protected function verifyCaptcha(Request $request)
     {
-        $captchaSiteKey = $this->portalSettings->get('mailer', 'captcha_public_key');
-        $captchaSecret = $this->portalSettings->get('mailer', 'captcha_private_key');
+        $captchaSiteKey = '';
+        $captchaSecret = '';
+        try {
+            $captchaSiteKey = $this->portalSettings->getConfigurationOption('mailer', 'captcha_public_key');
+            $captchaSecret = $this->portalSettings->getConfigurationOption('mailer', 'captcha_private_key');
+        } catch (Exception) {}
 
         $user = $this->getUserFromRequest($request);
 

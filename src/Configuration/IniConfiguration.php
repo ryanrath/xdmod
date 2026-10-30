@@ -2,9 +2,8 @@
 
 namespace CCR\Configuration;
 
-use InvalidArgumentException;
+use Exception;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -21,103 +20,134 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 class IniConfiguration
 {
-
     /**
-     * @var string The path to the directory containing the partial
-     * ini files.
-     */
-    protected string $dotDPath;
-
-    /**
-     * @var array The ini data from the ini file and all of the partial ini files.
+     * The data from the ini file and all of the partial ini files, if they exist.
+     * @var array
      */
     protected array $iniData = [];
 
+    /**
+     * @param string $iniFilePath
+     * @param LoggerInterface $logger
+     * @throws Exception if unable to read the ini file.
+     * @throws Exception if unable to parse the ini file.
+     * @throws Exception if unable to read the directory containing partial ini files.
+     * @throws Exception if unable to read a partial ini file from the partial ini file directory.
+ */
     public function __construct(
         #[Autowire(value: CONFIG_PORTAL_SETTINGS)]
-        protected string          $iniFilePath,
-        protected LoggerInterface $logger = new NullLogger(),
+        readonly string $iniFilePath,
+        protected readonly LoggerInterface $logger,
     ) {
-        $this->dotDPath = sprintf('%s/%s.d', dirname($this->iniFilePath), basename($this->iniFilePath, '.ini'));
-
-        $this->load();
+        $this->load($iniFilePath);
     }
 
     /**
-     * Loads the information from the $iniFilePath file identified by theconstructor argument and if it exists,
-     * a directory containing partial configuration files. This directory is derived from the directory that
+     * Loads the information from the file identified by the $iniFilePath argument, and if it exists,
+     * a directory containing partial configuration files. This directories name is derived from the directory that
      * $iniFilePath resides in, combined with the base name of $iniFilePath and '.d'.
      *
      * Example:
      * $iniFilePath = '/etc/xdmod/portal.ini';
      * $dotDPath = '/etc/xdmod/portal.d'
      *
+     * @param string $iniFilePath The path of the ini file to load.
+     *
      * @return void
+     *
+     * @throws Exception if unable to read the ini file.
+     * @throws Exception if unable to parse the ini file.
+     * @throws Exception if unable to read a partial ini file.
+     * @throws Exception if unable to read the directory containing partial ini files.
      */
-    private function load(): void
+    private function load(string $iniFilePath): void
     {
-        if (!is_readable($this->iniFilePath)) {
-            throw new \RuntimeException(sprintf('Could not read settings file: %s', $this->iniFilePath));
+        if (!is_readable($iniFilePath)) {
+            $msg = "Could not read settings file: " . $this->iniFilePath;
+            throw new Exception($msg);
         }
 
-        $iniData = parse_ini_file($this->iniFilePath, true);
+        $iniData = parse_ini_file($iniFilePath, true);
         if ($iniData === false) {
-            throw new \RuntimeException(sprintf('Failed to parse settings file: %s', $this->iniFilePath));
+            $msg = "Failed to parse settings file: " . $this->iniFilePath;
+            throw new Exception($msg);
         }
 
-        $partialFilePaths = glob("{$this->dotDPath}/*.ini");
+        $dotDPath = preg_replace('/\\.ini$/', '.d', $iniFilePath);
+        $filePaths = glob("{$dotDPath}/*.ini");
+        sort($filePaths);
 
-        foreach ($partialFilePaths as $partialFilePath) {
-            if (!is_readable($partialFilePath)) {
-                throw new \RuntimeException(sprintf('Could not read settings file: %s', $partialFilePath));
+        foreach ($filePaths as $partialFile) {
+            if (!is_readable($partialFile)) {
+                $msg = "Could not read settings file: " . $partialFile;
+                throw new Exception($msg);
             }
 
-            $partialIniData = parse_ini_file($partialFilePath, true);
+            $partialIniData = parse_ini_file($partialFile, true);
             if ($partialIniData === false) {
-                throw new \RuntimeException(sprintf('Failed to parse settings file: %s', $partialFilePath));
+                $msg = "Failed to parse settings file: " . $partialFile;
+                throw new Exception($msg);
             }
 
-            $iniData = array_merge($iniData, $partialIniData);
+            foreach ($partialIniData as $sectionName => $sectionData) {
+                foreach ($sectionData as $key => $value) {
+                    $iniData[$sectionName][$key] = $value;
+                }
+            }
         }
 
         $this->iniData = $iniData;
     }
 
     /**
-     * Retrieve either a section or a key from a section within an XDMoD configuration file / configuration directory.
+     * Retrieve the provided $option from the provided $section.
      *
-     * @param string $section Required. The section to retrieve if no key is provided, or the section
-     *                        in which the provided key can be found.
-     * @param string|null $key The key within the section to retrieve. If null explicitely
-     *                         null or not provided, the entire section will be returned.
-     * @param mixed|null $default If provided, and the requested section and or key do not exist,
-     *                            or if the value of the key is null, then the default will be returned.
-     * @return mixed
-     *
-     * @throws InvalidArgumentException If the section is not provided.
+     * @param string $section the section that will be used to find and retrieve the specified option.
+     * @param string $option the option that will be used to retrieve the specified value.
+     * @return mixed the value of the specified option.
+     * @throws Exception if the provided section is empty or null.
+     * @throws Exception if the provided section does not exist.
+     * @throws Exception if the provided option is empty or null.
+     * @throws Exception if the provided option does not exist.
      */
-    public function get(string $section, ?string $key = null, mixed $default = null): mixed
+    public function getConfigurationOption(string $section, string $option): mixed
+    {
+        $sectionData = $this->getConfigurationSection($section);
+
+        if (empty($option)) {
+            $msg = "Configuration option not specified";
+            throw new Exception($msg);
+        }
+
+        if (!array_key_exists($option, $sectionData)) {
+            $msg = "Option '$option' does not exist in section '$section'";
+            throw new Exception($msg);
+        }
+
+        return $sectionData[$option];
+    }
+
+    /**
+     * Retrieve the data associated with the specified section.
+     *
+     * @param string $section the section to retrieve.
+     * @return mixed the data associated with this section.
+     * @throws Exception if the section is empty.
+     * @throws Exception if the section does not exist.
+     */
+    public function getConfigurationSection(string $section): mixed
     {
         if (empty($section)) {
-            throw new InvalidArgumentException('The section must be provided.');
+            $msg = "Configuration section not specified";
+            throw new Exception($msg);
         }
 
-        // If the section doesn't exist then return the default
+        // Verifying that the section exist.
         if (!array_key_exists($section, $this->iniData)) {
-            return $default;
+            $msg = "Undefined configuration section: '$section'";
+            throw new Exception($msg);
         }
 
-        // if they didn't provide a key then give them the whole section.
-        if ($key === null) {
-            return $this->iniData[$section];
-        }
-
-        // If the key doesn't exist then return the default
-        if (!array_key_exists($key, $this->iniData[$section])) {
-            return $default;
-        }
-
-        // else, return the value for the key unless it's null, then return the default
-        return $this->iniData[$section][$key] ?? $default;
+        return $this->iniData[$section];
     }
 }

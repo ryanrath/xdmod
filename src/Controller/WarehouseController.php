@@ -869,7 +869,7 @@ class WarehouseController extends BaseController
 
         // Check whether multiple service providers are supported or not.
         try {
-            $multipleProvidersSupported = $this->portalSettings->get('features', 'multiple_service_providers') === 'on';
+            $multipleProvidersSupported = $this->portalSettings->getConfigurationOption('features', 'multiple_service_providers') === 'on';
         } catch (Exception $e) {
             $multipleProvidersSupported = false;
         }
@@ -2596,7 +2596,7 @@ class WarehouseController extends BaseController
     {
         $this->tokenHelper->authenticate($request);
 
-        $limit = $this->getConfiguredRawDataLimit();
+        $limit = intval($this->portalSettings->getConfigurationOption('datawarehouse', 'rest_raw_row_limit'));
 
         return $this->json([
             'success' => true,
@@ -2616,7 +2616,6 @@ class WarehouseController extends BaseController
      */
     private function getConfiguredRawDataLimit(): int
     {
-        $restRawLimit =  $this->portalSettings->get('datawarehouse', 'rest_raw_row_limit');
-        return intval($restRawLimit);
+
     }
 }
