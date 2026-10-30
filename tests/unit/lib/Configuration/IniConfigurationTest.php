@@ -33,7 +33,6 @@ class IniConfigurationTest extends TestCase
     protected function setUp(): void
     {
         $this->legacySnapshots = new \SplObjectStorage();
-
         // Keep fixtures independent of installed configuration and concurrent runs.
         $this->directory = sys_get_temp_dir() . '/xdmod-ini-' . bin2hex(random_bytes(8));
         mkdir($this->directory, 0700);
@@ -65,7 +64,7 @@ class IniConfigurationTest extends TestCase
 
     /**
      * Load each fixture ( IniConfiguration, and xd_utilities\loadConfiguration ), since the path used in the original
-     f* configuration code is a constant, a child process is used to set it without touching installed files
+     * configuration code is a constant, a child process is used to set it without touching installed files
      * or redefining constants in PHPUnit. Once constructed, we retain its snapshot so we can use it to test against.
      */
     private function createConfiguration(): IniConfiguration
