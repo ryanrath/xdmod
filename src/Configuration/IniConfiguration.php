@@ -103,14 +103,14 @@ class IniConfiguration
      * Retrieve the provided $option from the provided $section.
      *
      * @param string $section the section that will be used to find and retrieve the specified option.
-     * @param string $option the option that will be used to retrieve the specified value.
+     * @param string|null $option the option that will be used to retrieve the specified value.
      * @return mixed the value of the specified option.
      * @throws Exception if the provided section is empty or null.
      * @throws Exception if the provided section does not exist.
      * @throws Exception if the provided option is empty or null.
      * @throws Exception if the provided option does not exist.
      */
-    public function getConfigurationOption(string $section, string $option): mixed
+    public function getConfigurationOption(string $section, ?string $option): mixed
     {
         $sectionData = $this->getConfigurationSection($section);
 
