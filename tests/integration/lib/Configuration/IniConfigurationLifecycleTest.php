@@ -11,6 +11,11 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 
+// We explicitely want to declare more than one class in this file because in addition to the PHPUnit TestCase, we want
+// to use a custom Symfony Kernel class that will be wired up in a way that enables us to conduct our tests.
+//
+// phpcs:ignoreFile PSR1.Classes.ClassDeclaration.MultipleClasses
+
 /**
  * This class is meant to document the lifecycle of objects used in Symfony's Depdency Injection. It is important to
  * note, that the behavior we are actually testing is the kernel/container lifecycle, and while this is analgous to the

@@ -9,7 +9,7 @@ use Psr\Log\NullLogger;
 
 class IniConfigurationTest extends TestCase
 {
-    /**q
+    /**
      * The directory in which all temporary files will be created / stored. Cleaned up after each test.
      */
     private string $directory;
@@ -80,6 +80,7 @@ class IniConfigurationTest extends TestCase
         echo serialize(\xd_utilities\loadConfiguration());
         PHP;
 
+        $pipes = [];
         # exceute the above script, echoing the serialized configuration.
         $process = proc_open(
             [PHP_BINARY, '-r', $script, $this->iniFile, BASE_DIR . '/libraries/utilities.php'],
