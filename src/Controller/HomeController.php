@@ -111,17 +111,23 @@ class HomeController extends BaseController
         $jupyterHubURL = '';
         try {
             $jupyterHubURL = $this->portalSettings->getConfigurationOption('jupyterhub', 'url');
-        } catch(Exception) { }
+        } catch (Exception) {
+
+        }
 
         $ssoDirectLink = false;
         try {
             $ssoDirectLink = filter_var($this->portalSettings->getConfigurationOption('sso', 'direct_link'), FILTER_VALIDATE_BOOLEAN);
-        } catch(Exception) { }
+        } catch (Exception) {
+
+        }
 
         $ssoShowLocalLogin = false;
         try {
             $ssoShowLocalLogin = filter_var($this->portalSettings->getConfigurationOption('sso', 'show_local_login'), FILTER_VALIDATE_BOOLEAN);
-        } catch(Exception) { }
+        } catch (Exception) {
+
+        }
 
 
         $params = [

@@ -160,11 +160,6 @@ class IniConfigurationLifecycleKernel extends Kernel
     {
         parent::build($container);
         $container->addCompilerPass(
-
-            /**
-             * An anonymous class that takes care of configuring all the needed dependency injection settings for
-             * the tests.
-             */
             new class($this->fixtureDirectory) implements CompilerPassInterface {
                 public function __construct(private string $directory)
                 {
@@ -183,6 +178,7 @@ class IniConfigurationLifecycleKernel extends Kernel
                             ->setPublic(true);
                     }
                 }
-            });
+            }
+        );
     }
 }
