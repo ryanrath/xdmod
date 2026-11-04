@@ -4,8 +4,8 @@ namespace CCR\Security\Authenticators;
 
 use CCR\Configuration\IniConfiguration;
 use CCR\Entity\User;
-use Authentication\SAML\XDSamlAuthentication;
-use Configuration\Configuration;
+use CCR\Mail\NotificationMailerInterface;
+use Exception;
 use Models\Services\Organizations;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,7 +17,6 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PreAuthenticatedUserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
@@ -45,7 +44,24 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
 
     private ContainerBagInterface $parameters;
 
-    public function __construct(LoggerInterface $logger, HttpUtils $httpUtils, UrlGeneratorInterface $urlGenerator, ContainerBagInterface $parameters, protected IniConfiguration $portalSettings)
+    const BASE_ADMIN_EMAIL = <<<EML
+
+Person Details -----------------------------------
+Name:              %s
+Username:          %s
+E-Mail:            %s
+
+SAML Attributes ----------------------------------
+%s
+
+Notes: -------------------------------------------
+
+Unable to Identify Users Organization.
+
+Additional Setup Required.
+EML;
+
+    public function __construct(LoggerInterface $logger, HttpUtils $httpUtils, UrlGeneratorInterface $urlGenerator, ContainerBagInterface $parameters, protected IniConfiguration $portalSettings, private NotificationMailerInterface $notificationMailer)
     {
         $this->logger = $logger;
         $this->httpUtils = $httpUtils;
@@ -114,18 +130,8 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
             return new SelfValidatingPassport(
                 new UserBadge(
                     $username,
-                    function($userName, $samlAttributes) use ($logger) {
+                    function ($userName, $samlAttributes) use ($logger) {
                         $logger->debug('Loading SimpleSAMLPHP User');
-
-                        function getOrganizationId($samlAttrs, $personId)
-                        {
-                            if ($personId !== -1 ) {
-                                return Organizations::getOrganizationIdForPerson($personId);
-                            } elseif(!empty($samlAttrs['organization'])) {
-                                return Organizations::getIdByName($samlAttrs['organization'][0]);
-                            }
-                            return -1;
-                        }
 
                         $xdmodUserId = \XDUser::userExistsWithUsername($userName);
                         $logger->debug('XDMoD UserID ', [$xdmodUserId]);
@@ -148,7 +154,7 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
                         // using the personId if not unknown, then fall back to the saml attributes if the
                         // 'organization' property is present, and finally defaulting to the Unknown organization
                         // if none of the preceding conditions are met.
-                        $userOrganization = getOrganizationId($samlAttributes, $personId);
+                        $userOrganization = $this->getOrganizationId($samlAttributes, $personId);
 
                         try {
                             $newUser = new \XDUser(
@@ -177,6 +183,8 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
                             throw $e;
                         }
 
+                        $this->handleNotifications($newUser, $samlAttributes);
+
                         return User::fromXDUser($newUser);
                     },
                     $attributes
@@ -184,6 +192,81 @@ class SimpleSamlPhpAuthenticator extends AbstractAuthenticator implements Authen
             );
         }
         throw new UserNotFoundException();
+    }
+
+    /**
+     * Attempt to retrieve an organization id, first with $personId, if it's valid ( !=== -1 ), and then with
+     * $samlAttributes['organization'] if it exists. If both of those fail then -1 is returned ( Which corresponds with
+     * the Unknown Organization)
+     *
+     * @param array $samlAttributes the attributes returned by SimpleSAMLphp
+     * @param int $personId the id of the person whose organization we're looking for.
+     * @return int the id of the organization
+     * @throws Exception if an organization could not be found.
+     */
+    private function getOrganizationId(array $samlAttributes, int $personId): int
+    {
+        if ($personId !== -1) {
+            return Organizations::getOrganizationIdForPerson($personId);
+        } elseif (!empty($samlAttributes['organization'])) {
+            return Organizations::getIdByName($samlAttributes['organization'][0]);
+        }
+        return -1;
+    }
+
+    /**
+     * Determines if we should send an email notification to the admin about a newly created user that may need further
+     * attention to be fully setup.
+     *
+     * @param XDUser $user the newly created user.
+     * @param array $samlAttributes the newly created userse SAML attributes.
+     * @return void
+     * @throws Exception
+     */
+    private function handleNotifications(XDUser $user, array $samlAttributes): void
+    {
+        if ($user->getOrganizationID() !== -1) {
+            // Only send email if we were unable to identify an organization for the user.
+            return;
+        }
+
+        $linked = $user->getPersonID() !== UNKNOWN_USER_TYPE;
+
+        $subject = sprintf(
+            'New %s Single Sign On User Created',
+            ($linked ? 'Linked' : 'Unlinked')
+        );
+
+        $body = sprintf(
+            self::BASE_ADMIN_EMAIL,
+            $user->getFormalName(true),
+            $user->getUsername(),
+            $user->getEmailAddress(),
+            json_encode($samlAttributes, JSON_PRETTY_PRINT)
+        );
+
+        try {
+            $this->notificationMailer->send(
+                array(
+                    'subject' => $subject,
+                    'body' => $body,
+                    'toAddress' => $this->portalSettings->getConfigurationOption('general', 'tech_support_recipient')
+                )
+            );
+        } catch (Exception $e) {
+            // log the exception so we have some persistent visibility into the problem.
+            $errorMsgFormat = "[%s] %s\n%s";
+            $errorMsg = sprintf(
+                $errorMsgFormat,
+                $e->getCode(),
+                $e->getMessage(),
+                $e->getTraceAsString()
+            );
+
+            $this->logger->error("Error encountered while emailing\n$errorMsg");
+
+            throw $e;
+        }
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

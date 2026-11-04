@@ -47,3 +47,5 @@ services:
         tags:
             - container.env_var_loader
     Symfony\Component\Dotenv\Command\DotenvDumpCommand: null
+    CCR\Mail\NotificationMailerInterface:
+        alias: CCR\Mail\NotificationMailer
