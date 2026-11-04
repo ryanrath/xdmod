@@ -15,7 +15,6 @@ class PasswordResetService
     public function __construct(
         protected LoggerInterface $logger,
         protected Environment $twig,
-        protected ContainerBagInterface $parameters,
         protected IniConfiguration $portalSettings
     ) {
     }
@@ -26,7 +25,7 @@ class PasswordResetService
      * @param XDUser $user
      * @return void
      * @throws \Psr\Container\ContainerExceptionInterface if there is a problem with the underlying Symfony container
-     * @throws \Psr\Container\NotFoundExceptionInterface if unable to find portal_settings.general.[title|site_address]
+     * @throws \Exception if unable to find portal_settings.general.[title|site_address]
      * @throws \Twig\Error\LoaderError if there is a problem loading the password_reset twig template
      * @throws \Twig\Error\RuntimeError if Twig encounters an error while rendering the template.
      * @throws \Twig\Error\SyntaxError if there is a syntax problem with the password_reset twig template.
