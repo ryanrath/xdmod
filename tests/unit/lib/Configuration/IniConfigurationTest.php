@@ -7,6 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Exception;
 use Psr\Log\NullLogger;
 
+/**
+ * This class is responsible for testing that the functionality of the IniConfiguration class is working as expected,
+ * and that the functionality of `IniConfiguration::getConfigurationOption` exactly matches
+ * `xd_utilities\getConfiguration` and `IniConfiguration::getConfigurationSection` exactly matches
+ * `xd_utilities\getConfigurationSection`.
+ */
 class IniConfigurationTest extends TestCase
 {
     /**
