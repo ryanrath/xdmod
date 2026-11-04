@@ -21,10 +21,10 @@ class DefaultXdmodEnvVarLoader implements EnvVarLoaderInterface
     public function loadEnvVars(): array
     {
         try {
-            $debugMode = $this->portalSettings->getConfigurationOption('general','debug_mode');
+            $debugMode = $this->portalSettings->getConfigurationOption('general', 'debug_mode');
             $appEnv = $debugMode === null || $debugMode === 'off' ? 'prod' : 'dev';
         } catch(\Exception $e) {
-            // Default to `prod`.
+            // We set the default to `prod` so that we do not expose any sensitive information.
             $appEnv = 'prod';
         }
 
