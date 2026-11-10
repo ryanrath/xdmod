@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @Class XDUser
  */
-class XDUser extends CCR\Loggable implements JsonSerializable, UserInterface, PasswordAuthenticatedUserInterface, LegacyPasswordAuthenticatedUserInterface
+class XDUser extends CCR\Loggable implements JsonSerializable
 {
 
     private $_pdo;                       // PDO Handle (set in __construct)
@@ -2736,13 +2736,7 @@ SQL;
 
     private function hash($password)
     {
-        if (isset($this->hasher)) {
-            $hashedPassword = $this->hasher->hash($password);
-        } else {
-            // Fall back to MD5 if Symfony hasher is not set
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        }
-        return $hashedPassword;
+        return password_hash($password, PASSWORD_DEFAULT);
     }
 
     /**
