@@ -39,7 +39,7 @@ class IniConfiguration
         readonly string $iniFilePath,
         protected readonly LoggerInterface $logger,
     ) {
-        $this->load($iniFilePath);
+        $this->iniData = $this->load($iniFilePath);
     }
 
     /**
@@ -53,14 +53,14 @@ class IniConfiguration
      *
      * @param string $iniFilePath The path of the ini file to load.
      *
-     * @return void
+     * @return array
      *
      * @throws Exception if unable to read the ini file.
      * @throws Exception if unable to parse the ini file.
      * @throws Exception if unable to read a partial ini file.
      * @throws Exception if unable to read the directory containing partial ini files.
      */
-    private function load(string $iniFilePath): void
+    private function load(string $iniFilePath): array
     {
         if (!is_readable($iniFilePath)) {
             $msg = "Could not read settings file: " . $this->iniFilePath;
@@ -96,7 +96,7 @@ class IniConfiguration
             }
         }
 
-        $this->iniData = $iniData;
+        return $iniData;
     }
 
     /**
@@ -149,5 +149,10 @@ class IniConfiguration
         }
 
         return $this->iniData[$section];
+    }
+
+    public function getIniData(): array
+    {
+        return $this->iniData;
     }
 }

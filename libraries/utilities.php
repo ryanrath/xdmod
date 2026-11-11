@@ -8,15 +8,15 @@
 
 namespace xd_utilities;
 
+use CCR\Configuration\IniConfiguration;
 use Exception;
+use Psr\Log\NullLogger;
 use UnexpectedValueException;
 
 /**
- * Global INI data.
- *
- * @var array|null
+ * @var IniConfiguration|null $iniConfig
  */
-$iniData = null;
+$iniConfig = null;
 
 /**
  * Parse the configuration file information for the requested section
@@ -24,11 +24,8 @@ $iniData = null;
  * first time that this function is called unless the $cache is set to
  * false.
  *
- * @param $section Desired configuration section
- * @param $option Desired option within the section
- * @param $useCachedOptions Cache the parsed options file after the
- *     first call to this function.  Set to true by default.  Setting
- *     this to false will cause the file to be parsed again.
+ * @param string $section Desired configuration section
+ * @param string $option Desired option within the section
  *
  * @throws Exception if the section or option is not provided
  * @throws Exception if the configuration file could not be parsed
@@ -37,21 +34,14 @@ $iniData = null;
  *
  * @return mixed The requested configuration option.
  */
-function getConfiguration($section, $option, $useCachedOptions = true)
+function getConfiguration($section, $option)
 {
-    $sectionData = getConfigurationSection($section, $useCachedOptions);
+    global $iniConfig;
 
-    if (empty($option)) {
-        $msg = "Configuration option not specified";
-        throw new Exception($msg);
-    }
+    // Make sure that the configuration is loaded.
+    loadConfiguration();
 
-    if (!array_key_exists($option, $sectionData)) {
-        $msg = "Option '$option' does not exist in section '$section'";
-        throw new Exception($msg);
-    }
-
-    return $sectionData[$option];
+    return $iniConfig->getConfigurationOption($section, $option);
 }
 
 /**
@@ -61,11 +51,8 @@ function getConfiguration($section, $option, $useCachedOptions = true)
  *
  * @see getConfiguration
  *
- * @param $section Desired configuration section
- * @param $option Desired option within the section
- * @param $useCachedOptions Cache the parsed options file after the
- *     first call to this function.  Set to true by default.  Setting
- *     this to false will cause the file to be parsed again.
+ * @param string $section Desired configuration section
+ * @param string $option Desired option within the section
  *
  * @throws Exception if the section or option is not provided
  * @throws Exception if the configuration file could not be parsed
@@ -74,9 +61,9 @@ function getConfiguration($section, $option, $useCachedOptions = true)
  *
  * @return string The requested configuration option.
  */
-function getConfigurationUrlBase($section, $option, $useCachedOptions = true)
+function getConfigurationUrlBase($section, $option)
 {
-    $configValue = getConfiguration($section, $option, $useCachedOptions);
+    $configValue = getConfiguration($section, $option);
     return ensure_string_ends_with($configValue, '/');
 }
 
@@ -84,11 +71,8 @@ function getConfigurationUrlBase($section, $option, $useCachedOptions = true)
  * Same as getConfiguration however it returns the whole section as
  * an associative array.
  *
- * @param $section Desired configuration section
- * @param $option Desired option within the section
- * @param $useCachedOptions Cache the parsed options file after the
- *     first call to this function.  Set to true by default.  Setting
- *     this to false will cause the file to be parsed again.
+ * @param string $section Desired configuration section
+
  *
  * @throws Exception if the section or option is not provided
  * @throws Exception if the configuration file could not be parsed
@@ -96,26 +80,14 @@ function getConfigurationUrlBase($section, $option, $useCachedOptions = true)
  *
  * @return array The requested configuration section.
  */
-function getConfigurationSection($section, $useCachedOptions = true)
+function getConfigurationSection($section)
 {
-    global $iniData;
+    global $iniConfig;
 
-    if (empty($section)) {
-        $msg = "Configuration section not specified";
-        throw new Exception($msg);
-    }
+    // Make sure that the configuration is loaded.
+    loadConfiguration();
 
-    if (null === $iniData || !$useCachedOptions) {
-        $iniData = loadConfiguration();
-    }
-
-    // Verifying that the section exist.
-    if (!array_key_exists($section, $iniData)) {
-        $msg = "Undefined configuration section: '$section'";
-        throw new Exception($msg);
-    }
-
-    return $iniData[$section];
+    return $iniConfig->getConfigurationSection($section);
 }
 
 /**
@@ -125,47 +97,14 @@ function getConfigurationSection($section, $useCachedOptions = true)
  */
 function loadConfiguration()
 {
-    $iniFile = CONFIG_PORTAL_SETTINGS;
-    $iniDir  = preg_replace('/\\.ini$/', '.d', $iniFile);
+    global $iniConfig;
 
-    if (!is_readable($iniFile)) {
-        $msg = "Could not read settings file: " . $iniFile;
-        throw new Exception($msg);
+    if (null === $iniConfig) {
+        $iniConfig = new IniConfiguration(CONFIG_PORTAL_SETTINGS, new NullLogger());
     }
 
-    // Parse the main config file.
-    $iniData = parse_ini_file($iniFile, true);
-
-    if ($iniData === false) {
-        $msg = "Failed to parse settings file: " . $iniFile;
-        throw new Exception($msg);
-    }
-
-    // Merge partial config files.
-    $filePaths = glob("$iniDir/*.ini");
-    sort($filePaths);
-
-    foreach ($filePaths as $partialFile) {
-        if (!is_readable($partialFile)) {
-            $msg = "Could not read settings file: " . $partialFile;
-            throw new Exception($msg);
-        }
-
-        $partialData = parse_ini_file($partialFile, true);
-
-        if ($partialData === false) {
-            $msg = "Failed to parse settings file: " . $partialFile;
-            throw new Exception($msg);
-        }
-
-        foreach ($partialData as $sectionName => $sectionData) {
-            foreach ($sectionData as $key => $value) {
-                $iniData[$sectionName][$key] = $value;
-            }
-        }
-    }
-
-    return $iniData;
+    // We return iniData to maintain the original behavior of this function.
+    return $iniConfig->getIniData();
 }
 
 /**
@@ -173,8 +112,8 @@ function loadConfiguration()
  */
 function clearConfigurationCache()
 {
-    global $iniData;
-    $iniData = null;
+    global $iniConfig;
+    $iniConfig = null;
 }
 
 /**
